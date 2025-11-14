@@ -1,16 +1,27 @@
 import React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import MapContainer from '../components/Map/MapContainer';
 import NodeModal from '../components/Node/NodeModal';
 import AudioPlayer from '../components/Audio/AudioPlayer';
 import OnboardingOverlay from '../components/Onboarding/OnboardingOverlay';
 import DebugPanel from '../components/Debug/DebugPanel';
 import useProximity from '../hooks/useProximity';
+import useMapStore from '../stores/mapStore';
+import { fetchCulturalNodes } from '../services/nodesService';
 import { Bug } from 'lucide-react';
 
 function MapPage() {
   const [showDebug, setShowDebug] = useState(false);
+  const setCulturalNodes = useMapStore((state) => state.setCulturalNodes);
   useProximity();
+
+  useEffect(() => {
+    async function loadNodes() {
+      const nodes = await fetchCulturalNodes();
+      setCulturalNodes(nodes);
+    }
+    loadNodes();
+  }, [setCulturalNodes]);
 
   return (
     <div className="relative">

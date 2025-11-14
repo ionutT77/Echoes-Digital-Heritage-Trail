@@ -5,13 +5,13 @@ import NodeMarker from './NodeMarker';
 import UserLocation from './UserLocation';
 import useMapStore from '../../stores/mapStore';
 import useGeolocation from '../../hooks/useGeolocation';
-import culturalNodes from '../../data/culturalNodes.json';
 import 'leaflet/dist/leaflet.css';
 
 function MapContainer() {
   const mapRef = useRef(null);
   const { error, loading } = useGeolocation();
   const userLocation = useMapStore((state) => state.userLocation);
+  const culturalNodes = useMapStore((state) => state.culturalNodes);
   const mapCenter = useMapStore((state) => state.mapCenter);
   const mapZoom = useMapStore((state) => state.mapZoom);
   const setMapCenter = useMapStore((state) => state.setMapCenter);

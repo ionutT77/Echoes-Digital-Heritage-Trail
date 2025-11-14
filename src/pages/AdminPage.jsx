@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, MapPin, Calendar, Tag, FileAudio, Image } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { createCulturalNode } from '../services/nodesService';
 
 function AdminPage() {
   const navigate = useNavigate();
@@ -28,8 +29,8 @@ function AdminPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
     const newNode = {
-      id: `node-${Date.now()}`,
       slug: formData.title.toLowerCase().replace(/\s+/g, '-'),
       ...formData,
       latitude: parseFloat(formData.latitude),
@@ -45,13 +46,23 @@ function AdminPage() {
       ] : []
     };
 
-    await Swal.fire({
-      title: 'Node Created!',
-      html: `<div class="text-left"><p class="mb-2">Your cultural node has been created:</p><pre class="bg-gray-100 p-4 rounded text-xs overflow-auto max-h-64">${JSON.stringify(newNode, null, 2)}</pre><p class="mt-4 text-sm text-gray-600">In production, this would be saved to your database. For the MVP, copy this JSON and add it to culturalNodes.json</p></div>`,
-      icon: 'success',
-      confirmButtonColor: '#0ea5e9',
-      width: '600px'
-    });
+    const result = await createCulturalNode(newNode);
+    
+    if (result.success) {
+      await Swal.fire({
+        title: 'Node Created Successfully!',
+        text: 'Your cultural node has been saved to the database.',
+        icon: 'success',
+        confirmButtonColor: '#6f4e35'
+      });
+    } else {
+      await Swal.fire({
+        title: 'Node Created!',
+        text: `Error: ${result.error}`,
+        icon: 'error',
+        confirmButtonColor: '#6f4e35'
+      });
+    }
 
     setFormData({
       title: '',

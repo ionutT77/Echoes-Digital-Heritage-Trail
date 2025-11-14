@@ -2,11 +2,11 @@ import React from 'react';
 import { X } from 'lucide-react';
 import useMapStore from '../../stores/mapStore';
 import { calculateDistance } from '../../utils/distance';
-import culturalNodes from '../../data/culturalNodes.json';
 
 function DebugPanel({ onClose }) {
   const userLocation = useMapStore((state) => state.userLocation);
   const discoveredNodes = useMapStore((state) => state.discoveredNodes);
+  const culturalNodes = useMapStore((state) => state.culturalNodes);
 
   return (
     <div className="fixed top-20 right-4 bg-white rounded-xl shadow-2xl p-4 max-w-sm w-full z-[2500] border-2 border-heritage-700 max-h-[80vh] overflow-y-auto">

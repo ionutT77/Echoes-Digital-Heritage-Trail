@@ -1,17 +1,16 @@
 import { useState, useEffect, useRef } from 'react';
 import { isWithinProximity } from '../utils/distance';
 import useMapStore from '../stores/mapStore';
-import culturalNodes from '../data/culturalNodes.json';
 
 function useProximity() {
   const userLocation = useMapStore((state) => state.userLocation);
+  const culturalNodes = useMapStore((state) => state.culturalNodes);
   const addDiscoveredNode = useMapStore((state) => state.addDiscoveredNode);
   const [nearbyNodes, setNearbyNodes] = useState([]);
   const intervalRef = useRef(null);
 
   useEffect(() => {
     if (!userLocation) {
-      // Clear interval if no location
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
@@ -19,7 +18,10 @@ function useProximity() {
       return;
     }
 
-    // Function to check proximity
+    if (culturalNodes.length === 0) {
+      return;
+    }
+
     const checkProximity = () => {
       console.log("Checking proximity at:", new Date().toLocaleTimeString());
       
