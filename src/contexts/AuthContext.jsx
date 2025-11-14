@@ -16,7 +16,6 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-  const clearDiscoveredNodes = useMapStore((state) => state.clearDiscoveredNodes);
 
   useEffect(() => {
     // Check active session and load profile
@@ -36,7 +35,7 @@ export function AuthProvider({ children }) {
         fetchProfile(session.user.id);
       } else {
         setProfile(null);
-        clearDiscoveredNodes();
+        useMapStore.getState().clearDiscoveredNodes();
         setLoading(false);
       }
     });
@@ -48,12 +47,16 @@ export function AuthProvider({ children }) {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, username, email, is_admin, created_at, updated_at')
+        .select('*')
         .eq('id', userId)
         .single();
 
       if (error) throw error;
-      setProfile(data);
+      // Set profile with is_admin defaulting to false if column doesn't exist
+      setProfile({
+        ...data,
+        is_admin: data.is_admin ?? false
+      });
     } catch (error) {
       console.error("Error fetching profile:", error.message);
       // If profile doesn't exist yet, it will be created by the trigger
@@ -128,7 +131,7 @@ export function AuthProvider({ children }) {
 
   const signOut = async () => {
     try {
-      clearDiscoveredNodes();
+      useMapStore.getState().clearDiscoveredNodes();
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       return { success: true };

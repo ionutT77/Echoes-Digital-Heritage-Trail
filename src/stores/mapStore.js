@@ -13,6 +13,7 @@ const useMapStore = create((set) => ({
   addDiscoveredNode: (nodeId) => set((state) => ({
     discoveredNodes: new Set([...state.discoveredNodes, nodeId])
   })),
+  clearDiscoveredNodes: () => set({ discoveredNodes: new Set() }),
   setMapCenter: (center) => set({ mapCenter: center }),
   setMapZoom: (zoom) => set({ mapZoom: zoom }),
   clearSelectedNode: () => set({ selectedNode: null }),

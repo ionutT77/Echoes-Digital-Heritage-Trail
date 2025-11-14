@@ -20,14 +20,24 @@ function Header() {
     });
 
     if (result.isConfirmed) {
-      await signOut();
-      await Swal.fire({
-        title: 'Signed Out',
-        text: 'You have been successfully signed out.',
-        icon: 'success',
-        confirmButtonColor: '#6f4e35',
-        timer: 1500
-      });
+      const { success, error } = await signOut();
+      
+      if (success) {
+        await Swal.fire({
+          title: 'Signed Out',
+          text: 'You have been successfully signed out.',
+          icon: 'success',
+          confirmButtonColor: '#6f4e35',
+          timer: 1500
+        });
+      } else {
+        await Swal.fire({
+          title: 'Error',
+          text: error || 'Failed to sign out. Please try again.',
+          icon: 'error',
+          confirmButtonColor: '#6f4e35'
+        });
+      }
     }
   };
 
