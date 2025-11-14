@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, MapPin, Calendar, Tag, FileAudio, Image } from 'lucide-react';
+import { ArrowLeft, Plus, MapPin, Calendar, Tag, FileAudio, Image, X } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { createCulturalNode } from '../services/nodesService';
 
 function AdminPage() {
-  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: '',
     latitude: '',
@@ -17,6 +16,13 @@ function AdminPage() {
     audioUrl: '',
     audioDuration: '',
     primaryImageUrl: '',
+    images: []
+  });
+
+  const [currentImage, setCurrentImage] = useState({
+    url: '',
+    caption: '',
+    historicalDate: ''
   });
 
   const handleChange = (e) => {
@@ -27,7 +33,7 @@ function AdminPage() {
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const  handleSubmit = async (e) => {
     e.preventDefault();
     
     const newNode = {
@@ -36,14 +42,7 @@ function AdminPage() {
       latitude: parseFloat(formData.latitude),
       longitude: parseFloat(formData.longitude),
       proximityRadius: parseInt(formData.proximityRadius),
-      audioDuration: parseInt(formData.audioDuration),
-      images: formData.primaryImageUrl ? [
-        {
-          url: formData.primaryImageUrl,
-          caption: `${formData.title} historic image`,
-          historicalDate: formData.historicalPeriod
-        }
-      ] : []
+      audioDuration: parseInt(formData.audioDuration)
     };
 
     const result = await createCulturalNode(newNode);
@@ -58,7 +57,7 @@ function AdminPage() {
     } else {
       await Swal.fire({
         title: 'Node Created!',
-        text: `Error: ${result.error}`,
+        text: `Error: ${result.message}`,
         icon: 'error',
         confirmButtonColor: '#6f4e35'
       });
@@ -75,6 +74,42 @@ function AdminPage() {
       audioUrl: '',
       audioDuration: '',
       primaryImageUrl: '',
+      images: []
+    });
+
+    setCurrentImage({
+      url: '',
+      caption: '',
+      historicalDate: ''
+    });
+  };
+
+  const handleAddImage = () => {
+    if (currentImage.url && currentImage.caption && currentImage.historicalDate) {
+      setFormData({
+        ...formData,
+        images: [...formData.images, currentImage]
+      });
+      setCurrentImage({
+        url: '',
+        caption: '',
+        historicalDate: ''
+      });
+    }
+  };
+
+  const handleRemoveImage = (index) => {
+    setFormData({
+      ...formData,
+      images: formData.images.filter((_, i) => i !== index)
+    });
+  };
+
+  const handleImageChange = (e) => {
+    const { name, value } = e.target;
+    setCurrentImage({
+      ...currentImage,
+      [name]: value
     });
   };
 
@@ -273,9 +308,105 @@ function AdminPage() {
               />
             </div>
 
+            <div className="border-t border-neutral-200 pt-6">
+              <h3 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center gap-2">
+                <Image className="w-5 h-5" />
+                Additional Images
+              </h3>
+              
+              <div className="space-y-4 bg-neutral-50 p-4 rounded-lg">
+                <div className="grid grid-cols-1 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                      Image URL
+                    </label>
+                    <input
+                      type="url"
+                      name="url"
+                      value={currentImage.url}
+                      onChange={handleImageChange}
+                      className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
+                      placeholder="https://images.unsplash.com/photo-..."
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                      Caption
+                    </label>
+                    <input
+                      type="text"
+                      name="caption"
+                      value={currentImage.caption}
+                      onChange={handleImageChange}
+                      className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
+                      placeholder="Description of the image"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                      Historical Date
+                    </label>
+                    <input
+                      type="text"
+                      name="historicalDate"
+                      value={currentImage.historicalDate}
+                      onChange={handleImageChange}
+                      className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
+                      placeholder="e.g., 1890s, 19th century, Modern"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleAddImage}
+                  className="w-full bg-heritage-600 hover:bg-heritage-700 text-white px-4 py-3 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
+                >
+                  <Plus className="w-5 h-5" />
+                  Add Image to List
+                </button>
+              </div>
+
+              {formData.images.length > 0 && (
+                <div className="mt-4 space-y-3">
+                  <p className="text-sm font-semibold text-neutral-700">
+                    Added Images ({formData.images.length}):
+                  </p>
+                  {formData.images.map((image, index) => (
+                    <div
+                      key={index}
+                      className="flex items-start gap-3 p-4 bg-white border border-neutral-200 rounded-lg"
+                    >
+                      <div className="flex-1 space-y-1">
+                        <p className="text-sm font-medium text-neutral-900 truncate">
+                          {image.caption}
+                        </p>
+                        <p className="text-xs text-neutral-600 truncate">
+                          {image.url}
+                        </p>
+                        <p className="text-xs text-neutral-500">
+                          Date: {image.historicalDate}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveImage(index)}
+                        className="p-2 hover:bg-red-50 rounded-lg transition-colors text-red-600"
+                        aria-label="Remove image"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <button
               type="submit"
-              className="w-full bg-heritage-700 hover:bg-heritage-800 text-white px-6 py-4 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2"
+              className="w-full bg-heritage-700 hover:bg-heritage-800 text-white px-6 py-4 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 mt-6"
             >
               <Plus className="w-5 h-5" />
               Create Cultural Node

@@ -131,7 +131,6 @@ function AudioPlayer() {
               >
                 <div
                   className="h-full bg-heritage-600 rounded-full transition-all"
-                  className="h-full bg-heritage-700 rounded-full transition-all"
                   style={{ width: `${progress}%` }}
                 />
               </div>
