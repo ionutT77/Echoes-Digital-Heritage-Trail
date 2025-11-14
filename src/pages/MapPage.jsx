@@ -7,21 +7,32 @@ import OnboardingOverlay from '../components/Onboarding/OnboardingOverlay';
 import DebugPanel from '../components/Debug/DebugPanel';
 import useProximity from '../hooks/useProximity';
 import useMapStore from '../stores/mapStore';
-import { fetchCulturalNodes } from '../services/nodesService';
+import { fetchCulturalNodes, fetchUserDiscoveries } from '../services/nodesService';
+import { useAuth } from '../contexts/AuthContext';
 import { Bug } from 'lucide-react';
 
 function MapPage() {
   const [showDebug, setShowDebug] = useState(false);
+  const { user } = useAuth();
   const setCulturalNodes = useMapStore((state) => state.setCulturalNodes);
+  const addDiscoveredNode = useMapStore((state) => state.addDiscoveredNode);
   useProximity();
 
   useEffect(() => {
     async function loadNodes() {
       const nodes = await fetchCulturalNodes();
       setCulturalNodes(nodes);
+
+      // Load user's discoveries if logged in
+      if (user) {
+        const discoveredNodeIds = await fetchUserDiscoveries(user.id);
+        discoveredNodeIds.forEach((nodeId) => {
+          addDiscoveredNode(nodeId);
+        });
+      }
     }
     loadNodes();
-  }, [setCulturalNodes]);
+  }, [setCulturalNodes, addDiscoveredNode, user]);
 
   return (
     <div className="relative">

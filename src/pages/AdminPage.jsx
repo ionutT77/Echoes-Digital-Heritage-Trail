@@ -5,6 +5,7 @@ import Swal from 'sweetalert2';
 import { createCulturalNode } from '../services/nodesService';
 
 function AdminPage() {
+  const navigate =  useNavigate();
   const [formData, setFormData] = useState({
     title: '',
     latitude: '',
@@ -117,7 +118,7 @@ function AdminPage() {
     <div className="min-h-screen bg-neutral-50 pt-16">
       <div className="max-w-4xl mx-auto px-4 py-8">
         <button
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/map')}
           className="flex items-center gap-2 text-neutral-600 hover:text-neutral-900 mb-6 transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />

@@ -1,8 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { isWithinProximity } from '../utils/distance';
 import useMapStore from '../stores/mapStore';
+import { saveDiscovery } from '../services/nodesService';
+import { useAuth } from '../contexts/AuthContext';
 
 function useProximity() {
+  const { user } = useAuth();
   const userLocation = useMapStore((state) => state.userLocation);
   const culturalNodes = useMapStore((state) => state.culturalNodes);
   const addDiscoveredNode = useMapStore((state) => state.addDiscoveredNode);
@@ -42,6 +45,17 @@ function useProximity() {
           if (!wasDiscovered) {
             console.log("🎉 NEW NODE DISCOVERED:", node.title);
             addDiscoveredNode(node.id);
+            
+            // Save discovery to database if user is logged in
+            if (user) {
+              saveDiscovery(user.id, node.id).then((result) => {
+                if (result.success) {
+                  console.log("✅ Discovery saved to database:", node.title);
+                } else {
+                  console.error("❌ Failed to save discovery:", result.error);
+                }
+              });
+            }
             
             // Haptic feedback
             if ('vibrate' in navigator) {

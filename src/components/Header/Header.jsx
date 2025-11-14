@@ -1,9 +1,35 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Map, Settings } from 'lucide-react';
+import { Map, Settings, LogOut, User } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
+import Swal from 'sweetalert2';
 
 function Header() {
   const location = useLocation();
+  const { user, profile, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    const result = await Swal.fire({
+      title: 'Sign Out',
+      text: 'Are you sure you want to sign out?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#6f4e35',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Yes, sign out'
+    });
+
+    if (result.isConfirmed) {
+      await signOut();
+      await Swal.fire({
+        title: 'Signed Out',
+        text: 'You have been successfully signed out.',
+        icon: 'success',
+        confirmButtonColor: '#6f4e35',
+        timer: 1500
+      });
+    }
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-b border-neutral-200 z-[1000]">
@@ -16,17 +42,47 @@ function Header() {
         </Link>
 
         <nav className="flex items-center gap-4">
+          {user && (
+            <>
+              <div className="flex items-center gap-2 text-sm">
+                <User className="w-4 h-4 text-heritage-700" />
+                <span className="text-heritage-700 font-medium">
+                  {profile?.username || 'User'}
+                </span>
+              </div>
+              <Link
+                to="/admin"
+                className={`p-2 rounded-lg transition-colors ${
+                  location.pathname === '/admin'
+                    ? 'bg-heritage-100 text-heritage-700'
+                    : 'text-heritage-700 hover:bg-heritage-50'
+                }`}
+                aria-label="Admin"
+              >
+                <Settings className="w-5 h-5" />
+              </Link>
+              <button
+                onClick={handleSignOut}
+                className="p-2 rounded-lg text-heritage-700 hover:bg-heritage-50 transition-colors"
+                aria-label="Sign Out"
+              >
+                <LogOut className="w-5 h-5" />
+              </button>
+            </>
+          )}
+          {!user && (
           <Link
-            to="/admin"
+            to="/login"
             className={`p-2 rounded-lg transition-colors ${
-              location.pathname === '/admin'
+              location.pathname === '/login'
                 ? 'bg-heritage-100 text-heritage-700'
                 : 'text-heritage-700 hover:bg-heritage-50'
             }`}
-            aria-label="Admin"
+            aria-label="Log In"
           >
-            <Settings className="w-5 h-5" />
+            <User className="w-5 h-5" />
           </Link>
+          )}
         </nav>
       </div>
     </header>
