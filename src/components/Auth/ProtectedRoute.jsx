@@ -1,11 +1,13 @@
 import React from 'react';
-import { useEffect } from 'react';
-import { Navigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Navigate, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { useAuth } from '../../contexts/AuthContext';
 
 function ProtectedRoute({ children }) {
+  const navigate = useNavigate();
   const { user, loading } = useAuth();
+  const [shouldRedirect, setShouldRedirect] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -13,8 +15,17 @@ function ProtectedRoute({ children }) {
         title: 'Authentication Required',
         text: 'You need to be logged in to access the map.',
         icon: 'info',
+        showCancelButton: false,
         confirmButtonColor: '#6f4e35',
-        confirmButtonText: 'Go to Login'
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Go to Login',
+        cancelButtonText: 'Cancel'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          navigate('/login');
+        } else {
+          navigate('/');
+        }
       });
     }
   }, [user, loading]);
@@ -31,7 +42,7 @@ function ProtectedRoute({ children }) {
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return null;
   }
 
   return children;

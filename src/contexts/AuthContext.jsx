@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
+import useMapStore from '../stores/mapStore';
 
 const AuthContext = createContext({});
 
@@ -15,6 +16,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const clearDiscoveredNodes = useMapStore((state) => state.clearDiscoveredNodes);
 
   useEffect(() => {
     // Check active session and load profile
@@ -34,6 +36,7 @@ export function AuthProvider({ children }) {
         fetchProfile(session.user.id);
       } else {
         setProfile(null);
+        clearDiscoveredNodes();
         setLoading(false);
       }
     });
@@ -45,7 +48,7 @@ export function AuthProvider({ children }) {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select('id, username, email, is_admin, created_at, updated_at')
         .eq('id', userId)
         .single();
 
@@ -85,12 +88,36 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const signIn = async ({ email, password }) => {
+  const signIn = async ({ email, username, password }) => {
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
+      let loginData;
+      
+      if (email) {
+        // Login with email
+        loginData = await supabase.auth.signInWithPassword({
+          email,
+          password
+        });
+      } else if (username) {
+        // Login with username - first fetch email from profiles table
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('email')
+          .eq('username', username)
+          .single();
+        
+        if (profileError || !profileData) {
+          throw new Error('Username not found');
+        }
+        
+        // Then login with the retrieved email
+        loginData = await supabase.auth.signInWithPassword({
+          email: profileData.email,
+          password
+        });
+      }
+      
+      const { data, error } = loginData;
 
       if (error) throw error;
       return { success: true, data };
@@ -101,6 +128,7 @@ export function AuthProvider({ children }) {
 
   const signOut = async () => {
     try {
+      clearDiscoveredNodes();
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       return { success: true };

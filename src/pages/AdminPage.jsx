@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import { ArrowLeft, Plus, MapPin, Calendar, Tag, FileAudio, Image, X } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { createCulturalNode } from '../services/nodesService';
+import { useAuth } from '../contexts/AuthContext';
 
 function AdminPage() {
-  const navigate =  useNavigate();
+  const navigate = useNavigate();
+  const { profile, loading } = useAuth();
   const [formData, setFormData] = useState({
     title: '',
     latitude: '',
@@ -34,7 +36,7 @@ function AdminPage() {
     }));
   };
 
-  const  handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     const newNode = {
@@ -113,6 +115,22 @@ function AdminPage() {
       [name]: value
     });
   };
+
+  // Check if user is admin
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-neutral-50">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-heritage-700 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-neutral-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!profile?.is_admin) {
+    return <Navigate to="/" replace />;
+  }
 
   return (
     <div className="min-h-screen bg-neutral-50 pt-16">

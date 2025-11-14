@@ -8,7 +8,7 @@ function LoginForm() {
   const navigate = useNavigate();
   const { signIn } = useAuth();
   const [formData, setFormData] = useState({
-    email: '',
+    emailOrUsername: '',
     password: ''
   });
   const [loading, setLoading] = useState(false);
@@ -24,8 +24,12 @@ function LoginForm() {
     e.preventDefault();
     setLoading(true);
 
+    // Determine if input is email or username
+    const isEmail = formData.emailOrUsername.includes('@');
+    
     const result = await signIn({
-      email: formData.email,
+      email: isEmail ? formData.emailOrUsername : undefined,
+      username: !isEmail ? formData.emailOrUsername : undefined,
       password: formData.password
     });
 
@@ -66,16 +70,16 @@ function LoginForm() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-semibold text-neutral-900 mb-2">
-              Email
+              Email or Username
             </label>
             <input
-              type="email"
-              name="email"
-              value={formData.email}
+              type="text"
+              name="emailOrUsername"
+              value={formData.emailOrUsername}
               onChange={handleChange}
               required
               className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
-              placeholder="you@example.com"
+              placeholder="Username or Email"
             />
           </div>
 

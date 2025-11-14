@@ -50,17 +50,19 @@ function Header() {
                   {profile?.username || 'User'}
                 </span>
               </div>
-              <Link
-                to="/admin"
-                className={`p-2 rounded-lg transition-colors ${
-                  location.pathname === '/admin'
-                    ? 'bg-heritage-100 text-heritage-700'
-                    : 'text-heritage-700 hover:bg-heritage-50'
-                }`}
-                aria-label="Admin"
-              >
-                <Settings className="w-5 h-5" />
-              </Link>
+              {profile?.is_admin && (
+                <Link
+                  to="/admin"
+                  className={`p-2 rounded-lg transition-colors ${
+                    location.pathname === '/admin'
+                      ? 'bg-heritage-100 text-heritage-700'
+                      : 'text-heritage-700 hover:bg-heritage-50'
+                  }`}
+                  aria-label="Admin"
+                >
+                  <Settings className="w-5 h-5" />
+                </Link>
+              )}
               <button
                 onClick={handleSignOut}
                 className="p-2 rounded-lg text-heritage-700 hover:bg-heritage-50 transition-colors"

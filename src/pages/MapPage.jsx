@@ -14,6 +14,7 @@ import { Bug } from 'lucide-react';
 function MapPage() {
   const [showDebug, setShowDebug] = useState(false);
   const { user } = useAuth();
+  const { profile } = useAuth();
   const setCulturalNodes = useMapStore((state) => state.setCulturalNodes);
   const addDiscoveredNode = useMapStore((state) => state.addDiscoveredNode);
   useProximity();
@@ -41,16 +42,19 @@ function MapPage() {
       <AudioPlayer />
       <OnboardingOverlay />
       
-      {/* Debug Toggle Button */}
-      <button
-        onClick={() => setShowDebug(!showDebug)}
-        className="fixed top-20 right-4 bg-heritage-700 text-white p-3 rounded-full shadow-lg hover:bg-heritage-800 transition-colors z-[2000]"
-        aria-label="Toggle debug panel"
-      >
-        <Bug className="w-5 h-5" />
-      </button>
-
-      {showDebug && <DebugPanel onClose={() => setShowDebug(false)} />}
+      {/* Debug Toggle Button - Admin Only */}
+      {profile?.is_admin && (
+        <>
+          <button
+            onClick={() => setShowDebug(!showDebug)}
+            className="fixed top-20 right-4 bg-heritage-700 text-white p-3 rounded-full shadow-lg hover:bg-heritage-800 transition-colors z-[2000]"
+            aria-label="Toggle debug panel"
+          >
+            <Bug className="w-5 h-5" />
+          </button>
+          {showDebug && <DebugPanel onClose={() => setShowDebug(false)} />}
+        </>
+      )}
     </div>
   );
 }
