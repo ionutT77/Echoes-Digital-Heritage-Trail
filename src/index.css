@@ -84,3 +84,54 @@ body {
   border-left: 2px solid #8b6441;
   border-bottom: 2px solid #8b6441;
 }
+
+/* Leaflet Routing Machine Customization */
+.leaflet-routing-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-family: 'Manrope', sans-serif;
+}
+
+.leaflet-routing-container h2,
+.leaflet-routing-container h3 {
+  font-family: 'Manrope', sans-serif;
+  color: #6f4e35;
+}
+
+.leaflet-routing-alt {
+  background: #faf8f5;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 8px 0;
+}
+
+.leaflet-routing-alt-minimized {
+  background: #6f4e35;
+  color: white;
+  border-radius: 8px;
+}
+
+.leaflet-routing-geocoder {
+  display: none;
+}
+
+.leaflet-routing-collapse-btn {
+  background: #6f4e35;
+  color: white;
+  border-radius: 6px;
+}
+
+.leaflet-routing-collapse-btn:hover {
+  background: #5a3f2b;
+}
+
+/* Make routing lines more visible */
+.leaflet-routing-container {
+  z-index: 999 !important;
+}
+
+.leaflet-routing-alternatives-container {
+  background: white;
+  padding: 10px;
+}
