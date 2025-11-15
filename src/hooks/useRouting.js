@@ -13,17 +13,17 @@ function useRouting(mapRef) {
     };
   }, []);
 
-  const createRoute = useCallback(async (userLocation, nodes) => {
+  const createRoute = useCallback(async (userLocation, nodes, availableTime = null, skipTimeCheck = false) => {
     // Get the actual map instance from the store if mapRef is not available
     const map = mapRef.current || useMapStore.getState().map;
     if (!map) {
-      return false;
+      return { success: false };
     }
     if (!userLocation) {
-      return false;
+      return { success: false };
     }
     if (!nodes.length) {
-      return false;
+      return { success: false };
     }
 
     const orsApiKey = import.meta.env.VITE_OPENROUTESERVICE_API_KEY;
@@ -34,7 +34,7 @@ function useRouting(mapRef) {
         icon: 'error',
         confirmButtonColor: '#6f4e35'
       });
-      return false;
+      return { success: false };
     }
 
     // Clear existing route
@@ -204,15 +204,38 @@ function useRouting(mapRef) {
       const visitTimeMin = orderedNodes.length * 10; // 10 min per location
       const totalTimeMin = walkingTimeMin + visitTimeMin;
 
+      // Check if route exceeds available time (with 20% tolerance)
+      if (availableTime && !skipTimeCheck) {
+        const timeExceeded = totalTimeMin - availableTime;
+        const toleranceMinutes = Math.ceil(availableTime * 0.20); // 20% tolerance
+        
+        if (timeExceeded > toleranceMinutes) {
+          // Route significantly exceeds time budget - return route info for retry
+          clearRoute();
+          return { 
+            success: false, 
+            timeExceeded: true,
+            totalTimeMin,
+            availableTime,
+            nodes: orderedNodes
+          };
+        }
+      }
+
+      // Show success popup with route details
+      const withinBudget = !availableTime || totalTimeMin <= availableTime;
+      const slightlyOver = availableTime && totalTimeMin > availableTime && totalTimeMin <= availableTime + Math.ceil(availableTime * 0.20);
+
       await Swal.fire({
         title: '🎯 Optimized Route Created!',
         html: `
           <div class="text-left space-y-2">
-            <p class="text-sm text-green-600 font-semibold mb-2">✓ Route optimized for shortest distance</p>
+            ${slightlyOver ? '<p class="text-orange-600 font-semibold mb-2">⚠️ Route slightly exceeds your time budget but within tolerance</p>' : '<p class="text-sm text-green-600 font-semibold mb-2">✓ Route optimized for shortest distance</p>'}
             <p><strong>Distance:</strong> ${distanceKm} km walking route</p>
             <p><strong>Walking time:</strong> ${walkingTimeMin} minutes</p>
             <p><strong>Visit time:</strong> ${visitTimeMin} minutes (10 min per location)</p>
             <p class="text-lg font-bold text-heritage-700 mt-3">Total time: ${totalTimeMin} minutes</p>
+            ${availableTime ? `<p class="text-sm ${withinBudget ? 'text-green-600' : 'text-orange-600'}">${withinBudget ? '✓ Within' : '⚠️ Slightly over (approved)'} your ${availableTime} minute budget</p>` : ''}
             <p class="text-sm text-neutral-600 mt-2">Visiting ${orderedNodes.length} location${orderedNodes.length !== 1 ? 's' : ''} in optimal order</p>
             <div class="mt-3 text-xs text-neutral-500">
               <p class="font-semibold mb-1">Route order:</p>
@@ -222,10 +245,9 @@ function useRouting(mapRef) {
             </div>
           </div>
         `,
-        icon: 'success',
+        icon: slightlyOver ? 'warning' : 'success',
         confirmButtonColor: '#6f4e35',
-        timer: 8000,
-        timerProgressBar: true
+        confirmButtonText: 'OK'
       });
 
       // Fit map to route bounds
@@ -235,21 +257,21 @@ function useRouting(mapRef) {
         maxZoom: 16
       });
 
-      return true;
+      return { success: true, totalTimeMin, nodes: orderedNodes };
 
     } catch (error) {
       console.error('❌ Route optimization failed:', error);
       
       // Fallback: Use nearest neighbor algorithm for optimization
       console.log('🔄 Falling back to nearest neighbor algorithm...');
-      return await createFallbackOptimizedRoute(userLocation, limitedNodes, map);
+      return await createFallbackOptimizedRoute(userLocation, limitedNodes, map, availableTime, skipTimeCheck);
     }
   }, []);
 
   // Fallback optimization using Nearest Neighbor algorithm
-  const createFallbackOptimizedRoute = async (userLocation, nodes, map) => {
+  const createFallbackOptimizedRoute = async (userLocation, nodes, map, availableTime = null, skipTimeCheck = false) => {
     if (!map || !userLocation || !nodes.length) {
-      return false;
+      return { success: false };
     }
 
     // Import distance calculation
@@ -357,15 +379,37 @@ function useRouting(mapRef) {
           const visitTimeMin = orderedNodes.length * 10;
           const totalTimeMin = walkingTimeMin + visitTimeMin;
 
+          // Check if route exceeds available time (with 20% tolerance)
+          if (availableTime && !skipTimeCheck) {
+            const timeExceeded = totalTimeMin - availableTime;
+            const toleranceMinutes = Math.ceil(availableTime * 0.20);
+            
+            if (timeExceeded > toleranceMinutes) {
+              clearRoute();
+              return { 
+                success: false, 
+                timeExceeded: true,
+                totalTimeMin,
+                availableTime,
+                nodes: orderedNodes
+              };
+            }
+          }
+
+          // Show success popup
+          const withinBudget = !availableTime || totalTimeMin <= availableTime;
+          const slightlyOver = availableTime && totalTimeMin > availableTime && totalTimeMin <= availableTime + Math.ceil(availableTime * 0.20);
+
           await Swal.fire({
             title: '✓ Optimized Route Created!',
             html: `
               <div class="text-left space-y-2">
-                <p class="text-sm text-blue-600 font-semibold mb-2">Using nearest-neighbor optimization</p>
+                ${slightlyOver ? '<p class="text-orange-600 font-semibold mb-2">⚠️ Route slightly exceeds your time budget but within tolerance</p>' : '<p class="text-sm text-blue-600 font-semibold mb-2">Using nearest-neighbor optimization</p>'}
                 <p><strong>Distance:</strong> ${distanceKm} km</p>
                 <p><strong>Walking time:</strong> ${walkingTimeMin} min</p>
                 <p><strong>Visit time:</strong> ${visitTimeMin} min</p>
                 <p class="text-lg font-bold text-heritage-700 mt-3">Total: ${totalTimeMin} min</p>
+                ${availableTime ? `<p class="text-sm ${withinBudget ? 'text-green-600' : 'text-orange-600'}">${withinBudget ? '✓ Within' : '⚠️ Slightly over (approved)'} your ${availableTime} minute budget</p>` : ''}
                 <p class="text-sm text-neutral-600 mt-2">${orderedNodes.length} locations</p>
                 <div class="mt-3 text-xs text-neutral-500">
                   <p class="font-semibold mb-1">Route order:</p>
@@ -375,17 +419,16 @@ function useRouting(mapRef) {
                 </div>
               </div>
             `,
-            icon: 'success',
+            icon: slightlyOver ? 'warning' : 'success',
             confirmButtonColor: '#6f4e35',
-            timer: 7000,
-            timerProgressBar: true
+            confirmButtonText: 'OK'
           });
 
           // Fit bounds
           const bounds = L.latLngBounds(polyline);
           map.fitBounds(bounds, { padding: [80, 80], maxZoom: 16 });
 
-          return true;
+          return { success: true, totalTimeMin, nodes: orderedNodes };
         }
       } catch (err) {
         console.error('Fallback route API failed:', err);
@@ -393,8 +436,7 @@ function useRouting(mapRef) {
     }
 
     // Ultimate fallback: straight lines
-    createSimplePath(waypoints, orderedNodes);
-    return true;
+    return createSimplePath(waypoints, orderedNodes, availableTime, skipTimeCheck);
   };
 
   // Helper function to add route markers
@@ -441,9 +483,9 @@ function useRouting(mapRef) {
   }, []);
 
   // Fallback: Create simple straight-line path
-  function createSimplePath(waypoints, orderedNodes = null) {
+  function createSimplePath(waypoints, orderedNodes = null, availableTime = null, skipTimeCheck = false) {
     const map = mapRef.current || useMapStore.getState().map;
-    if (!map) return;
+    if (!map) return { success: false };
     
     const coordinates = waypoints.map(w => [w.lat, w.lng]);
     routeLayerRef.current = L.polyline(coordinates, {
@@ -478,15 +520,36 @@ function useRouting(mapRef) {
     const visitTimeMin = (waypoints.length - 1) * 10;
     const totalTimeMin = walkingTimeMin + visitTimeMin;
 
+    // Check if route exceeds available time (with 20% tolerance)
+    if (availableTime && !skipTimeCheck) {
+      const timeExceeded = totalTimeMin - availableTime;
+      const toleranceMinutes = Math.ceil(availableTime * 0.20);
+      
+      if (timeExceeded > toleranceMinutes) {
+        clearRoute();
+        return { 
+          success: false, 
+          timeExceeded: true,
+          totalTimeMin,
+          availableTime,
+          nodes: orderedNodes || []
+        };
+      }
+    }
+
+    const withinBudget = !availableTime || totalTimeMin <= availableTime;
+    const slightlyOver = availableTime && totalTimeMin > availableTime && totalTimeMin <= availableTime + Math.ceil(availableTime * 0.20);
+
     Swal.fire({
       title: 'Simple Route Created',
       html: `
         <div class="text-left space-y-2">
-          <p class="text-sm text-neutral-600 mb-2">Using straight-line approximation</p>
+          ${slightlyOver ? '<p class="text-orange-600 font-semibold mb-2">⚠️ Route slightly exceeds your time budget but within tolerance</p>' : '<p class="text-sm text-neutral-600 mb-2">Using straight-line approximation</p>'}
           <p><strong>Approx. distance:</strong> ${distanceKm} km</p>
           <p><strong>Est. walking time:</strong> ${walkingTimeMin} min</p>
           <p><strong>Visit time:</strong> ${visitTimeMin} min</p>
           <p class="text-lg font-bold text-heritage-700 mt-3">Total: ~${totalTimeMin} min</p>
+          ${availableTime ? `<p class="text-sm ${withinBudget ? 'text-green-600' : 'text-orange-600'}">${withinBudget ? '✓ Within' : '⚠️ Slightly over (approved)'} your ${availableTime} minute budget</p>` : ''}
           ${orderedNodes ? `
             <div class="mt-3 text-xs text-neutral-500">
               <p class="font-semibold mb-1">Route order:</p>
@@ -497,10 +560,9 @@ function useRouting(mapRef) {
           ` : ''}
         </div>
       `,
-      icon: 'info',
+      icon: slightlyOver ? 'warning' : 'info',
       confirmButtonColor: '#6f4e35',
-      timer: 6000,
-      timerProgressBar: true
+      confirmButtonText: 'OK'
     });
 
     // Fit map to show all waypoints
@@ -509,6 +571,8 @@ function useRouting(mapRef) {
       padding: [80, 80],
       maxZoom: 16
     });
+
+    return { success: true, totalTimeMin, nodes: orderedNodes || [] };
   }
 
   return {

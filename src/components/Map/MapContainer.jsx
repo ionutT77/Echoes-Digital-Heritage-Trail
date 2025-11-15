@@ -22,6 +22,7 @@ function MapContainer({ mapRef: externalMapRef }) {
   const setClearRouteFunction = useMapStore((state) => state.setClearRouteFunction);
   const setCreateRouteFunction = useMapStore((state) => state.setCreateRouteFunction);
   const { createRoute, clearRoute } = useRouting(mapRef);
+  const [isCalculatingRoute, setIsCalculatingRoute] = useState(false);
 
   // Expose map ref to parent if provided
   useEffect(() => {
@@ -161,23 +162,8 @@ function MapContainer({ mapRef: externalMapRef }) {
 
     const { locations: requestedLocations, time: availableTime } = formValues;
 
-    // Calculate how many locations we can fit in the available time
-    // Each location gets 10 minutes + walking time estimate (2 min per location average)
-    const timePerLocation = 10; // 10 minutes visit time
-    const estimatedWalkingTimePerLocation = 2; // rough estimate
-    const totalTimePerLocation = timePerLocation + estimatedWalkingTimePerLocation;
-    
-    const maxLocationsByTime = Math.floor(availableTime / totalTimePerLocation);
-    const actualLocations = Math.min(requestedLocations, maxLocationsByTime, undiscoveredNodes.length);
-
-    if (actualLocations < requestedLocations) {
-      await Swal.fire({
-        title: 'Route Adjusted',
-        html: `Based on your available time of ${availableTime} minutes, we can visit <strong>${actualLocations} locations</strong> instead of ${requestedLocations}.<br><br>This includes 10 minutes at each location plus walking time.`,
-        icon: 'info',
-        confirmButtonColor: '#6f4e35'
-      });
-    }
+    // Don't pre-limit nodes - let the actual route calculation determine what fits
+    const actualLocations = Math.min(requestedLocations, undiscoveredNodes.length);
 
     // Calculate actual distances using Haversine formula
     const calculateDistance = (lat1, lon1, lat2, lon2) => {
@@ -195,35 +181,154 @@ function MapContainer({ mapRef: externalMapRef }) {
       return R * c; // Distance in meters
     };
 
-    // Select closest nodes based on actual geodesic distance
-    const nodesWithDistance = undiscoveredNodes.map(node => ({
-      ...node,
-      distance: calculateDistance(
-        userLocation.lat,
-        userLocation.lng,
-        node.latitude,
-        node.longitude
-      )
-    }));
+    // Smart node selection: use nearest neighbor to build a cluster
+    // This ensures selected nodes are close to each other, not just close to start
+    const selectOptimalNodes = (startLat, startLon, nodes, count) => {
+      if (nodes.length <= count) {
+        return nodes;
+      }
 
-    // Sort by actual distance and take the requested number
-    const selectedNodes = nodesWithDistance
-      .sort((a, b) => a.distance - b.distance)
-      .slice(0, actualLocations)
-      .map(({ distance, ...node }) => node); // Remove distance property
+      // Strategy: Build a cluster using nearest neighbor from starting point
+      const selected = [];
+      const remaining = [...nodes];
+      let currentLat = startLat;
+      let currentLon = startLon;
+
+      for (let i = 0; i < count; i++) {
+        // Find nearest unselected node to current position
+        let nearestIndex = 0;
+        let nearestDistance = Infinity;
+
+        for (let j = 0; j < remaining.length; j++) {
+          const distance = calculateDistance(
+            currentLat,
+            currentLon,
+            remaining[j].latitude,
+            remaining[j].longitude
+          );
+          if (distance < nearestDistance) {
+            nearestDistance = distance;
+            nearestIndex = j;
+          }
+        }
+
+        // Add nearest node to selection
+        const nearestNode = remaining.splice(nearestIndex, 1)[0];
+        selected.push(nearestNode);
+        
+        // Move to this node for next iteration
+        currentLat = nearestNode.latitude;
+        currentLon = nearestNode.longitude;
+      }
+
+      return selected;
+    };
+
+    // Select nodes that form a compact cluster for efficient routing
+    const selectedNodes = selectOptimalNodes(
+      userLocation.lat,
+      userLocation.lng,
+      undiscoveredNodes,
+      actualLocations
+    );
 
     console.log(`🗺️ Creating route to ${selectedNodes.length} locations (${availableTime} min available)`);
+    console.log('Selected nodes:', selectedNodes.map(n => n.title));
     
-    // Create route through selected nodes
-    const routeCreated = createRoute(userLocation, selectedNodes);
+    // Show calculating indicator
+    setIsCalculatingRoute(true);
     
-    if (routeCreated) {
-      console.log('✅ Route creation initiated');
+    // Create route through selected nodes, passing available time for validation
+    const routeResult = await createRoute(userLocation, selectedNodes, availableTime);
+    
+    // Hide calculating indicator
+    setIsCalculatingRoute(false);
+    
+    // Handle route creation result
+    if (routeResult.success) {
+      console.log('✅ Route creation successful');
+    } else if (routeResult.timeExceeded) {
+      // Route exceeded time budget - offer to reduce nodes
+      console.log('⚠️ Route exceeded time, attempting with fewer nodes...');
+      
+      // Calculate how many nodes might fit
+      const timePerLocation = 12; // 10 min visit + ~2 min walking average
+      const maxPossibleNodes = Math.max(1, Math.floor(availableTime / timePerLocation));
+      const reducedNodeCount = Math.min(maxPossibleNodes, selectedNodes.length - 1);
+      
+      if (reducedNodeCount < 1) {
+        await Swal.fire({
+          title: 'Route Too Long',
+          html: `
+            <div class="text-left space-y-2">
+              <p class="text-red-600 font-semibold">⚠️ Cannot create a route within your time budget</p>
+              <p><strong>Available time:</strong> ${availableTime} minutes</p>
+              <p><strong>Minimum route time:</strong> ~${routeResult.totalTimeMin} minutes</p>
+              <p class="text-sm text-neutral-600 mt-3">Please try:</p>
+              <ul class="list-disc pl-5 text-sm">
+                <li>Increase your available time</li>
+                <li>Start from a location closer to the heritage sites</li>
+              </ul>
+            </div>
+          `,
+          icon: 'error',
+          confirmButtonColor: '#6f4e35'
+        });
+        return;
+      }
+      
+      // Ask user if they want a shorter route
+      const { value: accept } = await Swal.fire({
+        title: 'Route Adjustment Needed',
+        html: `
+          <div class="text-left space-y-2">
+            <p class="text-orange-600 font-semibold">⚠️ The ${selectedNodes.length}-location route exceeds your time budget</p>
+            <p><strong>Your time budget:</strong> ${availableTime} minutes</p>
+            <p><strong>Route would require:</strong> ${routeResult.totalTimeMin} minutes</p>
+            <hr class="my-3">
+            <p class="text-green-700 font-semibold">✓ We can create a route with ${reducedNodeCount} location${reducedNodeCount > 1 ? 's' : ''} instead</p>
+            <p class="text-sm text-neutral-600 mt-2">This shorter route should fit within your ${availableTime} minute budget.</p>
+            <p class="text-sm font-semibold text-heritage-700 mt-3">Would you like to create this shorter route?</p>
+          </div>
+        `,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#6f4e35',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Yes, Create Shorter Route',
+        cancelButtonText: 'No, Cancel'
+      });
+      
+      if (accept) {
+        // Create route with fewer nodes
+        const reducedNodes = selectOptimalNodes(
+          userLocation.lat,
+          userLocation.lng,
+          undiscoveredNodes,
+          reducedNodeCount
+        );
+        
+        console.log(`🔄 Retrying with ${reducedNodes.length} nodes`);
+        setIsCalculatingRoute(true);
+        const retryResult = await createRoute(userLocation, reducedNodes, availableTime);
+        setIsCalculatingRoute(false);
+        
+        if (retryResult.success) {
+          console.log('✅ Shorter route created successfully');
+        } else {
+          await Swal.fire({
+            title: 'Route Creation Failed',
+            text: 'Unable to create a route that fits your time budget. Please try with more time or fewer locations.',
+            icon: 'error',
+            confirmButtonColor: '#6f4e35'
+          });
+        }
+      }
     } else {
-      console.error('❌ Failed to create route');
+      console.error('❌ Route creation failed');
       await Swal.fire({
         title: 'Route Creation Failed',
-        text: 'Failed to create route. Please ensure you have location access.',
+        text: 'Failed to create route. Please ensure you have location access and try again.',
         icon: 'error',
         confirmButtonColor: '#6f4e35'
       });
@@ -253,6 +358,13 @@ function MapContainer({ mapRef: externalMapRef }) {
       {loading && (
         <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-white px-4 py-2 rounded-lg shadow-lg z-[1000]">
           <p className="text-sm text-neutral-600">Locating you...</p>
+        </div>
+      )}
+
+      {isCalculatingRoute && (
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-heritage-700 px-6 py-3 rounded-lg shadow-xl z-[1000] flex items-center gap-3">
+          <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+          <p className="text-sm font-semibold text-white">Calculating optimal route...</p>
         </div>
       )}
 
