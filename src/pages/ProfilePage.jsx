@@ -676,7 +676,7 @@ function ProfilePage() {
             {activeTab === 'discoveries' && (
               <div>
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-semibold text-neutral-900">
+                  <h3 className="text-xl font-semibold text-neutral-900 dark:text-white">
                     {t('profile.yourDiscoveries', currentLanguage)} ({discoveredNodesList.length}/{culturalNodes.length})
                   </h3>
                   <button

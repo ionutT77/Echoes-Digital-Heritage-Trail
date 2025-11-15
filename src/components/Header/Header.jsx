@@ -97,7 +97,8 @@ function Header() {
           <span className="text-xl font-bold text-neutral-900 dark:text-white">Echoes</span>
         </Link>
 
-        <nav className="flex items-center gap-4">
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex items-center gap-4">
           {/* Language Selector */}
           <div className={translatingUI ? 'opacity-50 pointer-events-none' : ''}>
             <LanguageSelector
@@ -123,16 +124,13 @@ function Header() {
             }`}
           >
             <Trophy className="w-5 h-5" />
-            <span className="hidden sm:inline font-medium">{t('header.leaderboard', currentLanguage)}</span>
+            <span className="font-medium">{t('header.leaderboard', currentLanguage)}</span>
           </Link>
           
           {user && (
             <>
               <div 
-                onClick={() => {
-                  navigate('/profile');
-                  closeMobileMenu();
-                }}
+                onClick={() => navigate('/profile')}
                 className="flex items-center gap-2 text-sm cursor-pointer hover:bg-heritage-50 dark:hover:bg-neutral-700 px-3 py-2 rounded-lg transition-colors"
               >
                 <User className="w-4 h-4 text-heritage-700 dark:text-heritage-300" />
@@ -143,7 +141,6 @@ function Header() {
               {profile?.is_admin && (
                 <Link
                   to="/admin"
-                  onClick={closeMobileMenu}
                   className={`p-2 rounded-lg transition-colors ${
                     location.pathname === '/admin'
                       ? 'bg-heritage-100 dark:bg-heritage-800 text-heritage-700 dark:text-heritage-300'
@@ -155,10 +152,7 @@ function Header() {
                 </Link>
               )}
               <button
-                onClick={() => {
-                  handleSignOut();
-                  closeMobileMenu();
-                }}
+                onClick={handleSignOut}
                 className="p-2 rounded-lg text-heritage-700 dark:text-heritage-300 hover:bg-heritage-50 dark:hover:bg-neutral-700 transition-colors"
                 aria-label={t('header.signOut', currentLanguage)}
               >
@@ -190,13 +184,20 @@ function Header() {
       {isMobileMenuOpen && (
         <div className="md:hidden border-t border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800">
           <nav className="flex flex-col gap-2 px-4 py-4">
+            {/* Language Selector */}
+            <div className={`pb-2 border-b border-neutral-200 dark:border-neutral-700 ${translatingUI ? 'opacity-50 pointer-events-none' : ''}`}>
+              <LanguageSelector
+                currentLanguage={currentLanguage}
+                onLanguageChange={handleLanguageChange}
+              />
+            </div>
+            
             <button
               onClick={() => {
                 toggleDarkMode();
                 closeMobileMenu();
               }}
-              className="flex items-center gap-2 p-2 rounded-lg text-heritage-700 dark:text-heritage-300 hover:bg-heritage-50 dark:hover:bg-neutral-700 transition-colors"
-              aria-label="Toggle dark mode"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-heritage-700 dark:text-heritage-300 hover:bg-heritage-50 dark:hover:bg-neutral-700 transition-colors"
             >
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
               <span className="font-medium">{isDark ? 'Light Mode' : 'Dark Mode'}</span>

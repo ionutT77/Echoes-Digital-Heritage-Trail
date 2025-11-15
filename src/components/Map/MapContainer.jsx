@@ -8,6 +8,7 @@ import UserLocation from './UserLocation';
 import useMapStore from '../../stores/mapStore';
 import useRouting from '../../hooks/useRouting';
 import useGeolocation from '../../hooks/useGeolocation';
+import { useTheme } from '../../contexts/ThemeContext';
 import { t } from '../../utils/uiTranslations';
 import 'leaflet/dist/leaflet.css';
 

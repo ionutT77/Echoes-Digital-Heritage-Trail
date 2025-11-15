@@ -357,7 +357,7 @@ function RequestLocationPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-neutral-700 mb-2">
+                <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200 mb-2">
                   {t('requestLocation.description', currentLanguage)} <span className="text-red-500">*</span>
                 </label>
                 <textarea
@@ -373,7 +373,7 @@ function RequestLocationPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-neutral-700 mb-2">
+                  <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200 mb-2">
                     {t('requestLocation.category', currentLanguage)}
                   </label>
                   <select
@@ -390,7 +390,7 @@ function RequestLocationPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-neutral-700 mb-2">
+                  <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200 mb-2">
                     {t('requestLocation.historicalPeriod', currentLanguage)}
                   </label>
                   <input
@@ -399,13 +399,13 @@ function RequestLocationPage() {
                     value={formData.historicalPeriod}
                     onChange={handleInputChange}
                     placeholder={t('requestLocation.historicalPeriodPlaceholder', currentLanguage)}
-                    className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-neutral-700 mb-2">
+                <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200 mb-2">
                   {t('requestLocation.gpsCoordinates', currentLanguage)} <span className="text-red-500">*</span>
                 </label>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -443,10 +443,10 @@ function RequestLocationPage() {
 
             {/* Photos Upload */}
             <div className="space-y-4">
-              <h2 className="text-xl font-bold text-neutral-900 border-b border-neutral-200 pb-2">
+              <h2 className="text-xl font-bold text-neutral-900 dark:text-white border-b border-neutral-200 dark:border-neutral-700 pb-2">
                 {t('requestLocation.photos', currentLanguage)} <span className="text-red-500">*</span>
               </h2>
-              <p className="text-sm text-neutral-600">{t('requestLocation.photosDescription', currentLanguage)}</p>
+              <p className="text-sm text-neutral-600 dark:text-neutral-300">{t('requestLocation.photosDescription', currentLanguage)}</p>
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {photos.map((photo, index) => (
@@ -491,10 +491,10 @@ function RequestLocationPage() {
 
             {/* Audio Upload */}
             <div className="space-y-4">
-              <h2 className="text-xl font-bold text-neutral-900 border-b border-neutral-200 pb-2">
+              <h2 className="text-xl font-bold text-neutral-900 dark:text-white border-b border-neutral-200 dark:border-neutral-700 pb-2">
                 {t('requestLocation.audioStory', currentLanguage)} <span className="text-red-500">*</span>
               </h2>
-              <p className="text-sm text-neutral-600">{t('requestLocation.audioDescription', currentLanguage)}</p>
+              <p className="text-sm text-neutral-600 dark:text-neutral-300">{t('requestLocation.audioDescription', currentLanguage)}</p>
 
               {/* Audio Option Selection */}
               {!audioOption && (
@@ -507,8 +507,8 @@ function RequestLocationPage() {
                     <div className="flex items-start gap-3">
                       <Upload className="w-6 h-6 text-heritage-700 dark:text-heritage-400 flex-shrink-0 mt-1" />
                       <div>
-                        <h3 className="font-semibold text-neutral-900 mb-1">{t('requestLocation.uploadYourAudio', currentLanguage)}</h3>
-                        <p className="text-sm text-neutral-600">{t('requestLocation.uploadAudioDescription', currentLanguage)}</p>
+                        <h3 className="font-semibold text-neutral-900 dark:text-white mb-1">{t('requestLocation.uploadYourAudio', currentLanguage)}</h3>
+                        <p className="text-sm text-neutral-600 dark:text-neutral-300">{t('requestLocation.uploadAudioDescription', currentLanguage)}</p>
                       </div>
                     </div>
                   </button>
@@ -521,8 +521,8 @@ function RequestLocationPage() {
                     <div className="flex items-start gap-3">
                       <Music className="w-6 h-6 text-heritage-700 dark:text-heritage-400 flex-shrink-0 mt-1" />
                       <div>
-                        <h3 className="font-semibold text-neutral-900 mb-1">{t('requestLocation.generateAudio', currentLanguage)}</h3>
-                        <p className="text-sm text-neutral-600">{t('requestLocation.generateAudioDescription', currentLanguage)}</p>
+                        <h3 className="font-semibold text-neutral-900 dark:text-white mb-1">{t('requestLocation.generateAudio', currentLanguage)}</h3>
+                        <p className="text-sm text-neutral-600 dark:text-neutral-300">{t('requestLocation.generateAudioDescription', currentLanguage)}</p>
                       </div>
                     </div>
                   </button>
@@ -533,7 +533,7 @@ function RequestLocationPage() {
               {audioOption === 'upload' && (
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-neutral-900">{t('requestLocation.uploadAudioFile', currentLanguage)}</h3>
+                    <h3 className="font-semibold text-neutral-900 dark:text-white">{t('requestLocation.uploadAudioFile', currentLanguage)}</h3>
                     <button
                       type="button"
                       onClick={() => {
@@ -581,10 +581,10 @@ function RequestLocationPage() {
                         ) : (
                           <Upload className="w-12 h-12 text-neutral-400 dark:text-neutral-500 mb-3" />
                         )}
-                        <p className="text-neutral-700 font-medium">
+                        <p className="text-neutral-700 dark:text-neutral-200 font-medium">
                           {uploadingAudio ? t('requestLocation.uploading', currentLanguage) : t('requestLocation.clickToUpload', currentLanguage)}
                         </p>
-                        <p className="text-sm text-neutral-500 mt-1">{t('requestLocation.audioFileTypes', currentLanguage)}</p>
+                        <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">{t('requestLocation.audioFileTypes', currentLanguage)}</p>
                       </div>
                     </label>
                   )}
@@ -595,7 +595,7 @@ function RequestLocationPage() {
               {audioOption === 'generate' && (
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-neutral-900">{t('requestLocation.audioStoryDescription', currentLanguage)}</h3>
+                    <h3 className="font-semibold text-neutral-900 dark:text-white">{t('requestLocation.audioStoryDescription', currentLanguage)}</h3>
                     <button
                       type="button"
                       onClick={() => {
@@ -609,7 +609,7 @@ function RequestLocationPage() {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-semibold text-neutral-700 mb-2">
+                    <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200 mb-2">
                       {t('requestLocation.write8to10Sentences', currentLanguage)}
                     </label>
                     <textarea
@@ -621,10 +621,10 @@ function RequestLocationPage() {
                       className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
                     />
                     <div className="mt-2 flex items-center justify-between">
-                      <p className="text-xs text-neutral-500">
+                      <p className="text-xs text-neutral-500 dark:text-neutral-400">
                         💡 {t('requestLocation.audioTip', currentLanguage)}
                       </p>
-                      <p className="text-xs text-neutral-600">
+                      <p className="text-xs text-neutral-600 dark:text-neutral-300">
                         {formData.audioStoryDescription.split(/[.!?]+/).filter(s => s.trim()).length} {t('requestLocation.sentences', currentLanguage)}
                       </p>
                     </div>
@@ -635,13 +635,13 @@ function RequestLocationPage() {
 
             {/* Contact Information */}
             <div className="space-y-4">
-              <h2 className="text-xl font-bold text-neutral-900 border-b border-neutral-200 pb-2">
+              <h2 className="text-xl font-bold text-neutral-900 dark:text-white border-b border-neutral-200 dark:border-neutral-700 pb-2">
                 {t('requestLocation.contactInformation', currentLanguage)} <span className="text-red-500">*</span>
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-neutral-700 mb-2">
+                  <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200 mb-2">
                     {t('requestLocation.fullName', currentLanguage)} <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -650,13 +650,13 @@ function RequestLocationPage() {
                     value={formData.submitterName}
                     onChange={handleInputChange}
                     placeholder={t('requestLocation.yourName', currentLanguage)}
-                    className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-neutral-700 mb-2">
+                  <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200 mb-2">
                     {t('requestLocation.email', currentLanguage)} <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -673,7 +673,7 @@ function RequestLocationPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-neutral-700 mb-2">
+                <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200 mb-2">
                   {t('requestLocation.phoneNumber', currentLanguage)} <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -682,7 +682,7 @@ function RequestLocationPage() {
                   value={formData.submitterPhone}
                   onChange={handleInputChange}
                   placeholder={t('requestLocation.phonePlaceholder', currentLanguage)}
-                  className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
                   required
                 />
               </div>
