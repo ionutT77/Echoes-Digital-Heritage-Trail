@@ -5,6 +5,8 @@ export async function fetchLeaderboard(limit = 100) {
     const { data, error } = await supabase
       .from('leaderboard')
       .select('*')
+      .order('points', { ascending: false })
+      .order('discoveries_count', { ascending: false })
       .limit(limit);
 
     if (error) {
@@ -53,6 +55,8 @@ export async function getUserRank(userId) {
 
 export async function getUserDiscoveries(userId) {
   try {
+    console.log('🔍 Fetching discoveries for user:', userId);
+    
     const { data, error } = await supabase
       .from('user_discoveries')
       .select(`
@@ -72,8 +76,12 @@ export async function getUserDiscoveries(userId) {
 
     if (error) {
       console.error("Error fetching user discoveries:", error);
+      console.error("Error details:", error.message, error.details, error.hint);
       return [];
     }
+
+    console.log('✅ Discoveries fetched:', data?.length || 0);
+    console.log('Data:', data);
 
     return data.map(discovery => ({
       nodeId: discovery.node_id,
