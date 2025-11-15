@@ -4,6 +4,9 @@ import { User, Mail, Key, MapPin, Trophy, ArrowLeft, Eye, EyeOff, Check, X, Aler
 import { useAuth } from '../contexts/AuthContext';
 import useMapStore from '../stores/mapStore';
 import { supabase } from '../lib/supabaseClient';
+import { fetchCulturalNodes, fetchUserDiscoveries } from '../services/nodesService';
+import NodeModal from '../components/Node/NodeModal';
+import AudioPlayer from '../components/Audio/AudioPlayer';
 import Swal from 'sweetalert2';
 
 function ProfilePage() {
@@ -138,16 +141,36 @@ function ProfilePage() {
           .update({ username: formData.username })
           .eq('id', user.id);
 
-        if (profileError) throw profileError;
+        if (profileError) {
+          setLoading(false);
+          
+          // Check for duplicate username error
+          if (profileError.code === '23505' && profileError.message.includes('profiles_username_key')) {
+            await Swal.fire({
+              title: 'Username Taken',
+              text: 'This username is already taken. Please choose another one.',
+              icon: 'error',
+              confirmButtonColor: '#6f4e35'
+            });
+            return;
+          }
+          
+          // Generic error for other cases
+          throw profileError;
+        }
         updates.username = true;
       }
 
-      // Update email - requires verification via CURRENT email
+      // Update email with two-step verification:
+      // 1. Confirmation email sent to OLD/BASE email
+      // 2. After confirmation, verification email sent to NEW email
       if (formData.email !== profile.email && formData.email) {
-        // Supabase sends verification to CURRENT email by default
-        const { error: emailError } = await supabase.auth.updateUser({
-          email: formData.email
-        });
+        const { error: emailError } = await supabase.auth.updateUser(
+          { email: formData.email },
+          {
+            emailRedirectTo: `${window.location.origin}/profile`
+          }
+        );
 
         if (emailError) throw emailError;
         updates.email = true;
@@ -183,6 +206,9 @@ function ProfilePage() {
 
       setLoading(false);
 
+      // Auto logout after email change for security
+      const shouldLogout = updates.email;
+
       // Reset password fields
       setFormData({ 
         ...formData, 
@@ -191,14 +217,37 @@ function ProfilePage() {
         confirmNewPassword: '' 
       });
 
-      if (updates.email) {
+      if (shouldLogout) {
         await Swal.fire({
-          title: 'Verification Email Sent',
-          html: `We have sent a verification link to your current email address: <strong>${profile.email}</strong><br><br>Please check your inbox and click the link to confirm your email change.<br><br><small>If you no longer have access to this email, please contact support for assistance.</small>`,
-          icon: 'info',
+          title: 'Email Change Started',
+          html: `
+            <div class="text-left">
+              <p class="mb-4"><strong>Step 1:</strong> Check your <strong>current email (${profile.email})</strong> for a confirmation link.</p>
+              <p class="mb-4"><strong>Step 2:</strong> After you click the confirmation link, check your <strong>new email (${formData.email})</strong> for a verification link.</p>
+              <p class="text-sm text-gray-600 mt-4">⚠️ Your email won't change until both steps are complete.</p>
+            </div>
+          `,
+          icon: 'success',
           confirmButtonColor: '#6f4e35'
         });
-      } else {
+        
+        // Sign out user for security
+        await supabase.auth.signOut();
+        
+        // Show confirmation and redirect
+        await Swal.fire({
+          title: 'Logged Out',
+          text: 'For security reasons, you have been logged out. Please sign in with your new email address once verified.',
+          icon: 'success',
+          confirmButtonColor: '#6f4e35'
+        });
+        
+        navigate('/login');
+        return;
+      }
+
+      if (!updates.email) {
+        // Only show this if email wasn't changed (no logout triggered)
         await Swal.fire({
           title: 'Success!',
           text: 'Your profile has been updated successfully.',
@@ -219,6 +268,7 @@ function ProfilePage() {
 
   const handleNodeClick = (node) => {
     setSelectedNode(node);
+    navigate('/profile', { replace: true });
   };
 
   return (
@@ -319,16 +369,20 @@ function ProfilePage() {
 
                 <div className="pt-6 border-t border-neutral-200">
                   <h3 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center gap-2">
-                    <Mail className="w-5 h-5" />
-                    Change Email Address
+                    <AlertCircle className="w-5 h-5 text-amber-600" />
+                    Change Email Address (Two-Step Process)
                   </h3>
-                  <div className="mb-4 space-y-2">
-                    <p className="text-sm text-neutral-600 flex items-start gap-2">
-                      <AlertCircle className="w-4 h-4 mt-0.5 text-amber-600" />
-                      Changing your email requires verification. You will receive a confirmation link at your <strong>current email address</strong> ({profile?.email}).
-                    </p>
-                    <p className="text-xs text-neutral-500 pl-6">
-                      Don't have access to your current email? Please contact our support team for assistance.
+                  <div className="mb-4 space-y-2 bg-amber-50 p-4 rounded-lg border border-amber-200">
+                    <p class="text-sm text-neutral-700 mb-2"><strong>How it works:</strong></p>
+                    <ol class="list-decimal list-inside space-y-1 text-sm text-neutral-600">
+                      <li>We send a confirmation link to your <strong>current email</strong> ({profile?.email})</li>
+                      <li>Click the link to authorize the change</li>
+                      <li>We then send a verification link to your <strong>new email</strong></li>
+                      <li>Click the verification link to complete the change</li>
+                    </ol>
+                    <p class="text-xs text-amber-700 mt-3 flex items-start gap-1">
+                      <AlertCircle className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                      You'll be logged out automatically for security after starting this process.
                     </p>
                   </div>
                   <label className="block text-sm font-semibold text-neutral-900 mb-2">
@@ -607,6 +661,8 @@ function ProfilePage() {
             )}
           </div>
         </div>
+        <NodeModal />
+        <AudioPlayer />
       </div>
     </div>
   );
