@@ -46,7 +46,7 @@ function MapPage() {
       <OnboardingOverlay />
       
       {/* Request Location Button */}
-      {user && (
+      {/* {user && (
         <button
           onClick={() => navigate('/request-location')}
           className="fixed bottom-24 right-4 bg-heritage-700 text-white px-4 py-3 rounded-full shadow-lg hover:bg-heritage-800 transition-colors z-[2000] flex items-center gap-2"
@@ -55,7 +55,7 @@ function MapPage() {
           <Plus className="w-5 h-5" />
           <span className="hidden sm:inline font-medium">Request Location</span>
         </button>
-      )}
+      )} */}
       
       {/* Debug Toggle Button - Admin Only */}
       {profile?.is_admin && (

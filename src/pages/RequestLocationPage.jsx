@@ -314,11 +314,11 @@ function RequestLocationPage() {
     <div className="min-h-screen bg-gradient-to-br from-heritage-50 via-heritage-100 to-amber-50 pt-16">
       <div className="max-w-4xl mx-auto px-4 py-8">
         <button
-          onClick={() => navigate('/map')}
+          onClick={() => navigate('/profile')}
           className="flex items-center gap-2 text-heritage-700 hover:text-heritage-900 mb-6 transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
-          <span>Back to Map</span>
+          <span>Back to Profile</span>
         </button>
 
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
