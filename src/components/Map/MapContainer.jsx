@@ -347,6 +347,7 @@ function MapContainer({ mapRef: externalMapRef }) {
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          className="dark-mode-map"
         />
         <ZoomControl position="bottomright" />
         {userLocation && <UserLocation position={userLocation} />}
@@ -396,7 +397,7 @@ function MapContainer({ mapRef: externalMapRef }) {
           </button>
           <button
             onClick={clearRoute}
-            className="bg-white text-heritage-700 px-4 py-3 rounded-lg shadow-lg hover:bg-heritage-50 transition-colors font-semibold text-sm border border-heritage-700"
+            className="bg-white dark:bg-neutral-800 text-heritage-700 dark:text-heritage-300 px-4 py-3 rounded-lg shadow-lg hover:bg-heritage-50 dark:hover:bg-neutral-700 transition-colors font-semibold text-sm border border-heritage-700 dark:border-heritage-400"
             aria-label="Clear route"
           >
             Clear Route

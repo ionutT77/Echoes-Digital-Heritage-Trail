@@ -272,17 +272,17 @@ function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-heritage-50 via-heritage-100 to-amber-50 pt-16">
+    <div className="min-h-screen bg-gradient-to-br from-heritage-50 via-heritage-100 to-amber-50 dark:from-neutral-900 dark:via-neutral-800 dark:to-neutral-900 pt-16">
       <div className="max-w-6xl mx-auto px-4 py-8">
         <button
           onClick={() => navigate('/map')}
-          className="flex items-center gap-2 text-heritage-700 hover:text-heritage-900 mb-6 transition-colors"
+          className="flex items-center gap-2 text-heritage-700 dark:text-heritage-300 hover:text-heritage-900 dark:hover:text-heritage-100 mb-6 transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
           <span>Back to Map</span>
         </button>
 
-        <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+        <div className="bg-white dark:bg-neutral-800 rounded-2xl shadow-lg overflow-hidden">
           <div className="bg-heritage-700 px-8 py-6">
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 bg-heritage-100 rounded-full flex items-center justify-center">
@@ -299,14 +299,14 @@ function ProfilePage() {
             </div>
           </div>
 
-          <div className="border-b border-neutral-200">
+          <div className="border-b border-neutral-200 dark:border-neutral-700">
             <div className="flex">
               <button
                 onClick={() => setActiveTab('credentials')}
                 className={`flex-1 px-6 py-4 font-semibold transition-colors ${
                   activeTab === 'credentials'
-                    ? 'border-b-2 border-heritage-700 text-heritage-700'
-                    : 'text-neutral-600 hover:text-heritage-700'
+                    ? 'border-b-2 border-heritage-700 dark:border-heritage-400 text-heritage-700 dark:text-heritage-400'
+                    : 'text-neutral-600 dark:text-neutral-400 hover:text-heritage-700 dark:hover:text-heritage-300'
                 }`}
               >
                 <div className="flex items-center justify-center gap-2">
@@ -318,8 +318,8 @@ function ProfilePage() {
                 onClick={() => setActiveTab('discoveries')}
                 className={`flex-1 px-6 py-4 font-semibold transition-colors ${
                   activeTab === 'discoveries'
-                    ? 'border-b-2 border-heritage-700 text-heritage-700'
-                    : 'text-neutral-600 hover:text-heritage-700'
+                    ? 'border-b-2 border-heritage-700 dark:border-heritage-400 text-heritage-700 dark:text-heritage-400'
+                    : 'text-neutral-600 dark:text-neutral-400 hover:text-heritage-700 dark:hover:text-heritage-300'
                 }`}
               >
                 <div className="flex items-center justify-center gap-2">
@@ -334,7 +334,7 @@ function ProfilePage() {
             {activeTab === 'credentials' && (
               <form onSubmit={handleUpdateCredentials} className="space-y-6 max-w-2xl">
                 <div>
-                  <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                  <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">
                     <span className="flex items-center gap-2">
                       <User className="w-4 h-4" />
                       Username
@@ -346,12 +346,12 @@ function ProfilePage() {
                     value={formData.username}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
+                    className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                  <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">
                     <span className="flex items-center gap-2">
                       <Mail className="w-4 h-4" />
                       Email Address
@@ -363,29 +363,29 @@ function ProfilePage() {
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
+                    className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
                   />
                 </div>
 
                 <div className="pt-6 border-t border-neutral-200">
-                  <h3 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center gap-2">
+                  <h3 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4 flex items-center gap-2">
                     <AlertCircle className="w-5 h-5 text-amber-600" />
                     Change Email Address (Two-Step Process)
                   </h3>
-                  <div className="mb-4 space-y-2 bg-amber-50 p-4 rounded-lg border border-amber-200">
-                    <p class="text-sm text-neutral-700 mb-2"><strong>How it works:</strong></p>
-                    <ol class="list-decimal list-inside space-y-1 text-sm text-neutral-600">
+                  <div className="mb-4 space-y-2 bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg border border-amber-200 dark:border-amber-700">
+                    <p class="text-sm text-neutral-700 dark:text-neutral-300 mb-2"><strong>How it works:</strong></p>
+                    <ol class="list-decimal list-inside space-y-1 text-sm text-neutral-600 dark:text-neutral-400">
                       <li>We send a confirmation link to your <strong>current email</strong> ({profile?.email})</li>
                       <li>Click the link to authorize the change</li>
                       <li>We then send a verification link to your <strong>new email</strong></li>
                       <li>Click the verification link to complete the change</li>
                     </ol>
-                    <p class="text-xs text-amber-700 mt-3 flex items-start gap-1">
+                    <p class="text-xs text-amber-700 dark:text-amber-400 mt-3 flex items-start gap-1">
                       <AlertCircle className="w-3 h-3 mt-0.5 flex-shrink-0" />
                       You'll be logged out automatically for security after starting this process.
                     </p>
                   </div>
-                  <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                  <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">
                     New Email Address
                   </label>
                   <input
@@ -394,19 +394,19 @@ function ProfilePage() {
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
+                    className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
                   />
                 </div>
 
-                <div className="pt-6 border-t border-neutral-200">
-                  <h3 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center gap-2">
+                <div className="pt-6 border-t border-neutral-200 dark:border-neutral-700">
+                  <h3 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4 flex items-center gap-2">
                     <Key className="w-5 h-5" />
                     Change Password
                   </h3>
                   
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                      <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">
                         Current Password
                       </label>
                       <div className="relative">
@@ -415,7 +415,7 @@ function ProfilePage() {
                           name="currentPassword"
                           value={formData.currentPassword}
                           onChange={handleChange}
-                          className="w-full px-4 py-3 pr-12 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
+                          className="w-full px-4 py-3 pr-12 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
                           placeholder="Enter current password"
                         />
                         <button
@@ -430,7 +430,7 @@ function ProfilePage() {
                     </div>
 
                     <div>
-                  <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                  <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">
                         New Password
                   </label>
                   <div className="relative">
@@ -441,7 +441,7 @@ function ProfilePage() {
                       onChange={handleChange}
                       onFocus={() => setNewPasswordFocused(true)}
                       onBlur={() => setNewPasswordFocused(false)}
-                      className="w-full px-4 py-3 pr-12 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
+                      className="w-full px-4 py-3 pr-12 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
                       placeholder="Enter new password"
                     />
                     <button
@@ -476,8 +476,8 @@ function ProfilePage() {
                   )}
 
                   {(newPasswordFocused || formData.newPassword) && formData.newPassword && (
-                    <div className="mt-3 p-3 bg-neutral-50 rounded-lg border border-neutral-200 space-y-2">
-                      <p className="text-xs font-semibold text-neutral-700 mb-2">Password must contain:</p>
+                    <div className="mt-3 p-3 bg-neutral-50 dark:bg-neutral-900 rounded-lg border border-neutral-200 dark:border-neutral-700 space-y-2">
+                      <p className="text-xs font-semibold text-neutral-700 dark:text-neutral-200 mb-2">Password must contain:</p>
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
                           {passwordRequirements.minLength ? (
@@ -485,7 +485,7 @@ function ProfilePage() {
                           ) : (
                             <X className="w-4 h-4 text-neutral-400" />
                           )}
-                          <span className={`text-xs ${passwordRequirements.minLength ? 'text-green-600 font-medium' : 'text-neutral-600'}`}>
+                          <span className={`text-xs ${passwordRequirements.minLength ? 'text-green-600 dark:text-green-400 font-medium' : 'text-neutral-600 dark:text-neutral-400'}`}>
                             At least 8 characters
                           </span>
                         </div>
@@ -495,7 +495,7 @@ function ProfilePage() {
                           ) : (
                             <X className="w-4 h-4 text-neutral-400" />
                           )}
-                          <span className={`text-xs ${passwordRequirements.hasUppercase ? 'text-green-600 font-medium' : 'text-neutral-600'}`}>
+                          <span className={`text-xs ${passwordRequirements.hasUppercase ? 'text-green-600 dark:text-green-400 font-medium' : 'text-neutral-600 dark:text-neutral-400'}`}>
                             One uppercase letter (A-Z)
                           </span>
                         </div>
@@ -505,7 +505,7 @@ function ProfilePage() {
                           ) : (
                             <X className="w-4 h-4 text-neutral-400" />
                           )}
-                          <span className={`text-xs ${passwordRequirements.hasLowercase ? 'text-green-600 font-medium' : 'text-neutral-600'}`}>
+                          <span className={`text-xs ${passwordRequirements.hasLowercase ? 'text-green-600 dark:text-green-400 font-medium' : 'text-neutral-600 dark:text-neutral-400'}`}>
                             One lowercase letter (a-z)
                           </span>
                         </div>
@@ -515,7 +515,7 @@ function ProfilePage() {
                           ) : (
                             <X className="w-4 h-4 text-neutral-400" />
                           )}
-                          <span className={`text-xs ${passwordRequirements.hasNumber ? 'text-green-600 font-medium' : 'text-neutral-600'}`}>
+                          <span className={`text-xs ${passwordRequirements.hasNumber ? 'text-green-600 dark:text-green-400 font-medium' : 'text-neutral-600 dark:text-neutral-400'}`}>
                             One number (0-9)
                           </span>
                         </div>
@@ -525,7 +525,7 @@ function ProfilePage() {
                           ) : (
                             <X className="w-4 h-4 text-neutral-400" />
                           )}
-                          <span className={`text-xs ${passwordRequirements.hasSpecial ? 'text-green-600 font-medium' : 'text-neutral-600'}`}>
+                          <span className={`text-xs ${passwordRequirements.hasSpecial ? 'text-green-600 dark:text-green-400 font-medium' : 'text-neutral-600 dark:text-neutral-400'}`}>
                             One special character (!@#$%^&*)
                           </span>
                         </div>
@@ -535,7 +535,7 @@ function ProfilePage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                  <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">
                     Confirm New Password
                   </label>
                   <div className="relative">
@@ -544,7 +544,7 @@ function ProfilePage() {
                       name="confirmNewPassword"
                       value={formData.confirmNewPassword}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 pr-12 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
+                      className="w-full px-4 py-3 pr-12 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
                       placeholder="Confirm your new password"
                     />
                     <button
@@ -604,11 +604,11 @@ function ProfilePage() {
 
                 {discoveredNodesList.length === 0 ? (
                   <div className="text-center py-12">
-                    <MapPin className="w-16 h-16 text-heritage-300 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-neutral-900 mb-2">
+                    <MapPin className="w-16 h-16 text-heritage-300 dark:text-heritage-600 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold text-neutral-900 dark:text-white mb-2">
                       No Discoveries Yet
                     </h3>
-                    <p className="text-neutral-600 mb-6">
+                    <p className="text-neutral-600 dark:text-neutral-300 mb-6">
                       Start exploring the map to discover cultural heritage nodes!
                     </p>
                     <button

@@ -311,7 +311,7 @@ function RequestLocationPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-heritage-50 via-heritage-100 to-amber-50 pt-16">
+    <div className="min-h-screen bg-gradient-to-br from-heritage-50 via-heritage-100 to-amber-50 dark:from-neutral-900 dark:via-neutral-800 dark:to-neutral-900 pt-16">
       <div className="max-w-4xl mx-auto px-4 py-8">
         <button
           onClick={() => navigate('/profile')}
@@ -321,7 +321,7 @@ function RequestLocationPage() {
           <span>Back to Profile</span>
         </button>
 
-        <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+        <div className="bg-white dark:bg-neutral-800 rounded-2xl shadow-lg overflow-hidden">
           <div className="bg-gradient-to-r from-heritage-700 to-heritage-800 px-8 py-6">
             <div className="flex items-center gap-3">
               <MapPin className="w-10 h-10 text-amber-400" />
@@ -335,12 +335,11 @@ function RequestLocationPage() {
           <form onSubmit={handleSubmit} className="p-8 space-y-6">
             {/* Location Details */}
             <div className="space-y-4">
-              <h2 className="text-xl font-bold text-neutral-900 border-b border-neutral-200 pb-2">
-                Location Details
+              <h2 className="text-xl font-bold text-neutral-900 dark:text-white border-b border-neutral-200 dark:border-neutral-700 pb-2">\n                Location Details
               </h2>
 
               <div>
-                <label className="block text-sm font-semibold text-neutral-700 mb-2">
+                <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200 mb-2">
                   Location Name <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -349,7 +348,7 @@ function RequestLocationPage() {
                   value={formData.title}
                   onChange={handleInputChange}
                   placeholder="e.g., Old Town Hall"
-                  className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
                   required
                 />
               </div>

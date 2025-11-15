@@ -24,7 +24,7 @@ function HomePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-heritage-50 via-heritage-100 to-amber-50">
+    <div className="min-h-screen bg-gradient-to-br from-heritage-50 via-heritage-100 to-amber-50 dark:from-neutral-900 dark:via-neutral-800 dark:to-neutral-900">
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=1600')] bg-cover bg-center opacity-10"></div>
@@ -36,11 +36,11 @@ function HomePage() {
                 <span className="text-lg font-bold text-heritage-50">Echoes</span>
               </div>
             </div>
-            <h1 className="text-5xl font-bold tracking-tight text-heritage-900 sm:text-6xl lg:text-7xl mb-6">
+            <h1 className="text-5xl font-bold tracking-tight text-heritage-900 dark:text-heritage-100 sm:text-6xl lg:text-7xl mb-6">
               Walk Through History in{' '}
-              <span className="text-heritage-700">Timișoara</span>
+              <span className="text-heritage-700 dark:text-heritage-400">Timișoara</span>
             </h1>
-            <p className="text-xl leading-8 text-heritage-700 max-w-2xl mx-auto mb-10">
+            <p className="text-xl leading-8 text-heritage-700 dark:text-heritage-300 max-w-2xl mx-auto mb-10">
               Discover the stories behind Timișoara's iconic landmarks. As you walk through the city, unlock audio narratives, historic photos, and fascinating details about Romania's cultural heart.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -57,7 +57,7 @@ function HomePage() {
                   const element = document.getElementById('features');
                   element?.scrollIntoView({ behavior: 'smooth' });
                 }}
-                className="inline-flex items-center gap-2 text-base font-semibold text-heritage-800 hover:text-heritage-900 transition-colors"
+                className="inline-flex items-center gap-2 text-base font-semibold text-heritage-800 dark:text-heritage-300 hover:text-heritage-900 dark:hover:text-heritage-100 transition-colors"
               >
                 Learn More
               </button>
@@ -70,10 +70,10 @@ function HomePage() {
       <div id="features" className="py-24 px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-heritage-900 mb-4">
+            <h2 className="text-4xl font-bold text-heritage-900 dark:text-heritage-100 mb-4">
               Your Personal Heritage Guide
             </h2>
-            <p className="text-lg text-heritage-700 max-w-2xl mx-auto">
+            <p className="text-lg text-heritage-700 dark:text-heritage-300 max-w-2xl mx-auto">
               Experience Timișoara's cultural landmarks like never before with immersive, location-based storytelling.
             </p>
           </div>
@@ -81,17 +81,17 @@ function HomePage() {
             {features.map((feature, index) => (
               <div
                 key={index}
-                className="group relative bg-white rounded-2xl p-8 shadow-md hover:shadow-2xl transition-all duration-300 border border-heritage-200 hover:border-heritage-400"
+                className="group relative bg-white dark:bg-neutral-800 rounded-2xl p-8 shadow-md hover:shadow-2xl transition-all duration-300 border border-heritage-200 dark:border-neutral-700 hover:border-heritage-400 dark:hover:border-heritage-500"
               >
                 <div className="flex justify-center mb-6">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-heritage-100 text-heritage-700 group-hover:bg-heritage-700 group-hover:text-heritage-50 transition-all duration-300">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-heritage-100 dark:bg-heritage-900 text-heritage-700 dark:text-heritage-300 group-hover:bg-heritage-700 dark:group-hover:bg-heritage-600 group-hover:text-heritage-50 transition-all duration-300">
                     <feature.icon className="h-8 w-8" />
                   </div>
                 </div>
-                <h3 className="text-xl font-bold text-heritage-900 mb-3 text-center">
+                <h3 className="text-xl font-bold text-heritage-900 dark:text-heritage-100 mb-3 text-center">
                   {feature.title}
                 </h3>
-                <p className="text-heritage-700 text-center leading-relaxed">
+                <p className="text-heritage-700 dark:text-heritage-300 text-center leading-relaxed">
                   {feature.description}
                 </p>
               </div>
@@ -152,10 +152,10 @@ function HomePage() {
       {/* CTA Section */}
       <div className="py-24 px-6 lg:px-8">
         <div className="mx-auto max-w-4xl text-center">
-          <h2 className="text-4xl font-bold text-heritage-900 mb-6">
+          <h2 className="text-4xl font-bold text-heritage-900 dark:text-heritage-100 mb-6">
             Ready to Explore?
           </h2>
-          <p className="text-xl text-heritage-700 mb-10 max-w-2xl mx-auto">
+          <p className="text-xl text-heritage-700 dark:text-heritage-300 mb-10 max-w-2xl mx-auto">
             Start your journey through Timișoara's cultural heritage. Allow location access and begin discovering stories waiting around every corner.
           </p>
           <button
