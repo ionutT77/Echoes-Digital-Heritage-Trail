@@ -335,7 +335,7 @@ function RequestLocationPage() {
           <form onSubmit={handleSubmit} className="p-8 space-y-6">
             {/* Location Details */}
             <div className="space-y-4">
-              <h2 className="text-xl font-bold text-neutral-900 dark:text-white border-b border-neutral-200 dark:border-neutral-700 pb-2">\n                Location Details
+              <h2 className="text-xl font-bold text-neutral-900 dark:text-white border-b border-neutral-200 dark:border-neutral-700 pb-2">                Location Details
               </h2>
 
               <div>
