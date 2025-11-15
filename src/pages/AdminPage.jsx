@@ -4,11 +4,13 @@ import { ArrowLeft, Plus, MapPin, Calendar, Tag, FileAudio, Image, X, Video, Mes
 import Swal from 'sweetalert2';
 import { createCulturalNode } from '../services/nodesService';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { supabase } from '../lib/supabaseClient';
 
 function AdminPage() {
   const navigate = useNavigate();
   const { profile, loading } = useAuth();
+  const { isDark } = useTheme();
   const [activeTab, setActiveTab] = useState('create');
   const [requests, setRequests] = useState([]);
   const [loadingRequests, setLoadingRequests] = useState(false);
@@ -62,7 +64,9 @@ function AdminPage() {
         title: 'Error',
         text: 'Failed to fetch location requests',
         icon: 'error',
-        confirmButtonColor: '#6f4e35'
+        confirmButtonColor: '#6f4e35',
+        background: isDark ? '#1f2937' : '#ffffff',
+        color: isDark ? '#f3f4f6' : '#000000'
       });
     } finally {
       setLoadingRequests(false);
@@ -86,7 +90,9 @@ function AdminPage() {
         title: 'Approved!',
         text: 'Location request has been approved.',
         icon: 'success',
-        confirmButtonColor: '#6f4e35'
+        confirmButtonColor: '#6f4e35',
+        background: isDark ? '#1f2937' : '#ffffff',
+        color: isDark ? '#f3f4f6' : '#000000'
       });
 
       fetchRequests();
@@ -96,7 +102,9 @@ function AdminPage() {
         title: 'Error',
         text: 'Failed to approve request',
         icon: 'error',
-        confirmButtonColor: '#6f4e35'
+        confirmButtonColor: '#6f4e35',
+        background: isDark ? '#1f2937' : '#ffffff',
+        color: isDark ? '#f3f4f6' : '#000000'
       });
     } finally {
       setProcessingRequest(null);
@@ -111,7 +119,9 @@ function AdminPage() {
       showCancelButton: true,
       confirmButtonColor: '#dc2626',
       cancelButtonColor: '#6b7280',
-      confirmButtonText: 'Yes, discard it'
+      confirmButtonText: 'Yes, discard it',
+      background: isDark ? '#1f2937' : '#ffffff',
+      color: isDark ? '#f3f4f6' : '#000000'
     });
 
     if (!result.isConfirmed) return;
@@ -132,7 +142,9 @@ function AdminPage() {
         title: 'Discarded!',
         text: 'Location request has been rejected.',
         icon: 'success',
-        confirmButtonColor: '#6f4e35'
+        confirmButtonColor: '#6f4e35',
+        background: isDark ? '#1f2937' : '#ffffff',
+        color: isDark ? '#f3f4f6' : '#000000'
       });
 
       fetchRequests();
@@ -142,7 +154,9 @@ function AdminPage() {
         title: 'Error',
         text: 'Failed to discard request',
         icon: 'error',
-        confirmButtonColor: '#6f4e35'
+        confirmButtonColor: '#6f4e35',
+        background: isDark ? '#1f2937' : '#ffffff',
+        color: isDark ? '#f3f4f6' : '#000000'
       });
     } finally {
       setProcessingRequest(null);
@@ -157,7 +171,9 @@ function AdminPage() {
       showCancelButton: true,
       confirmButtonColor: '#dc2626',
       cancelButtonColor: '#6b7280',
-      confirmButtonText: 'Yes, delete it permanently'
+      confirmButtonText: 'Yes, delete it permanently',
+      background: isDark ? '#1f2937' : '#ffffff',
+      color: isDark ? '#f3f4f6' : '#000000'
     });
 
     if (!result.isConfirmed) return;
@@ -175,7 +191,9 @@ function AdminPage() {
         title: 'Deleted!',
         text: 'Location request has been permanently deleted.',
         icon: 'success',
-        confirmButtonColor: '#6f4e35'
+        confirmButtonColor: '#6f4e35',
+        background: isDark ? '#1f2937' : '#ffffff',
+        color: isDark ? '#f3f4f6' : '#000000'
       });
 
       fetchRequests();
@@ -185,7 +203,9 @@ function AdminPage() {
         title: 'Error',
         text: 'Failed to delete request',
         icon: 'error',
-        confirmButtonColor: '#6f4e35'
+        confirmButtonColor: '#6f4e35',
+        background: isDark ? '#1f2937' : '#ffffff',
+        color: isDark ? '#f3f4f6' : '#000000'
       });
     } finally {
       setProcessingRequest(null);
@@ -217,14 +237,18 @@ function AdminPage() {
         title: 'Node Created Successfully!',
         text: 'Your cultural node has been saved to the database.',
         icon: 'success',
-        confirmButtonColor: '#6f4e35'
+        confirmButtonColor: '#6f4e35',
+        background: isDark ? '#1f2937' : '#ffffff',
+        color: isDark ? '#f3f4f6' : '#000000'
       });
     } else {
       await Swal.fire({
         title: 'Node Created!',
         text: `Error: ${result.message}`,
         icon: 'error',
-        confirmButtonColor: '#6f4e35'
+        confirmButtonColor: '#6f4e35',
+        background: isDark ? '#1f2937' : '#ffffff',
+        color: isDark ? '#f3f4f6' : '#000000'
       });
     }
 
@@ -232,7 +256,7 @@ function AdminPage() {
       title: '',
       latitude: '',
       longitude: '',
-      proximityRadius: '100',
+      proximityRadius: '50',
       description: '',
       historicalPeriod: '',
       category: 'Architecture',
@@ -256,10 +280,14 @@ function AdminPage() {
   };
 
   const handleAddImage = () => {
-    if (currentImage.url && currentImage.caption && currentImage.historicalDate) {
+    if (currentImage.url && currentImage.caption) {
       setFormData({
         ...formData,
-        images: [...formData.images, currentImage]
+        images: [...formData.images, {
+          url: currentImage.url,
+          caption: currentImage.caption,
+          ...(currentImage.historicalDate && { historicalDate: currentImage.historicalDate })
+        }]
       });
       setCurrentImage({
         url: '',
@@ -288,7 +316,10 @@ function AdminPage() {
     if (currentVideo.url) {
       setFormData({
         ...formData,
-        videos: [...formData.videos, currentVideo]
+        videos: [...formData.videos, {
+          url: currentVideo.url,
+          ...(currentVideo.caption && { caption: currentVideo.caption })
+        }]
       });
       setCurrentVideo({
         url: '',
@@ -444,6 +475,7 @@ function AdminPage() {
                   value={formData.proximityRadius}
                   onChange={handleChange}
                   required
+                  readOnly
                   className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
                   placeholder="100"
                 />
@@ -664,7 +696,7 @@ function AdminPage() {
 
                     <div>
                       <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">
-                        Historical Date
+                        Historical Date (Optional)
                       </label>
                       <input
                         type="text"
@@ -704,9 +736,11 @@ function AdminPage() {
                           <p className="text-xs text-neutral-600 dark:text-neutral-400 truncate">
                             {image.url}
                           </p>
-                          <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                            Date: {image.historicalDate}
-                          </p>
+                          {image.historicalDate && (
+                            <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                              Date: {image.historicalDate}
+                            </p>
+                          )}
                         </div>
                         <button
                           type="button"

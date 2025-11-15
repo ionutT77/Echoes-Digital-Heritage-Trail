@@ -32,7 +32,9 @@ export async function getUserRank(userId) {
   try {
     const { data, error } = await supabase
       .from('leaderboard')
-      .select('*');
+      .select('*')
+      .order('points', { ascending: false })
+      .order('discoveries_count', { ascending: false });
 
     if (error) {
       console.error("Error fetching user rank:", error);

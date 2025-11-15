@@ -68,7 +68,7 @@ export const defaultTranslations = {
   // Node Modal
   node: {
     getDirections: 'Get Directions',
-    unlockLocation: 'Walk within 100 meters of this location to unlock the full story and historic images.',
+    unlockLocation: 'Walk within 50 meters of this location to unlock the full story and historic images.',
     listenToStory: 'Listen to Story',
     pauseStory: 'Pause Story',
     translatedTo: 'Translated to',

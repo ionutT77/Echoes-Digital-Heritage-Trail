@@ -57,7 +57,7 @@ function ProfilePage() {
       }
     }
     loadUserStats();
-  }, [user]);
+  }, [user, discoveredNodes]);
 
   useEffect(() => {
     async function loadNodes() {
