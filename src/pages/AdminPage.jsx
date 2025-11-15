@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
-import { ArrowLeft, Plus, MapPin, Calendar, Tag, FileAudio, Image, X } from 'lucide-react';
+import { ArrowLeft, Plus, MapPin, Calendar, Tag, FileAudio, Image, X, Video } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { createCulturalNode } from '../services/nodesService';
 import { useAuth } from '../contexts/AuthContext';
@@ -19,13 +19,19 @@ function AdminPage() {
     audioUrl: '',
     audioDuration: '',
     primaryImageUrl: '',
-    images: []
+    images: [],
+    videos: []
   });
 
   const [currentImage, setCurrentImage] = useState({
     url: '',
     caption: '',
     historicalDate: ''
+  });
+
+  const [currentVideo, setCurrentVideo] = useState({
+    url: '',
+    caption: ''
   });
 
   const handleChange = (e) => {
@@ -38,7 +44,6 @@ function AdminPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     const newNode = {
       slug: formData.title.toLowerCase().replace(/\s+/g, '-'),
       ...formData,
@@ -49,7 +54,6 @@ function AdminPage() {
     };
 
     const result = await createCulturalNode(newNode);
-    
     if (result.success) {
       await Swal.fire({
         title: 'Node Created Successfully!',
@@ -77,13 +81,19 @@ function AdminPage() {
       audioUrl: '',
       audioDuration: '',
       primaryImageUrl: '',
-      images: []
+      images: [],
+      videos: []
     });
 
     setCurrentImage({
       url: '',
       caption: '',
       historicalDate: ''
+    });
+
+    setCurrentVideo({
+      url: '',
+      caption: ''
     });
   };
 
@@ -116,7 +126,34 @@ function AdminPage() {
     });
   };
 
-  // Check if user is admin
+  const handleAddVideo = () => {
+    if (currentVideo.url) {
+      setFormData({
+        ...formData,
+        videos: [...formData.videos, currentVideo]
+      });
+      setCurrentVideo({
+        url: '',
+        caption: ''
+      });
+    }
+  };
+
+  const handleRemoveVideo = (index) => {
+    setFormData({
+      ...formData,
+      videos: formData.videos.filter((_, i) => i !== index)
+    });
+  };
+
+  const handleVideoChange = (e) => {
+    const { name, value } = e.target;
+    setCurrentVideo({
+      ...currentVideo,
+      [name]: value
+    });
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-50">
@@ -128,7 +165,6 @@ function AdminPage() {
     );
   }
 
-  // Redirect to home if user is not admin or if is_admin is undefined
   if (!profile || profile.is_admin !== true) {
     return <Navigate to="/" replace />;
   }
@@ -330,10 +366,87 @@ function AdminPage() {
 
             <div className="border-t border-neutral-200 pt-6">
               <h3 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center gap-2">
+                <Video className="w-5 h-5" />
+                Videos
+              </h3>
+              <div className="space-y-4 bg-neutral-50 p-4 rounded-lg">
+                <div className="grid grid-cols-1 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                      Video URL
+                    </label>
+                    <input
+                      type="url"
+                      name="url"
+                      value={currentVideo.url}
+                      onChange={handleVideoChange}
+                      className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
+                      placeholder="https://example.com/video.mp4"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                      Caption (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      name="caption"
+                      value={currentVideo.caption}
+                      onChange={handleVideoChange}
+                      className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
+                      placeholder="Video description"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleAddVideo}
+                  className="w-full bg-heritage-600 hover:bg-heritage-700 text-white px-4 py-3 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
+                >
+                  <Plus className="w-5 h-5" />
+                  Add Video to List
+                </button>
+              </div>
+
+              {formData.videos.length > 0 && (
+                <div className="mt-4 space-y-3">
+                  <p className="text-sm font-semibold text-neutral-700">
+                    Added Videos ({formData.videos.length}):
+                  </p>
+                  {formData.videos.map((video, index) => (
+                    <div
+                      key={index}
+                      className="flex items-start gap-3 p-4 bg-white border border-neutral-200 rounded-lg"
+                    >
+                      <div className="flex-1 space-y-1">
+                        <p className="text-sm font-medium text-neutral-900 truncate">
+                          {video.caption || 'No caption'}
+                        </p>
+                        <p className="text-xs text-neutral-600 truncate">
+                          {video.url}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveVideo(index)}
+                        className="p-2 hover:bg-red-50 rounded-lg transition-colors text-red-600"
+                        aria-label="Remove video"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="border-t border-neutral-200 pt-6">
+              <h3 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center gap-2">
                 <Image className="w-5 h-5" />
                 Additional Images
               </h3>
-              
               <div className="space-y-4 bg-neutral-50 p-4 rounded-lg">
                 <div className="grid grid-cols-1 gap-4">
                   <div>
