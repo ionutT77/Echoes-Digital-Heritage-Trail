@@ -83,7 +83,7 @@ function SignUpForm() {
     if (result.success) {
       await Swal.fire({
         title: 'Success!',
-        text: 'Account created successfully. You can now log in.',
+        text: 'Account created successfully. Check your email inbox to verify it before logging in.',
         icon: 'success',
         confirmButtonColor: '#6f4e35'
       });
