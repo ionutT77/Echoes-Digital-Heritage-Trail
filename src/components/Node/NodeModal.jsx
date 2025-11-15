@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, MapPin, Calendar, Tag, Play, Pause, Navigation } from 'lucide-react';
+import { X, MapPin, Calendar, Tag, Play, Pause, Navigation, Loader } from 'lucide-react';
 import useMapStore from '../../stores/mapStore';
 import useAudioStore from '../../stores/audioStore';
+import { translateLocationContent, getLanguageName } from '../../services/geminiService';
+import { t } from '../../utils/translations';
+import Swal from 'sweetalert2';
 
 function NodeModal() {
   const selectedNode = useMapStore((state) => state.selectedNode);
@@ -12,23 +15,70 @@ function NodeModal() {
   const map = useMapStore((state) => state.map);
   const clearRouteFunction = useMapStore((state) => state.clearRouteFunction);
   const createRouteFunction = useMapStore((state) => state.createRouteFunction);
+  const currentLanguage = useMapStore((state) => state.currentLanguage);
+  const translatedNodes = useMapStore((state) => state.translatedNodes);
+  const setTranslatedNode = useMapStore((state) => state.setTranslatedNode);
   const currentNode = useAudioStore((state) => state.currentNode);
   const isPlaying = useAudioStore((state) => state.isPlaying);
   const playAudio = useAudioStore((state) => state.playAudio);
   const pauseAudio = useAudioStore((state) => state.pauseAudio);
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+  const [translating, setTranslating] = useState(false);
+  const [displayNode, setDisplayNode] = useState(null);
 
   useEffect(() => {
-    if (selectedNode) {
-      document.body.style.overflow = 'hidden';
-      setCurrentVideoIndex(0);
-    } else {
+    if (!selectedNode) {
+      setDisplayNode(null);
       document.body.style.overflow = 'unset';
+      return;
     }
+
+    document.body.style.overflow = 'hidden';
+    setCurrentVideoIndex(0);
+
+    // If English or translation already exists, use it
+    if (currentLanguage === 'en') {
+      setDisplayNode(selectedNode);
+    } else if (translatedNodes[selectedNode.id]?.[currentLanguage]) {
+      setDisplayNode({
+        ...selectedNode,
+        ...translatedNodes[selectedNode.id][currentLanguage]
+      });
+    } else {
+      // Translate on-demand
+      translateNode();
+    }
+
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [selectedNode]);
+  }, [selectedNode, currentLanguage, translatedNodes]);
+
+  const translateNode = async () => {
+    if (!selectedNode) return;
+    
+    setTranslating(true);
+    try {
+      const translated = await translateLocationContent(selectedNode, getLanguageName(currentLanguage));
+      setTranslatedNode(selectedNode.id, currentLanguage, translated);
+      setDisplayNode({
+        ...selectedNode,
+        ...translated
+      });
+    } catch (error) {
+      console.error('Translation failed:', error);
+      await Swal.fire({
+        title: 'Translation Failed',
+        text: 'Unable to translate content. Showing original.',
+        icon: 'warning',
+        confirmButtonColor: '#6f4e35',
+        timer: 2000
+      });
+      setDisplayNode(selectedNode);
+    } finally {
+      setTranslating(false);
+    }
+  };
 
   if (!selectedNode) return null;
 
@@ -86,18 +136,37 @@ function NodeModal() {
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
             className="fixed bottom-0 left-0 right-0 bg-white dark:bg-neutral-800 rounded-t-3xl shadow-2xl z-[2001] max-h-[85vh] overflow-y-auto"
           >
-            <div className="sticky top-0 bg-white dark:bg-neutral-800 px-6 py-4 border-b border-neutral-200 dark:border-neutral-700 flex items-center justify-between rounded-t-3xl z-10">
-              <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">
-                {selectedNode.title}
-              </h3>
-              <button
-                onClick={clearSelectedNode}
-                className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded-full transition-colors"
-                aria-label="Close"
-              >
-                <X className="w-5 h-5 text-neutral-600 dark:text-neutral-300" />
-              </button>
-            </div>
+            {translating ? (
+              <div className="p-8 flex flex-col items-center justify-center min-h-[400px]">
+                <Loader className="w-12 h-12 text-heritage-700 dark:text-heritage-400 animate-spin mb-4" />
+                <p className="text-neutral-700 dark:text-neutral-300 font-medium">
+                  {t('loading', currentLanguage)} {getLanguageName(currentLanguage)}...
+                </p>
+                <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-2">
+                  {t('translatedTo', currentLanguage)} {getLanguageName(currentLanguage)}
+                </p>
+              </div>
+            ) : displayNode ? (
+              <>
+                <div className="sticky top-0 bg-white dark:bg-neutral-800 px-6 py-4 border-b border-neutral-200 dark:border-neutral-700 flex items-center justify-between rounded-t-3xl z-10">
+                  <div className="flex-1 pr-4">
+                    <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">
+                      {displayNode.title}
+                    </h3>
+                    {currentLanguage !== 'en' && (
+                      <p className="text-xs text-heritage-600 dark:text-heritage-400 mt-1">
+                        🌐 {t('translatedTo', currentLanguage)} {getLanguageName(currentLanguage)}
+                      </p>
+                    )}
+                  </div>
+                  <button
+                    onClick={clearSelectedNode}
+                    className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded-full transition-colors"
+                    aria-label="Close"
+                  >
+                    <X className="w-5 h-5 text-neutral-600 dark:text-neutral-300" />
+                  </button>
+                </div>
 
             <div className="p-6">
               {hasVideos && (
@@ -174,14 +243,14 @@ function NodeModal() {
                 </div>
               )}
 
-              <div className="flex items-center gap-4 mb-4 text-sm text-neutral-600">
+              <div className="flex items-center gap-4 mb-4 text-sm text-neutral-600 dark:text-neutral-300">
                 <div className="flex items-center gap-1">
                   <Calendar className="w-4 h-4" />
-                  <span>{selectedNode.historicalPeriod}</span>
+                  <span>{displayNode.historicalPeriod || selectedNode.historicalPeriod}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Tag className="w-4 h-4" />
-                  <span>{selectedNode.category}</span>
+                  <span>{displayNode.category || selectedNode.category}</span>
                 </div>
               </div>
 
@@ -191,9 +260,15 @@ function NodeModal() {
                   className="w-full mb-6 bg-amber-600 hover:bg-amber-700 text-white px-6 py-4 rounded-xl flex items-center justify-center gap-3 transition-colors font-semibold"
                 >
                   <Navigation className="w-5 h-5" />
-                  <span>Get Directions</span>
+                  <span>{t('getDirections', currentLanguage)}</span>
                 </button>
               )}
+
+              <p className="text-neutral-700 dark:text-neutral-300 mb-6 leading-relaxed">
+                {isDiscovered
+                  ? (displayNode.description || selectedNode.description)
+                  : t('unlockLocation', currentLanguage)}
+              </p>
 
               {isDiscovered && selectedNode.audioUrl && (
                 <button
@@ -203,13 +278,13 @@ function NodeModal() {
                   {isCurrentlyPlaying ? (
                     <>
                       <Pause className="w-5 h-5" />
-                      <span className="font-semibold">Pause Story</span>
+                      <span className="font-semibold">{t('pauseStory', currentLanguage)}</span>
                     </>
                   ) : (
                     <>
                       <Play className="w-5 h-5" />
                       <span className="font-semibold">
-                        Listen to Story ({Math.floor(selectedNode.audioDuration / 60)}:
+                        {t('listenToStory', currentLanguage)} ({Math.floor(selectedNode.audioDuration / 60)}:
                         {(selectedNode.audioDuration % 60).toString().padStart(2, '0')})
                       </span>
                     </>
@@ -234,7 +309,7 @@ function NodeModal() {
                         alt={image.caption}
                         className="w-full rounded-lg"
                       />
-                      <p className="text-sm text-neutral-600 italic">
+                      <p className="text-sm text-neutral-600 dark:text-neutral-400 italic">
                         {image.caption}
                       </p>
                     </div>
@@ -242,6 +317,12 @@ function NodeModal() {
                 </div>
               )}
             </div>
+            </>
+          ) : (
+            <div className="p-8 text-center">
+              <p className="text-neutral-600 dark:text-neutral-300">Loading...</p>
+            </div>
+          )}
           </motion.div>
         </>
       )}

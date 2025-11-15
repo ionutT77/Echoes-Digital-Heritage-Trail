@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-const useMapStore = create((set) => ({
+const useMapStore = create((set, get) => ({
   userLocation: null,
   selectedNode: null,
   discoveredNodes: new Set(),
@@ -10,6 +10,11 @@ const useMapStore = create((set) => ({
   map: null,
   clearRouteFunction: null,
   createRouteFunction: null,
+  
+  // Translation state
+  currentLanguage: 'en',
+  translatedNodes: {}, // { nodeId: { language: translatedContent } }
+  
   setMap: (map) => set({ map: map }),
   setClearRouteFunction: (fn) => set({ clearRouteFunction: fn }),
   setCreateRouteFunction: (fn) => set({ createRouteFunction: fn }),
@@ -23,6 +28,28 @@ const useMapStore = create((set) => ({
   setMapCenter: (center) => set({ mapCenter: center }),
   setMapZoom: (zoom) => set({ mapZoom: zoom }),
   clearSelectedNode: () => set({ selectedNode: null }),
+  
+  // Translation methods
+  setCurrentLanguage: (language) => set({ currentLanguage: language }),
+  
+  setTranslatedNode: (nodeId, language, translatedContent) =>
+    set((state) => ({
+      translatedNodes: {
+        ...state.translatedNodes,
+        [nodeId]: {
+          ...state.translatedNodes[nodeId],
+          [language]: translatedContent
+        }
+      }
+    })),
+  
+  getNodeInLanguage: (nodeId, language) => {
+    const state = get();
+    if (language === 'en') {
+      return state.culturalNodes.find(n => n.id === nodeId);
+    }
+    return state.translatedNodes[nodeId]?.[language];
+  },
 }));
 
 export default useMapStore;

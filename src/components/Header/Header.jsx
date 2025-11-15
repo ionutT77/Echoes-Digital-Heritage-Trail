@@ -3,6 +3,8 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Map, Settings, LogOut, User, Trophy, Moon, Sun } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import useMapStore from '../../stores/mapStore';
+import { t } from '../../utils/translations';
 import Swal from 'sweetalert2';
 
 function Header() {
@@ -10,6 +12,7 @@ function Header() {
   const location = useLocation();
   const { user, profile, signOut } = useAuth();
   const { isDark, toggleDarkMode } = useTheme();
+  const currentLanguage = useMapStore((state) => state.currentLanguage);
 
   const handleSignOut = async () => {
     const result = await Swal.fire({
@@ -72,7 +75,7 @@ function Header() {
             }`}
           >
             <Trophy className="w-5 h-5" />
-            <span className="hidden sm:inline font-medium">Leaderboard</span>
+            <span className="hidden sm:inline font-medium">{t('leaderboard', currentLanguage)}</span>
           </Link>
           
           {user && (
