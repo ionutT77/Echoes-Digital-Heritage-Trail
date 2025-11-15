@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import HomePage from './pages/HomePage';
 import Header from './components/Header/Header';
 import MapPage from './pages/MapPage';
@@ -15,9 +16,10 @@ import ProtectedRoute from './components/Auth/ProtectedRoute';
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <div className="min-h-screen bg-neutral-50">
+    <ThemeProvider>
+      <AuthProvider>
+        <Router>
+          <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900">
           <Header />
           <Routes>
             <Route path="/" element={<HomePage />} />
@@ -61,6 +63,7 @@ function App() {
         </div>
       </Router>
     </AuthProvider>
+    </ThemeProvider>
   );
 }
 

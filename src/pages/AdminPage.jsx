@@ -328,34 +328,34 @@ function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50 pt-16">
+    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900 pt-16">
       <div className="max-w-4xl mx-auto px-4 py-8">
         <button
           onClick={() => navigate('/map')}
-          className="flex items-center gap-2 text-neutral-600 hover:text-neutral-900 mb-6 transition-colors"
+          className="flex items-center gap-2 text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white mb-6 transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
           <span>Back to Map</span>
         </button>
 
-        <div className="bg-white rounded-2xl shadow-sm p-8">
+        <div className="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm p-8">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 bg-heritage-200 rounded-xl flex items-center justify-center">
-              <Plus className="w-6 h-6 text-heritage-800" />
+            <div className="w-12 h-12 bg-heritage-200 dark:bg-heritage-900 rounded-xl flex items-center justify-center">
+              <Plus className="w-6 h-6 text-heritage-800 dark:text-heritage-300" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-neutral-900">Admin Panel</h1>
-              <p className="text-neutral-600">Create new location and Review Location Requests</p>
+              <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Admin Panel</h1>
+              <p className="text-neutral-600 dark:text-neutral-300">Create new location and Review Location Requests</p>
             </div>
           </div>
 
-          <div className="flex gap-2 mb-8 border-b border-neutral-200">
+          <div className="flex gap-2 mb-8 border-b border-neutral-200 dark:border-neutral-700">
             <button
               onClick={() => setActiveTab('create')}
               className={`px-6 py-3 font-semibold transition-colors border-b-2 ${
                 activeTab === 'create'
-                  ? 'border-heritage-700 text-heritage-700'
-                  : 'border-transparent text-neutral-600 hover:text-neutral-900'
+                  ? 'border-heritage-700 dark:border-heritage-400 text-heritage-700 dark:text-heritage-400'
+                  : 'border-transparent text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
               }`}
             >
               <Plus className="w-5 h-5 inline mr-2" />
@@ -365,8 +365,8 @@ function AdminPage() {
               onClick={() => setActiveTab('requests')}
               className={`px-6 py-3 font-semibold transition-colors border-b-2 ${
                 activeTab === 'requests'
-                  ? 'border-heritage-700 text-heritage-700'
-                  : 'border-transparent text-neutral-600 hover:text-neutral-900'
+                  ? 'border-heritage-700 dark:border-heritage-400 text-heritage-700 dark:text-heritage-400'
+                  : 'border-transparent text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
               }`}
             >
               <MessageSquare className="w-5 h-5 inline mr-2" />
@@ -377,7 +377,7 @@ function AdminPage() {
           {activeTab === 'create' && (
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">
                   <span className="flex items-center gap-2">
                     <Tag className="w-4 h-4" />
                     Title
@@ -389,14 +389,14 @@ function AdminPage() {
                   value={formData.title}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
+                  className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
                   placeholder="e.g., The Old Theatre"
                 />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                  <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">
                     <span className="flex items-center gap-2">
                       <MapPin className="w-4 h-4" />
                       Latitude
@@ -409,13 +409,13 @@ function AdminPage() {
                     onChange={handleChange}
                     required
                     step="any"
-                    className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
+                    className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
                     placeholder="40.7484"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                  <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">
                     <span className="flex items-center gap-2">
                       <MapPin className="w-4 h-4" />
                       Longitude
@@ -428,14 +428,14 @@ function AdminPage() {
                     onChange={handleChange}
                     required
                     step="any"
-                    className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
+                    className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
                     placeholder="-73.9857"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">
                   Proximity Radius (meters)
                 </label>
                 <input
@@ -444,13 +444,13 @@ function AdminPage() {
                   value={formData.proximityRadius}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
+                  className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
                   placeholder="100"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">
                   <span className="flex items-center gap-2">
                     <Calendar className="w-4 h-4" />
                     Historical Period
@@ -462,13 +462,13 @@ function AdminPage() {
                   value={formData.historicalPeriod}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
+                  className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
                   placeholder="e.g., 1872-1954"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">
                   Category
                 </label>
                 <select
@@ -476,7 +476,7 @@ function AdminPage() {
                   value={formData.category}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
+                  className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
                 >
                   <option value="Architecture">Architecture</option>
                   <option value="Event">Event</option>
@@ -486,7 +486,7 @@ function AdminPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">
                   Description
                 </label>
                 <textarea
@@ -495,13 +495,13 @@ function AdminPage() {
                   onChange={handleChange}
                   required
                   rows={5}
-                  className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 resize-none transition-colors"
+                  className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 resize-none transition-colors"
                   placeholder="Write a detailed historical description..."
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">
                   <span className="flex items-center gap-2">
                     <FileAudio className="w-4 h-4" />
                     Audio URL
@@ -512,13 +512,13 @@ function AdminPage() {
                   name="audioUrl"
                   value={formData.audioUrl}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
+                  className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
                   placeholder="/audio/story.mp3"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">
                   Audio Duration (seconds)
                 </label>
                 <input
@@ -526,13 +526,13 @@ function AdminPage() {
                   name="audioDuration"
                   value={formData.audioDuration}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
+                  className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
                   placeholder="142"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">
                   <span className="flex items-center gap-2">
                     <Image className="w-4 h-4" />
                     Primary Image URL
@@ -543,20 +543,20 @@ function AdminPage() {
                   name="primaryImageUrl"
                   value={formData.primaryImageUrl}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
+                  className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
                   placeholder="https://images.unsplash.com/photo-..."
                 />
               </div>
 
-              <div className="border-t border-neutral-200 pt-6">
-                <h3 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center gap-2">
+              <div className="border-t border-neutral-200 dark:border-neutral-700 pt-6">
+                <h3 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4 flex items-center gap-2">
                   <Video className="w-5 h-5" />
                   Videos
                 </h3>
-                <div className="space-y-4 bg-neutral-50 p-4 rounded-lg">
+                <div className="space-y-4 bg-neutral-50 dark:bg-neutral-900 p-4 rounded-lg border border-neutral-200 dark:border-neutral-700">
                   <div className="grid grid-cols-1 gap-4">
                     <div>
-                      <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                      <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">
                         Video URL
                       </label>
                       <input
@@ -564,13 +564,13 @@ function AdminPage() {
                         name="url"
                         value={currentVideo.url}
                         onChange={handleVideoChange}
-                        className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
+                        className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
                         placeholder="https://example.com/video.mp4"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                      <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">
                         Caption (Optional)
                       </label>
                       <input
@@ -578,7 +578,7 @@ function AdminPage() {
                         name="caption"
                         value={currentVideo.caption}
                         onChange={handleVideoChange}
-                        className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
+                        className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
                         placeholder="Video description"
                       />
                     </div>
@@ -596,26 +596,26 @@ function AdminPage() {
 
                 {formData.videos.length > 0 && (
                   <div className="mt-4 space-y-3">
-                    <p className="text-sm font-semibold text-neutral-700">
+                    <p className="text-sm font-semibold text-neutral-700 dark:text-neutral-300">
                       Added Videos ({formData.videos.length}):
                     </p>
                     {formData.videos.map((video, index) => (
                       <div
                         key={index}
-                        className="flex items-start gap-3 p-4 bg-white border border-neutral-200 rounded-lg"
+                        className="flex items-start gap-3 p-4 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-600 rounded-lg"
                       >
                         <div className="flex-1 space-y-1">
-                          <p className="text-sm font-medium text-neutral-900 truncate">
+                          <p className="text-sm font-medium text-neutral-900 dark:text-white truncate">
                             {video.caption || 'No caption'}
                           </p>
-                          <p className="text-xs text-neutral-600 truncate">
+                          <p className="text-xs text-neutral-600 dark:text-neutral-400 truncate">
                             {video.url}
                           </p>
                         </div>
                         <button
                           type="button"
                           onClick={() => handleRemoveVideo(index)}
-                          className="p-2 hover:bg-red-50 rounded-lg transition-colors text-red-600"
+                          className="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors text-red-600 dark:text-red-400"
                           aria-label="Remove video"
                         >
                           <X className="w-4 h-4" />
@@ -626,15 +626,15 @@ function AdminPage() {
                 )}
               </div>
 
-              <div className="border-t border-neutral-200 pt-6">
-                <h3 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center gap-2">
+              <div className="border-t border-neutral-200 dark:border-neutral-700 pt-6">
+                <h3 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4 flex items-center gap-2">
                   <Image className="w-5 h-5" />
                   Additional Images
                 </h3>
-                <div className="space-y-4 bg-neutral-50 p-4 rounded-lg">
+                <div className="space-y-4 bg-neutral-50 dark:bg-neutral-900 p-4 rounded-lg border border-neutral-200 dark:border-neutral-700">
                   <div className="grid grid-cols-1 gap-4">
                     <div>
-                      <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                      <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">
                         Image URL
                       </label>
                       <input
@@ -642,13 +642,13 @@ function AdminPage() {
                         name="url"
                         value={currentImage.url}
                         onChange={handleImageChange}
-                        className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
+                        className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
                         placeholder="https://images.unsplash.com/photo-..."
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                      <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">
                         Caption
                       </label>
                       <input
@@ -656,13 +656,13 @@ function AdminPage() {
                         name="caption"
                         value={currentImage.caption}
                         onChange={handleImageChange}
-                        className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
+                        className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
                         placeholder="Description of the image"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                      <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">
                         Historical Date
                       </label>
                       <input
@@ -670,7 +670,7 @@ function AdminPage() {
                         name="historicalDate"
                         value={currentImage.historicalDate}
                         onChange={handleImageChange}
-                        className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
+                        className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
                         placeholder="e.g., 1890s, 19th century, Modern"
                       />
                     </div>
@@ -688,29 +688,29 @@ function AdminPage() {
 
                 {formData.images.length > 0 && (
                   <div className="mt-4 space-y-3">
-                    <p className="text-sm font-semibold text-neutral-700">
+                    <p className="text-sm font-semibold text-neutral-700 dark:text-neutral-300">
                       Added Images ({formData.images.length}):
                     </p>
                     {formData.images.map((image, index) => (
                       <div
                         key={index}
-                        className="flex items-start gap-3 p-4 bg-white border border-neutral-200 rounded-lg"
+                        className="flex items-start gap-3 p-4 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-600 rounded-lg"
                       >
                         <div className="flex-1 space-y-1">
-                          <p className="text-sm font-medium text-neutral-900 truncate">
+                          <p className="text-sm font-medium text-neutral-900 dark:text-white truncate">
                             {image.caption}
                           </p>
-                          <p className="text-xs text-neutral-600 truncate">
+                          <p className="text-xs text-neutral-600 dark:text-neutral-400 truncate">
                             {image.url}
                           </p>
-                          <p className="text-xs text-neutral-500">
+                          <p className="text-xs text-neutral-500 dark:text-neutral-400">
                             Date: {image.historicalDate}
                           </p>
                         </div>
                         <button
                           type="button"
                           onClick={() => handleRemoveImage(index)}
-                          className="p-2 hover:bg-red-50 rounded-lg transition-colors text-red-600"
+                          className="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors text-red-600 dark:text-red-400"
                           aria-label="Remove image"
                         >
                           <X className="w-4 h-4" />

@@ -84,18 +84,18 @@ function NodeModal() {
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl z-[2001] max-h-[85vh] overflow-y-auto"
+            className="fixed bottom-0 left-0 right-0 bg-white dark:bg-neutral-800 rounded-t-3xl shadow-2xl z-[2001] max-h-[85vh] overflow-y-auto"
           >
-            <div className="sticky top-0 bg-white px-6 py-4 border-b border-neutral-200 flex items-center justify-between rounded-t-3xl z-10">
-              <h3 className="text-lg font-semibold text-neutral-900">
+            <div className="sticky top-0 bg-white dark:bg-neutral-800 px-6 py-4 border-b border-neutral-200 dark:border-neutral-700 flex items-center justify-between rounded-t-3xl z-10">
+              <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">
                 {selectedNode.title}
               </h3>
               <button
                 onClick={clearSelectedNode}
-                className="p-2 hover:bg-neutral-100 rounded-full transition-colors"
+                className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded-full transition-colors"
                 aria-label="Close"
               >
-                <X className="w-5 h-5 text-neutral-600" />
+                <X className="w-5 h-5 text-neutral-600 dark:text-neutral-300" />
               </button>
             </div>
 
@@ -218,7 +218,7 @@ function NodeModal() {
               )}
 
               <div className="prose prose-neutral max-w-none">
-                <p className="text-neutral-700 leading-relaxed">
+                <p className="text-neutral-700 dark:text-neutral-300 leading-relaxed">
                   {isDiscovered
                     ? selectedNode.description
                     : "Walk within 100 meters of this location to unlock the full story and historic images."}

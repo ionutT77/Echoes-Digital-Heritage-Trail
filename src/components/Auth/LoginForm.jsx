@@ -57,21 +57,21 @@ function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-heritage-50 via-heritage-100 to-amber-50 pt-16 flex items-center justify-center px-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8">
+    <div className="min-h-screen bg-gradient-to-br from-heritage-50 via-heritage-100 to-amber-50 dark:from-neutral-900 dark:via-neutral-800 dark:to-neutral-900 pt-16 flex items-center justify-center px-4">
+      <div className="max-w-md w-full bg-white dark:bg-neutral-800 rounded-2xl shadow-lg p-8">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-12 h-12 bg-heritage-200 rounded-xl flex items-center justify-center">
             <LogIn className="w-6 h-6 text-heritage-800" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-neutral-900">Log In</h1>
-            <p className="text-neutral-600">Welcome back to Echoes</p>
+            <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Log In</h1>
+            <p className="text-neutral-600 dark:text-neutral-300">Welcome back to Echoes</p>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-semibold text-neutral-900 mb-2">
+            <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">
               Email or Username
             </label>
             <input
@@ -80,13 +80,13 @@ function LoginForm() {
               value={formData.emailOrUsername}
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
+              className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
               placeholder="username or email"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-neutral-900 mb-2">
+            <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">
               Password
             </label>
             <input
@@ -95,7 +95,7 @@ function LoginForm() {
               value={formData.password}
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
+              className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
               placeholder="••••••••"
             />
           </div>
@@ -112,18 +112,18 @@ function LoginForm() {
         <div className="mt-4 text-center">
           <button
             onClick={() => setShowForgotPassword(true)}
-            className="text-sm text-heritage-700 hover:text-heritage-800 font-medium transition-colors"
+            className="text-sm text-heritage-700 dark:text-heritage-300 hover:text-heritage-800 dark:hover:text-heritage-100 font-medium transition-colors"
           >
             Forgot Password?
           </button>
         </div>
 
         <div className="mt-6 text-center">
-          <p className="text-sm text-neutral-600">
+          <p className="text-sm text-neutral-600 dark:text-neutral-300">
             Don't have an account?{' '}
             <button
               onClick={() => navigate('/signup')}
-              className="text-heritage-700 font-semibold hover:text-heritage-800"
+              className="text-heritage-700 dark:text-heritage-400 font-semibold hover:text-heritage-800 dark:hover:text-heritage-300"
             >
               Sign Up
             </button>
