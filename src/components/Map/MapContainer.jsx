@@ -179,19 +179,38 @@ function MapContainer({ mapRef: externalMapRef }) {
       });
     }
 
-    // Select closest nodes to optimize route
+    // Calculate actual distances using Haversine formula
+    const calculateDistance = (lat1, lon1, lat2, lon2) => {
+      const R = 6371e3; // Earth's radius in meters
+      const φ1 = (lat1 * Math.PI) / 180;
+      const φ2 = (lat2 * Math.PI) / 180;
+      const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+      const Δλ = ((lon2 - lon1) * Math.PI) / 180;
+
+      const a =
+        Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+        Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+      return R * c; // Distance in meters
+    };
+
+    // Select closest nodes based on actual geodesic distance
     const nodesWithDistance = undiscoveredNodes.map(node => ({
       ...node,
-      distance: Math.sqrt(
-        Math.pow(node.latitude - userLocation.lat, 2) +
-        Math.pow(node.longitude - userLocation.lng, 2)
+      distance: calculateDistance(
+        userLocation.lat,
+        userLocation.lng,
+        node.latitude,
+        node.longitude
       )
     }));
 
-    // Sort by distance and take the requested number
+    // Sort by actual distance and take the requested number
     const selectedNodes = nodesWithDistance
       .sort((a, b) => a.distance - b.distance)
-      .slice(0, actualLocations);
+      .slice(0, actualLocations)
+      .map(({ distance, ...node }) => node); // Remove distance property
 
     console.log(`🗺️ Creating route to ${selectedNodes.length} locations (${availableTime} min available)`);
     
