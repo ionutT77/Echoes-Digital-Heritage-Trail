@@ -10,6 +10,7 @@ import LoginForm from './components/Auth/LoginForm';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import ProfilePage from './pages/ProfilePage';
 import LeaderboardPage from './pages/LeaderboardPage';
+import RequestLocationPage from './pages/RequestLocationPage';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
 
 function App() {
@@ -32,6 +33,14 @@ function App() {
             <Route path="/login" element={<LoginForm />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/leaderboard" element={<LeaderboardPage />} />
+            <Route 
+              path="/request-location" 
+              element={
+                <ProtectedRoute>
+                  <RequestLocationPage />
+                </ProtectedRoute>
+              } 
+            />
             <Route 
               path="/profile" 
               element={
