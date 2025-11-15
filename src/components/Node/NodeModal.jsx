@@ -174,7 +174,7 @@ function NodeModal() {
                 </div>
               )}
 
-              <div className="flex items-center gap-4 mb-4 text-sm text-neutral-600">
+              <div className="flex items-center gap-4 mb-4 text-sm text-neutral-600 dark:text-neutral-400">
                 <div className="flex items-center gap-1">
                   <Calendar className="w-4 h-4" />
                   <span>{selectedNode.historicalPeriod}</span>
@@ -221,7 +221,7 @@ function NodeModal() {
                 <p className="text-neutral-700 dark:text-neutral-300 leading-relaxed">
                   {isDiscovered
                     ? selectedNode.description
-                    : "Walk within 100 meters of this location to unlock the full story and historic images."}
+                    : "Walk within 50 meters of this location to unlock the full story and historic images."}
                 </p>
               </div>
 
@@ -234,7 +234,7 @@ function NodeModal() {
                         alt={image.caption}
                         className="w-full rounded-lg"
                       />
-                      <p className="text-sm text-neutral-600 italic">
+                      <p className="text-sm text-neutral-600 dark:text-neutral-400 italic">
                         {image.caption}
                       </p>
                     </div>

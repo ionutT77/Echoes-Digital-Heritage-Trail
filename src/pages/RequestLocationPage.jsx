@@ -315,7 +315,7 @@ function RequestLocationPage() {
       <div className="max-w-4xl mx-auto px-4 py-8">
         <button
           onClick={() => navigate('/profile')}
-          className="flex items-center gap-2 text-heritage-700 hover:text-heritage-900 mb-6 transition-colors"
+          className="flex items-center gap-2 text-heritage-700 dark:text-heritage-300 hover:text-heritage-900 dark:hover:text-heritage-100 mb-6 transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
           <span>Back to Profile</span>
@@ -354,7 +354,7 @@ function RequestLocationPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-neutral-700 mb-2">
+                <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200 mb-2">
                   Description & Historical Significance <span className="text-red-500">*</span>
                 </label>
                 <textarea
@@ -363,21 +363,21 @@ function RequestLocationPage() {
                   onChange={handleInputChange}
                   placeholder="Describe the location, its history, and why it should be added to the heritage trail..."
                   rows={6}
-                  className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
                   required
                 />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-neutral-700 mb-2">
+                  <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200 mb-2">
                     Category
                   </label>
                   <select
                     name="category"
                     value={formData.category}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
                   >
                     <option value="">Select a category</option>
                     {categories.map(cat => (
@@ -387,7 +387,7 @@ function RequestLocationPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-neutral-700 mb-2">
+                  <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200 mb-2">
                     Historical Period
                   </label>
                   <input
@@ -396,13 +396,13 @@ function RequestLocationPage() {
                     value={formData.historicalPeriod}
                     onChange={handleInputChange}
                     placeholder="e.g., 18th Century, 1890-1920"
-                    className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-neutral-700 mb-2">
+                <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200 mb-2">
                   GPS Coordinates <span className="text-red-500">*</span>
                 </label>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -413,7 +413,7 @@ function RequestLocationPage() {
                     onChange={handleInputChange}
                     placeholder="Latitude (e.g., 45.7489)"
                     step="0.000001"
-                    className="px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
+                    className="px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
                     required
                   />
                   <input
@@ -423,14 +423,14 @@ function RequestLocationPage() {
                     onChange={handleInputChange}
                     placeholder="Longitude (e.g., 21.2087)"
                     step="0.000001"
-                    className="px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
+                    className="px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
                     required
                   />
                 </div>
                 <button
                   type="button"
                   onClick={getCurrentLocation}
-                  className="mt-2 text-sm text-heritage-700 hover:text-heritage-900 font-medium flex items-center gap-2"
+                  className="mt-2 text-sm text-heritage-700 dark:text-heritage-400 hover:text-heritage-900 dark:hover:text-heritage-300 font-medium flex items-center gap-2"
                 >
                   <MapPin className="w-4 h-4" />
                   Use My Current Location
@@ -440,18 +440,18 @@ function RequestLocationPage() {
 
             {/* Photos Upload */}
             <div className="space-y-4">
-              <h2 className="text-xl font-bold text-neutral-900 border-b border-neutral-200 pb-2">
+              <h2 className="text-xl font-bold text-neutral-900 dark:text-white border-b border-neutral-200 dark:border-neutral-700 pb-2">
                 Photos <span className="text-red-500">*</span>
               </h2>
-              <p className="text-sm text-neutral-600">Upload up to 10 photos of the location (JPG, PNG)</p>
+              <p className="text-sm text-neutral-600 dark:text-neutral-400">Upload up to 10 photos of the location (JPG, PNG)</p>
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {photos.map((photo, index) => (
                   <div key={index} className="relative group">
-                    <img
+                      <img
                       src={photo.url}
                       alt={`Location photo ${index + 1}`}
-                      className="w-full h-32 object-cover rounded-lg border-2 border-neutral-200"
+                      className="w-full h-32 object-cover rounded-lg border-2 border-neutral-200 dark:border-neutral-600"
                     />
                     <button
                       type="button"
@@ -464,7 +464,7 @@ function RequestLocationPage() {
                 ))}
 
                 {photos.length < 10 && (
-                  <label className="w-full h-32 border-2 border-dashed border-neutral-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-heritage-500 hover:bg-heritage-50 transition-colors">
+                  <label className="w-full h-32 border-2 border-dashed border-neutral-300 dark:border-neutral-600 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-heritage-500 hover:bg-heritage-50 dark:hover:bg-heritage-900/20 transition-colors">
                     <input
                       type="file"
                       accept="image/*"
@@ -477,8 +477,8 @@ function RequestLocationPage() {
                       <Loader className="w-8 h-8 text-heritage-700 animate-spin" />
                     ) : (
                       <>
-                        <Image className="w-8 h-8 text-neutral-400 mb-2" />
-                        <span className="text-sm text-neutral-600">Add Photos</span>
+                        <Image className="w-8 h-8 text-neutral-400 dark:text-neutral-500 mb-2" />
+                        <span className="text-sm text-neutral-600 dark:text-neutral-400">Add Photos</span>
                       </>
                     )}
                   </label>
@@ -488,10 +488,10 @@ function RequestLocationPage() {
 
             {/* Audio Upload */}
             <div className="space-y-4">
-              <h2 className="text-xl font-bold text-neutral-900 border-b border-neutral-200 pb-2">
+              <h2 className="text-xl font-bold text-neutral-900 dark:text-white border-b border-neutral-200 dark:border-neutral-700 pb-2">
                 Audio Story <span className="text-red-500">*</span>
               </h2>
-              <p className="text-sm text-neutral-600">Choose how you want to provide the audio story for this location</p>
+              <p className="text-sm text-neutral-600 dark:text-neutral-400">Choose how you want to provide the audio story for this location</p>
 
               {/* Audio Option Selection */}
               {!audioOption && (
@@ -499,13 +499,13 @@ function RequestLocationPage() {
                   <button
                     type="button"
                     onClick={() => setAudioOption('upload')}
-                    className="p-6 border-2 border-neutral-300 rounded-lg hover:border-heritage-500 hover:bg-heritage-50 transition-colors text-left"
+                    className="p-6 border-2 border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 rounded-lg hover:border-heritage-500 hover:bg-heritage-50 dark:hover:bg-heritage-900/20 transition-colors text-left"
                   >
                     <div className="flex items-start gap-3">
-                      <Upload className="w-6 h-6 text-heritage-700 flex-shrink-0 mt-1" />
+                      <Upload className="w-6 h-6 text-heritage-700 dark:text-heritage-400 flex-shrink-0 mt-1" />
                       <div>
-                        <h3 className="font-semibold text-neutral-900 mb-1">Upload Your Audio</h3>
-                        <p className="text-sm text-neutral-600">Upload a pre-recorded audio file (MP3, WAV, max 10MB)</p>
+                        <h3 className="font-semibold text-neutral-900 dark:text-white mb-1">Upload Your Audio</h3>
+                        <p className="text-sm text-neutral-600 dark:text-neutral-400">Upload a pre-recorded audio file (MP3, WAV, max 10MB)</p>
                       </div>
                     </div>
                   </button>
@@ -513,13 +513,13 @@ function RequestLocationPage() {
                   <button
                     type="button"
                     onClick={() => setAudioOption('generate')}
-                    className="p-6 border-2 border-neutral-300 rounded-lg hover:border-heritage-500 hover:bg-heritage-50 transition-colors text-left"
+                    className="p-6 border-2 border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 rounded-lg hover:border-heritage-500 hover:bg-heritage-50 dark:hover:bg-heritage-900/20 transition-colors text-left"
                   >
                     <div className="flex items-start gap-3">
-                      <Music className="w-6 h-6 text-heritage-700 flex-shrink-0 mt-1" />
+                      <Music className="w-6 h-6 text-heritage-700 dark:text-heritage-400 flex-shrink-0 mt-1" />
                       <div>
-                        <h3 className="font-semibold text-neutral-900 mb-1">Let Us Generate Audio</h3>
-                        <p className="text-sm text-neutral-600">Provide a detailed description and we'll create the audio for you</p>
+                        <h3 className="font-semibold text-neutral-900 dark:text-white mb-1">Let Us Generate Audio</h3>
+                        <p className="text-sm text-neutral-600 dark:text-neutral-400">Provide a detailed description and we'll create the audio for you</p>
                       </div>
                     </div>
                   </button>
@@ -530,7 +530,7 @@ function RequestLocationPage() {
               {audioOption === 'upload' && (
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-neutral-900">Upload Audio File</h3>
+                    <h3 className="font-semibold text-neutral-900 dark:text-white">Upload Audio File</h3>
                     <button
                       type="button"
                       onClick={() => {
@@ -538,19 +538,19 @@ function RequestLocationPage() {
                         setAudioFile(null);
                         setAudioUrl('');
                       }}
-                      className="text-sm text-heritage-700 hover:text-heritage-900 font-medium"
+                      className="text-sm text-heritage-700 dark:text-heritage-400 hover:text-heritage-900 dark:hover:text-heritage-300 font-medium"
                     >
                       Change Option
                     </button>
                   </div>
 
                   {audioFile ? (
-                    <div className="flex items-center justify-between p-4 bg-heritage-50 border border-heritage-200 rounded-lg">
+                    <div className="flex items-center justify-between p-4 bg-heritage-50 dark:bg-heritage-900/20 border border-heritage-200 dark:border-heritage-700 rounded-lg">
                       <div className="flex items-center gap-3">
-                        <Music className="w-8 h-8 text-heritage-700" />
+                        <Music className="w-8 h-8 text-heritage-700 dark:text-heritage-400" />
                         <div>
-                          <p className="font-medium text-neutral-900">{audioFile.name}</p>
-                          <p className="text-sm text-neutral-600">
+                          <p className="font-medium text-neutral-900 dark:text-white">{audioFile.name}</p>
+                          <p className="text-sm text-neutral-600 dark:text-neutral-400">
                             {(audioFile.size / 1024 / 1024).toFixed(2)} MB
                           </p>
                         </div>
@@ -564,7 +564,7 @@ function RequestLocationPage() {
                       </button>
                     </div>
                   ) : (
-                    <label className="block w-full p-6 border-2 border-dashed border-neutral-300 rounded-lg cursor-pointer hover:border-heritage-500 hover:bg-heritage-50 transition-colors">
+                    <label className="block w-full p-6 border-2 border-dashed border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 rounded-lg cursor-pointer hover:border-heritage-500 hover:bg-heritage-50 dark:hover:bg-heritage-900/20 transition-colors">
                       <input
                         type="file"
                         accept="audio/*"
@@ -574,14 +574,14 @@ function RequestLocationPage() {
                       />
                       <div className="flex flex-col items-center">
                         {uploadingAudio ? (
-                          <Loader className="w-12 h-12 text-heritage-700 animate-spin mb-3" />
+                          <Loader className="w-12 h-12 text-heritage-700 dark:text-heritage-400 animate-spin mb-3" />
                         ) : (
-                          <Upload className="w-12 h-12 text-neutral-400 mb-3" />
+                          <Upload className="w-12 h-12 text-neutral-400 dark:text-neutral-500 mb-3" />
                         )}
-                        <p className="text-neutral-700 font-medium">
+                        <p className="text-neutral-700 dark:text-neutral-200 font-medium">
                           {uploadingAudio ? 'Uploading...' : 'Click to upload audio file'}
                         </p>
-                        <p className="text-sm text-neutral-500 mt-1">MP3, WAV (max 10MB)</p>
+                        <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">MP3, WAV (max 10MB)</p>
                       </div>
                     </label>
                   )}
@@ -592,21 +592,21 @@ function RequestLocationPage() {
               {audioOption === 'generate' && (
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-neutral-900">Audio Story Description</h3>
+                    <h3 className="font-semibold text-neutral-900 dark:text-white">Audio Story Description</h3>
                     <button
                       type="button"
                       onClick={() => {
                         setAudioOption('');
                         setFormData(prev => ({ ...prev, audioStoryDescription: '' }));
                       }}
-                      className="text-sm text-heritage-700 hover:text-heritage-900 font-medium"
+                      className="text-sm text-heritage-700 dark:text-heritage-400 hover:text-heritage-900 dark:hover:text-heritage-300 font-medium"
                     >
                       Change Option
                     </button>
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-semibold text-neutral-700 mb-2">
+                    <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200 mb-2">
                       Write 8-10 sentences describing the location's story
                     </label>
                     <textarea
@@ -615,13 +615,13 @@ function RequestLocationPage() {
                       onChange={handleInputChange}
                       placeholder="Tell us about this location's history, significance, interesting facts, and what makes it special. Be descriptive and engaging - this will be used to generate the audio narration that visitors will hear when they discover this location..."
                       rows={8}
-                      className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
+                      className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
                     />
                     <div className="mt-2 flex items-center justify-between">
-                      <p className="text-xs text-neutral-500">
+                      <p className="text-xs text-neutral-500 dark:text-neutral-400">
                         💡 Tip: Write in an engaging, storytelling style. Include historical dates, key figures, and interesting anecdotes.
                       </p>
-                      <p className="text-xs text-neutral-600">
+                      <p className="text-xs text-neutral-600 dark:text-neutral-400">
                         {formData.audioStoryDescription.split(/[.!?]+/).filter(s => s.trim()).length} sentences
                       </p>
                     </div>
@@ -632,13 +632,13 @@ function RequestLocationPage() {
 
             {/* Contact Information */}
             <div className="space-y-4">
-              <h2 className="text-xl font-bold text-neutral-900 border-b border-neutral-200 pb-2">
+              <h2 className="text-xl font-bold text-neutral-900 dark:text-white border-b border-neutral-200 dark:border-neutral-700 pb-2">
                 Your Contact Information <span className="text-red-500">*</span>
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-neutral-700 mb-2">
+                  <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200 mb-2">
                     Full Name <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -647,13 +647,13 @@ function RequestLocationPage() {
                     value={formData.submitterName}
                     onChange={handleInputChange}
                     placeholder="Your name"
-                    className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-neutral-700 mb-2">
+                  <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200 mb-2">
                     Email <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -663,14 +663,14 @@ function RequestLocationPage() {
                     onChange={handleInputChange}
                     placeholder="your.email@example.com"
                     readOnly
-                    className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-neutral-700 mb-2">
+                <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200 mb-2">
                   Phone Number <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -679,7 +679,7 @@ function RequestLocationPage() {
                   value={formData.submitterPhone}
                   onChange={handleInputChange}
                   placeholder="+40 123 456 789"
-                  className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
                   required
                 />
               </div>
@@ -690,7 +690,7 @@ function RequestLocationPage() {
               <button
                 type="button"
                 onClick={() => navigate('/map')}
-                className="flex-1 px-6 py-3 border-2 border-heritage-700 text-heritage-700 rounded-lg font-semibold hover:bg-heritage-50 transition-colors"
+                className="flex-1 px-6 py-3 border-2 border-heritage-700 dark:border-heritage-400 text-heritage-700 dark:text-heritage-400 rounded-lg font-semibold hover:bg-heritage-50 dark:hover:bg-heritage-900/20 transition-colors"
               >
                 Cancel
               </button>
