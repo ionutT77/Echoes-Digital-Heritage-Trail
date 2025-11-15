@@ -74,7 +74,7 @@ function useProximity() {
     checkProximity();
 
     // Set up 10-second interval
-    intervalRef.current = setInterval(checkProximity, 10000);
+    // intervalRef.current = setInterval(checkProximity, 10000);
 
     // Cleanup
     return () => {
