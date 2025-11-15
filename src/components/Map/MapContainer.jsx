@@ -8,9 +8,11 @@ import UserLocation from './UserLocation';
 import useMapStore from '../../stores/mapStore';
 import useRouting from '../../hooks/useRouting';
 import useGeolocation from '../../hooks/useGeolocation';
+import { useTheme } from '../../contexts/ThemeContext';
 import 'leaflet/dist/leaflet.css';
 
 function MapContainer({ mapRef: externalMapRef }) {
+  const { isDark } = useTheme();
   const mapRef = useRef(null);
   const { error, loading } = useGeolocation();
   const userLocation = useMapStore((state) => state.userLocation);
@@ -21,7 +23,7 @@ function MapContainer({ mapRef: externalMapRef }) {
   const setMap = useMapStore((state) => state.setMap);
   const setClearRouteFunction = useMapStore((state) => state.setClearRouteFunction);
   const setCreateRouteFunction = useMapStore((state) => state.setCreateRouteFunction);
-  const { createRoute, clearRoute } = useRouting(mapRef);
+  const { createRoute, clearRoute } = useRouting(mapRef, isDark);
   const [isCalculatingRoute, setIsCalculatingRoute] = useState(false);
 
   // Expose map ref to parent if provided
@@ -74,7 +76,9 @@ function MapContainer({ mapRef: externalMapRef }) {
         title: 'Location Required',
         text: 'Please enable location access to plan your route.',
         icon: 'warning',
-        confirmButtonColor: '#6f4e35'
+        confirmButtonColor: '#6f4e35',
+        background: isDark ? '#1f2937' : '#ffffff',
+        color: isDark ? '#f3f4f6' : '#000000'
       });
       return;
     }
@@ -87,7 +91,9 @@ function MapContainer({ mapRef: externalMapRef }) {
         title: 'All Discovered!',
         text: 'Congratulations! You have discovered all cultural nodes!',
         icon: 'success',
-        confirmButtonColor: '#6f4e35'
+        confirmButtonColor: '#6f4e35',
+        background: isDark ? '#1f2937' : '#ffffff',
+        color: isDark ? '#f3f4f6' : '#000000'
       });
       return;
     }
@@ -98,7 +104,7 @@ function MapContainer({ mapRef: externalMapRef }) {
       html: `
         <div class="space-y-4 text-left">
           <div>
-            <label class="block text-sm font-semibold text-neutral-900 mb-2">
+            <label class="block text-sm font-semibold ${isDark ? 'text-neutral-100' : 'text-neutral-900'} mb-2">
               How many locations do you want to visit?
             </label>
             <input 
@@ -107,12 +113,12 @@ function MapContainer({ mapRef: externalMapRef }) {
               min="1" 
               max="${undiscoveredNodes.length}" 
               value="${Math.min(3, undiscoveredNodes.length)}"
-              class="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500"
+              class="w-full px-4 py-2 border ${isDark ? 'border-neutral-600 bg-neutral-700 text-neutral-100' : 'border-neutral-300 bg-white text-neutral-900'} rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500"
             />
-            <p class="text-xs text-neutral-600 mt-1">${undiscoveredNodes.length} undiscovered locations available</p>
+            <p class="text-xs ${isDark ? 'text-neutral-400' : 'text-neutral-600'} mt-1">${undiscoveredNodes.length} undiscovered locations available</p>
           </div>
           <div>
-            <label class="block text-sm font-semibold text-neutral-900 mb-2">
+            <label class="block text-sm font-semibold ${isDark ? 'text-neutral-100' : 'text-neutral-900'} mb-2">
               How much time do you have? (minutes)
             </label>
             <input 
@@ -121,9 +127,9 @@ function MapContainer({ mapRef: externalMapRef }) {
               min="30" 
               max="480" 
               value="90"
-              class="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500"
+              class="w-full px-4 py-2 border ${isDark ? 'border-neutral-600 bg-neutral-700 text-neutral-100' : 'border-neutral-300 bg-white text-neutral-900'} rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500"
             />
-            <p class="text-xs text-neutral-600 mt-1">Includes 10 minutes at each location</p>
+            <p class="text-xs ${isDark ? 'text-neutral-400' : 'text-neutral-600'} mt-1">Includes 10 minutes at each location</p>
           </div>
         </div>
       `,
@@ -133,6 +139,8 @@ function MapContainer({ mapRef: externalMapRef }) {
       cancelButtonColor: '#6b7280',
       confirmButtonText: 'Create Route',
       cancelButtonText: 'Cancel',
+      background: isDark ? '#1f2937' : '#ffffff',
+      color: isDark ? '#f3f4f6' : '#000000',
       preConfirm: () => {
         const locations = parseInt(document.getElementById('swal-locations').value);
         const time = parseInt(document.getElementById('swal-time').value);
@@ -264,7 +272,7 @@ function MapContainer({ mapRef: externalMapRef }) {
               <p class="text-red-600 font-semibold">⚠️ Cannot create a route within your time budget</p>
               <p><strong>Available time:</strong> ${availableTime} minutes</p>
               <p><strong>Minimum route time:</strong> ~${routeResult.totalTimeMin} minutes</p>
-              <p class="text-sm text-neutral-600 mt-3">Please try:</p>
+              <p class="text-sm ${isDark ? 'text-neutral-400' : 'text-neutral-600'} mt-3">Please try:</p>
               <ul class="list-disc pl-5 text-sm">
                 <li>Increase your available time</li>
                 <li>Start from a location closer to the heritage sites</li>
@@ -272,7 +280,9 @@ function MapContainer({ mapRef: externalMapRef }) {
             </div>
           `,
           icon: 'error',
-          confirmButtonColor: '#6f4e35'
+          confirmButtonColor: '#6f4e35',
+          background: isDark ? '#1f2937' : '#ffffff',
+          color: isDark ? '#f3f4f6' : '#000000'
         });
         return;
       }
@@ -285,10 +295,10 @@ function MapContainer({ mapRef: externalMapRef }) {
             <p class="text-orange-600 font-semibold">⚠️ The ${selectedNodes.length}-location route exceeds your time budget</p>
             <p><strong>Your time budget:</strong> ${availableTime} minutes</p>
             <p><strong>Route would require:</strong> ${routeResult.totalTimeMin} minutes</p>
-            <hr class="my-3">
-            <p class="text-green-700 font-semibold">✓ We can create a route with ${reducedNodeCount} location${reducedNodeCount > 1 ? 's' : ''} instead</p>
-            <p class="text-sm text-neutral-600 mt-2">This shorter route should fit within your ${availableTime} minute budget.</p>
-            <p class="text-sm font-semibold text-heritage-700 mt-3">Would you like to create this shorter route?</p>
+            <hr class="my-3 ${isDark ? 'border-neutral-600' : 'border-neutral-300'}">
+            <p class="text-green-${isDark ? '400' : '700'} font-semibold">✓ We can create a route with ${reducedNodeCount} location${reducedNodeCount > 1 ? 's' : ''} instead</p>
+            <p class="text-sm ${isDark ? 'text-neutral-400' : 'text-neutral-600'} mt-2">This shorter route should fit within your ${availableTime} minute budget.</p>
+            <p class="text-sm font-semibold ${isDark ? 'text-heritage-400' : 'text-heritage-700'} mt-3">Would you like to create this shorter route?</p>
           </div>
         `,
         icon: 'question',
@@ -296,7 +306,9 @@ function MapContainer({ mapRef: externalMapRef }) {
         confirmButtonColor: '#6f4e35',
         cancelButtonColor: '#6b7280',
         confirmButtonText: 'Yes, Create Shorter Route',
-        cancelButtonText: 'No, Cancel'
+        cancelButtonText: 'No, Cancel',
+        background: isDark ? '#1f2937' : '#ffffff',
+        color: isDark ? '#f3f4f6' : '#000000'
       });
       
       if (accept) {
@@ -320,7 +332,9 @@ function MapContainer({ mapRef: externalMapRef }) {
             title: 'Route Creation Failed',
             text: 'Unable to create a route that fits your time budget. Please try with more time or fewer locations.',
             icon: 'error',
-            confirmButtonColor: '#6f4e35'
+            confirmButtonColor: '#6f4e35',
+            background: isDark ? '#1f2937' : '#ffffff',
+            color: isDark ? '#f3f4f6' : '#000000'
           });
         }
       }
@@ -330,7 +344,9 @@ function MapContainer({ mapRef: externalMapRef }) {
         title: 'Route Creation Failed',
         text: 'Failed to create route. Please ensure you have location access and try again.',
         icon: 'error',
-        confirmButtonColor: '#6f4e35'
+        confirmButtonColor: '#6f4e35',
+        background: isDark ? '#1f2937' : '#ffffff',
+        color: isDark ? '#f3f4f6' : '#000000'
       });
     }
   };

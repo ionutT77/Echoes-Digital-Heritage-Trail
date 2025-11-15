@@ -3,7 +3,7 @@ import L from 'leaflet';
 import Swal from 'sweetalert2';
 import useMapStore from '../stores/mapStore';
 
-function useRouting(mapRef) {
+function useRouting(mapRef, isDark = false) {
   const routeLayerRef = useRef(null);
   const markersRef = useRef([]);
 
@@ -32,7 +32,9 @@ function useRouting(mapRef) {
         title: 'API Key Missing',
         text: 'Please add your OpenRouteService API key to the .env file as VITE_OPENROUTESERVICE_API_KEY',
         icon: 'error',
-        confirmButtonColor: '#6f4e35'
+        confirmButtonColor: '#6f4e35',
+        background: isDark ? '#1f2937' : '#ffffff',
+        color: isDark ? '#f3f4f6' : '#000000'
       });
       return { success: false };
     }
@@ -49,7 +51,9 @@ function useRouting(mapRef) {
         text: `Showing route to the nearest ${maxNodes} nodes. Discover these first!`,
         icon: 'info',
         confirmButtonColor: '#6f4e35',
-        timer: 3000
+        timer: 3000,
+        background: isDark ? '#1f2937' : '#ffffff',
+        color: isDark ? '#f3f4f6' : '#000000'
       });
     }
 
@@ -230,14 +234,14 @@ function useRouting(mapRef) {
         title: '🎯 Optimized Route Created!',
         html: `
           <div class="text-left space-y-2">
-            ${slightlyOver ? '<p class="text-orange-600 font-semibold mb-2">⚠️ Route slightly exceeds your time budget but within tolerance</p>' : '<p class="text-sm text-green-600 font-semibold mb-2">✓ Route optimized for shortest distance</p>'}
+            ${slightlyOver ? '<p class="text-orange-600 font-semibold mb-2">⚠️ Route slightly exceeds your time budget but within tolerance</p>' : `<p class="text-sm ${isDark ? 'text-green-400' : 'text-green-600'} font-semibold mb-2">✓ Route optimized for shortest distance</p>`}
             <p><strong>Distance:</strong> ${distanceKm} km walking route</p>
             <p><strong>Walking time:</strong> ${walkingTimeMin} minutes</p>
             <p><strong>Visit time:</strong> ${visitTimeMin} minutes (10 min per location)</p>
-            <p class="text-lg font-bold text-heritage-700 mt-3">Total time: ${totalTimeMin} minutes</p>
-            ${availableTime ? `<p class="text-sm ${withinBudget ? 'text-green-600' : 'text-orange-600'}">${withinBudget ? '✓ Within' : '⚠️ Slightly over (approved)'} your ${availableTime} minute budget</p>` : ''}
-            <p class="text-sm text-neutral-600 mt-2">Visiting ${orderedNodes.length} location${orderedNodes.length !== 1 ? 's' : ''} in optimal order</p>
-            <div class="mt-3 text-xs text-neutral-500">
+            <p class="text-lg font-bold ${isDark ? 'text-heritage-400' : 'text-heritage-700'} mt-3">Total time: ${totalTimeMin} minutes</p>
+            ${availableTime ? `<p class="text-sm ${withinBudget ? (isDark ? 'text-green-400' : 'text-green-600') : 'text-orange-600'}">${withinBudget ? '✓ Within' : '⚠️ Slightly over (approved)'} your ${availableTime} minute budget</p>` : ''}
+            <p class="text-sm ${isDark ? 'text-neutral-400' : 'text-neutral-600'} mt-2">Visiting ${orderedNodes.length} location${orderedNodes.length !== 1 ? 's' : ''} in optimal order</p>
+            <div class="mt-3 text-xs ${isDark ? 'text-neutral-400' : 'text-neutral-500'}">
               <p class="font-semibold mb-1">Route order:</p>
               <ol class="list-decimal pl-5">
                 ${orderedNodes.map(node => `<li>${node.title}</li>`).join('')}
@@ -247,7 +251,9 @@ function useRouting(mapRef) {
         `,
         icon: slightlyOver ? 'warning' : 'success',
         confirmButtonColor: '#6f4e35',
-        confirmButtonText: 'OK'
+        confirmButtonText: 'OK',
+        background: isDark ? '#1f2937' : '#ffffff',
+        color: isDark ? '#f3f4f6' : '#000000'
       });
 
       // Fit map to route bounds
@@ -404,14 +410,14 @@ function useRouting(mapRef) {
             title: '✓ Optimized Route Created!',
             html: `
               <div class="text-left space-y-2">
-                ${slightlyOver ? '<p class="text-orange-600 font-semibold mb-2">⚠️ Route slightly exceeds your time budget but within tolerance</p>' : '<p class="text-sm text-blue-600 font-semibold mb-2">Using nearest-neighbor optimization</p>'}
+                ${slightlyOver ? '<p class="text-orange-600 font-semibold mb-2">⚠️ Route slightly exceeds your time budget but within tolerance</p>' : `<p class="text-sm ${isDark ? 'text-blue-400' : 'text-blue-600'} font-semibold mb-2">Using nearest-neighbor optimization</p>`}
                 <p><strong>Distance:</strong> ${distanceKm} km</p>
                 <p><strong>Walking time:</strong> ${walkingTimeMin} min</p>
                 <p><strong>Visit time:</strong> ${visitTimeMin} min</p>
-                <p class="text-lg font-bold text-heritage-700 mt-3">Total: ${totalTimeMin} min</p>
-                ${availableTime ? `<p class="text-sm ${withinBudget ? 'text-green-600' : 'text-orange-600'}">${withinBudget ? '✓ Within' : '⚠️ Slightly over (approved)'} your ${availableTime} minute budget</p>` : ''}
-                <p class="text-sm text-neutral-600 mt-2">${orderedNodes.length} locations</p>
-                <div class="mt-3 text-xs text-neutral-500">
+                <p class="text-lg font-bold ${isDark ? 'text-heritage-400' : 'text-heritage-700'} mt-3">Total: ${totalTimeMin} min</p>
+                ${availableTime ? `<p class="text-sm ${withinBudget ? (isDark ? 'text-green-400' : 'text-green-600') : 'text-orange-600'}">${withinBudget ? '✓ Within' : '⚠️ Slightly over (approved)'} your ${availableTime} minute budget</p>` : ''}
+                <p class="text-sm ${isDark ? 'text-neutral-400' : 'text-neutral-600'} mt-2">${orderedNodes.length} locations</p>
+                <div class="mt-3 text-xs ${isDark ? 'text-neutral-400' : 'text-neutral-500'}">
                   <p class="font-semibold mb-1">Route order:</p>
                   <ol class="list-decimal pl-5">
                     ${orderedNodes.map(node => `<li>${node.title}</li>`).join('')}
@@ -421,7 +427,9 @@ function useRouting(mapRef) {
             `,
             icon: slightlyOver ? 'warning' : 'success',
             confirmButtonColor: '#6f4e35',
-            confirmButtonText: 'OK'
+            confirmButtonText: 'OK',
+            background: isDark ? '#1f2937' : '#ffffff',
+            color: isDark ? '#f3f4f6' : '#000000'
           });
 
           // Fit bounds
@@ -544,14 +552,14 @@ function useRouting(mapRef) {
       title: 'Simple Route Created',
       html: `
         <div class="text-left space-y-2">
-          ${slightlyOver ? '<p class="text-orange-600 font-semibold mb-2">⚠️ Route slightly exceeds your time budget but within tolerance</p>' : '<p class="text-sm text-neutral-600 mb-2">Using straight-line approximation</p>'}
+          ${slightlyOver ? '<p class="text-orange-600 font-semibold mb-2">⚠️ Route slightly exceeds your time budget but within tolerance</p>' : `<p class="text-sm ${isDark ? 'text-neutral-400' : 'text-neutral-600'} mb-2">Using straight-line approximation</p>`}
           <p><strong>Approx. distance:</strong> ${distanceKm} km</p>
           <p><strong>Est. walking time:</strong> ${walkingTimeMin} min</p>
           <p><strong>Visit time:</strong> ${visitTimeMin} min</p>
-          <p class="text-lg font-bold text-heritage-700 mt-3">Total: ~${totalTimeMin} min</p>
-          ${availableTime ? `<p class="text-sm ${withinBudget ? 'text-green-600' : 'text-orange-600'}">${withinBudget ? '✓ Within' : '⚠️ Slightly over (approved)'} your ${availableTime} minute budget</p>` : ''}
+          <p class="text-lg font-bold ${isDark ? 'text-heritage-400' : 'text-heritage-700'} mt-3">Total: ~${totalTimeMin} min</p>
+          ${availableTime ? `<p class="text-sm ${withinBudget ? (isDark ? 'text-green-400' : 'text-green-600') : 'text-orange-600'}">${withinBudget ? '✓ Within' : '⚠️ Slightly over (approved)'} your ${availableTime} minute budget</p>` : ''}
           ${orderedNodes ? `
-            <div class="mt-3 text-xs text-neutral-500">
+            <div class="mt-3 text-xs ${isDark ? 'text-neutral-400' : 'text-neutral-500'}">
               <p class="font-semibold mb-1">Route order:</p>
               <ol class="list-decimal pl-5">
                 ${orderedNodes.map(node => `<li>${node.title}</li>`).join('')}
@@ -562,7 +570,9 @@ function useRouting(mapRef) {
       `,
       icon: slightlyOver ? 'warning' : 'info',
       confirmButtonColor: '#6f4e35',
-      confirmButtonText: 'OK'
+      confirmButtonText: 'OK',
+      background: isDark ? '#1f2937' : '#ffffff',
+      color: isDark ? '#f3f4f6' : '#000000'
     });
 
     // Fit map to show all waypoints

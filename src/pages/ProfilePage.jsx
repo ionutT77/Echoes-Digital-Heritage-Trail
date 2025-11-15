@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Mail, Key, MapPin, Trophy, ArrowLeft, Eye, EyeOff, Check, X, AlertCircle, Plus } from 'lucide-react';
+import { User, Mail, Key, MapPin, Trophy, ArrowLeft, Eye, EyeOff, Check, X, AlertCircle, Plus, Medal } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import useMapStore from '../stores/mapStore';
 import { supabase } from '../lib/supabaseClient';
 import { fetchCulturalNodes, fetchUserDiscoveries } from '../services/nodesService';
+import { getUserRank } from '../services/leaderboardService';
 import NodeModal from '../components/Node/NodeModal';
 import AudioPlayer from '../components/Audio/AudioPlayer';
 import Swal from 'sweetalert2';
@@ -21,6 +22,7 @@ function ProfilePage() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [newPasswordFocused, setNewPasswordFocused] = useState(false);
+  const [userStats, setUserStats] = useState({ rank: null, points: 0 });
   const [formData, setFormData] = useState({
     username: profile?.username || '',
     email: profile?.email || '',
@@ -40,6 +42,18 @@ function ProfilePage() {
       });
     }
   }, [profile]);
+
+  useEffect(() => {
+    async function loadUserStats() {
+      if (user?.id) {
+        const stats = await getUserRank(user.id);
+        if (stats) {
+          setUserStats({ rank: stats.rank, points: stats.points });
+        }
+      }
+    }
+    loadUserStats();
+  }, [user]);
 
   const discoveredNodesList = culturalNodes.filter(node => 
     discoveredNodes.has(node.id)
@@ -284,17 +298,35 @@ function ProfilePage() {
 
         <div className="bg-white dark:bg-neutral-800 rounded-2xl shadow-lg overflow-hidden">
           <div className="bg-heritage-700 px-8 py-6">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-heritage-100 rounded-full flex items-center justify-center">
-                <User className="w-8 h-8 text-heritage-800" />
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 bg-heritage-100 rounded-full flex items-center justify-center">
+                  <User className="w-8 h-8 text-heritage-800" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold text-white">
+                    {profile?.username || 'User Profile'}
+                  </h1>
+                  <p className="text-heritage-200">
+                    {discoveredNodesList.length} of {culturalNodes.length} nodes discovered
+                  </p>
+                </div>
               </div>
-              <div>
-                <h1 className="text-2xl font-bold text-white">
-                  {profile?.username || 'User Profile'}
-                </h1>
-                <p className="text-heritage-200">
-                  {discoveredNodesList.length} of {culturalNodes.length} nodes discovered
-                </p>
+              <div className="flex flex-col items-end gap-2">
+                {userStats.rank && (
+                  <div className="flex items-center gap-2 bg-heritage-600 px-4 py-2 rounded-lg">
+                    <Medal className="w-5 h-5 text-amber-300" />
+                    <span className="text-white font-semibold">
+                      Rank #{userStats.rank}
+                    </span>
+                  </div>
+                )}
+                <div className="flex items-center gap-2 bg-amber-500 px-4 py-2 rounded-lg">
+                  <Trophy className="w-5 h-5 text-white" />
+                  <span className="text-white font-semibold">
+                    {userStats.points} points
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -590,7 +622,7 @@ function ProfilePage() {
             {activeTab === 'discoveries' && (
               <div>
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-semibold text-neutral-900">
+                  <h3 className="text-xl font-semibold text-neutral-900 dark:text-white">
                     Your Discoveries ({discoveredNodesList.length}/{culturalNodes.length})
                   </h3>
                   <button
@@ -624,7 +656,7 @@ function ProfilePage() {
                       <div
                         key={node.id}
                         onClick={() => handleNodeClick(node)}
-                        className="group cursor-pointer bg-white border border-neutral-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300"
+                        className="group cursor-pointer bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300"
                       >
                         {node.primaryImageUrl && (
                           <div className="relative h-48 overflow-hidden">
@@ -642,13 +674,13 @@ function ProfilePage() {
                         <div
                           className="p-4"
                         >
-                          <h4 className="font-semibold text-neutral-900 mb-2 group-hover:text-heritage-700 transition-colors">
+                          <h4 className="font-semibold text-neutral-900 dark:text-white mb-2 group-hover:text-heritage-700 dark:group-hover:text-heritage-400 transition-colors">
                             {node.title}
                           </h4>
-                          <p className="text-sm text-neutral-600 line-clamp-2 mb-3">
+                          <p className="text-sm text-neutral-600 dark:text-neutral-300 line-clamp-2 mb-3">
                             {node.description}
                           </p>
-                          <div className="flex items-center gap-4 text-xs text-neutral-500">
+                          <div className="flex items-center gap-4 text-xs text-neutral-500 dark:text-neutral-400">
                             <span>{node.category}</span>
                             <span>•</span>
                             <span>{node.historicalPeriod}</span>

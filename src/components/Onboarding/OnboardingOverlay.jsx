@@ -55,24 +55,24 @@ function OnboardingOverlay() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/80 z-[3000] flex items-center justify-center p-6"
+          className="fixed inset-0 bg-black/80 dark:bg-black/90 z-[3000] flex items-center justify-center p-6"
         >
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            className="bg-white rounded-2xl p-8 max-w-md w-full"
+            className="bg-white dark:bg-neutral-800 rounded-2xl p-8 max-w-md w-full border border-neutral-200 dark:border-neutral-700"
           >
             <div className="text-center mb-8">
               <div className="flex justify-center mb-4">
                 {React.createElement(steps[currentStep].icon, {
-                  className: "w-16 h-16 text-heritage-700"
+                  className: "w-16 h-16 text-heritage-700 dark:text-heritage-400"
                 })}
               </div>
-              <h2 className="text-2xl font-bold text-neutral-900 mb-2">
+              <h2 className="text-2xl font-bold text-neutral-900 dark:text-white mb-2">
                 {steps[currentStep].title}
               </h2>
-              <p className="text-neutral-600">
+              <p className="text-neutral-600 dark:text-neutral-300">
                 {steps[currentStep].description}
               </p>
             </div>
@@ -83,8 +83,8 @@ function OnboardingOverlay() {
                   key={index}
                   className={`h-1.5 rounded-full transition-all ${
                     index === currentStep
-                      ? 'w-8 bg-heritage-700'
-                      : 'w-1.5 bg-heritage-300'
+                      ? 'w-8 bg-heritage-700 dark:bg-heritage-500'
+                      : 'w-1.5 bg-heritage-300 dark:bg-heritage-600'
                   }`}
                 />
               ))}
@@ -93,13 +93,13 @@ function OnboardingOverlay() {
             <div className="flex gap-3">
               <button
                 onClick={handleSkip}
-                className="flex-1 px-6 py-3 text-heritage-700 hover:text-heritage-900 font-medium transition-colors"
+                className="flex-1 px-6 py-3 text-heritage-700 dark:text-heritage-400 hover:text-heritage-900 dark:hover:text-heritage-200 font-medium transition-colors"
               >
                 Skip
               </button>
               <button
                 onClick={handleNext}
-                className="flex-1 px-6 py-3 bg-heritage-700 hover:bg-heritage-800 text-white rounded-lg font-semibold transition-colors"
+                className="flex-1 px-6 py-3 bg-heritage-700 dark:bg-heritage-600 hover:bg-heritage-800 dark:hover:bg-heritage-700 text-white rounded-lg font-semibold transition-colors"
               >
                 {currentStep < steps.length - 1 ? 'Next' : 'Get Started'}
               </button>
