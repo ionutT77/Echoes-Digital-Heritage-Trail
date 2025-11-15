@@ -107,9 +107,9 @@ function MapContainer({ mapRef: externalMapRef }) {
           id="category-${category}" 
           value="${category}"
           ${selectedCategories.length === 0 || selectedCategories.includes(category) ? 'checked' : ''}
-          class="w-4 h-4 text-heritage-600 bg-gray-100 border-gray-300 rounded focus:ring-heritage-500"
+          class="w-4 h-4 text-heritage-600 ${isDark ? 'bg-neutral-700 border-neutral-500' : 'bg-gray-100 border-gray-300'} rounded focus:ring-heritage-500"
         />
-        <label for="category-${category}" class="text-sm font-medium text-gray-900">
+        <label for="category-${category}" class="text-sm font-medium ${isDark ? 'text-neutral-100' : 'text-gray-900'}">
           ${category}
         </label>
       </div>
@@ -120,8 +120,8 @@ function MapContainer({ mapRef: externalMapRef }) {
       title: 'Plan Your Route',
       html: `
         <div class="space-y-4 text-left">
-          <div class="bg-heritage-50 dark:bg-heritage-900/20 p-3 rounded-lg border border-heritage-200 dark:border-heritage-700">
-            <label class="block text-sm font-semibold text-neutral-900 mb-2">
+          <div class="${isDark ? 'bg-heritage-900/20 border-heritage-700' : 'bg-heritage-50 border-heritage-200'} p-3 rounded-lg border">
+            <label class="block text-sm font-semibold ${isDark ? 'text-neutral-100' : 'text-neutral-900'} mb-2">
               <span class="flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
@@ -129,7 +129,7 @@ function MapContainer({ mapRef: externalMapRef }) {
                 Filter by Category
               </span>
             </label>
-            <p class="text-xs text-neutral-600 mb-2">Select which types of locations to visit:</p>
+            <p class="text-xs ${isDark ? 'text-neutral-400' : 'text-neutral-600'} mb-2">Select which types of locations to visit:</p>
             ${checkboxesHtml}
           </div>
           <div>
