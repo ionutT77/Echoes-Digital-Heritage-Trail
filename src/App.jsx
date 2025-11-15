@@ -7,6 +7,8 @@ import MapPage from './pages/MapPage';
 import AdminPage from './pages/AdminPage';
 import SignUpForm from './components/Auth/SignUpForm';
 import LoginForm from './components/Auth/LoginForm';
+import ResetPasswordPage from './pages/ResetPasswordPage';
+import ProfilePage from './pages/ProfilePage';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
 
 function App() {
@@ -27,6 +29,15 @@ function App() {
             />
             <Route path="/signup" element={<SignUpForm />} />
             <Route path="/login" element={<LoginForm />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route 
+              path="/profile" 
+              element={
+                <ProtectedRoute>
+                  <ProfilePage />
+                </ProtectedRoute>
+              } 
+            />
             <Route 
               path="/admin" 
               element={

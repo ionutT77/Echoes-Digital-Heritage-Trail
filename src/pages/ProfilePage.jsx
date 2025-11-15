@@ -1,0 +1,615 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { User, Mail, Key, MapPin, Trophy, ArrowLeft, Eye, EyeOff, Check, X, AlertCircle } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import useMapStore from '../stores/mapStore';
+import { supabase } from '../lib/supabaseClient';
+import Swal from 'sweetalert2';
+
+function ProfilePage() {
+  const navigate = useNavigate();
+  const { user, profile } = useAuth();
+  const discoveredNodes = useMapStore((state) => state.discoveredNodes);
+  const culturalNodes = useMapStore((state) => state.culturalNodes);
+  const setSelectedNode = useMapStore((state) => state.setSelectedNode);
+  const [activeTab, setActiveTab] = useState('credentials');
+  const [loading, setLoading] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [newPasswordFocused, setNewPasswordFocused] = useState(false);
+  const [formData, setFormData] = useState({
+    username: profile?.username || '',
+    email: profile?.email || '',
+    currentPassword: '',
+    newPassword: '',
+    confirmNewPassword: ''
+  });
+
+  useEffect(() => {
+    if (profile) {
+      setFormData({
+        username: profile.username || '',
+        email: profile.email || '',
+        currentPassword: '',
+        newPassword: '',
+        confirmNewPassword: ''
+      });
+    }
+  }, [profile]);
+
+  const discoveredNodesList = culturalNodes.filter(node => 
+    discoveredNodes.has(node.id)
+  );
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const passwordRequirements = {
+    minLength: formData.newPassword.length >= 8,
+    hasUppercase: /[A-Z]/.test(formData.newPassword),
+    hasLowercase: /[a-z]/.test(formData.newPassword),
+    hasNumber: /\d/.test(formData.newPassword),
+    hasSpecial: /[!@#$%^&*(),.?":{}|<>]/.test(formData.newPassword),
+  };
+
+  const allRequirementsMet = Object.values(passwordRequirements).every(Boolean);
+
+  const getPasswordStrength = () => {
+    const metCount = Object.values(passwordRequirements).filter(Boolean).length;
+    if (metCount === 0) return { label: '', color: '' };
+    if (metCount <= 2) return { label: 'Weak', color: 'text-red-600' };
+    if (metCount <= 4) return { label: 'Medium', color: 'text-amber-600' };
+    return { label: 'Strong', color: 'text-green-600' };
+  };
+
+  const passwordStrength = getPasswordStrength();
+
+  const handleUpdateCredentials = async (e) => {
+    e.preventDefault();
+
+    // Validate password fields if any password field is filled
+    if (formData.currentPassword || formData.newPassword || formData.confirmNewPassword) {
+      if (!formData.currentPassword) {
+        await Swal.fire({
+          title: 'Error',
+          text: 'Please enter your current password',
+          icon: 'error',
+          confirmButtonColor: '#6f4e35'
+        });
+        return;
+      }
+
+      if (!formData.newPassword) {
+        await Swal.fire({
+          title: 'Error',
+          text: 'Please enter a new password',
+          icon: 'error',
+          confirmButtonColor: '#6f4e35'
+        });
+        return;
+      }
+
+      if (!allRequirementsMet) {
+        await Swal.fire({
+          title: 'Error',
+          text: 'Please meet all password requirements',
+          icon: 'error',
+          confirmButtonColor: '#6f4e35'
+        });
+        return;
+      }
+
+      if (formData.newPassword !== formData.confirmNewPassword) {
+        await Swal.fire({
+          title: 'Error',
+          text: 'New passwords do not match',
+          icon: 'error',
+          confirmButtonColor: '#6f4e35'
+        });
+        return;
+      }
+    }
+
+    // Validate email change separately
+    if (formData.email !== profile.email && !formData.email) {
+      await Swal.fire({
+        title: 'Error',
+        text: 'Email address cannot be empty',
+        icon: 'error',
+        confirmButtonColor: '#6f4e35'
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const updates = {};
+
+      // Update username
+      if (formData.username !== profile.username && formData.username) {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .update({ username: formData.username })
+          .eq('id', user.id);
+
+        if (profileError) throw profileError;
+        updates.username = true;
+      }
+
+      // Update email - requires verification via CURRENT email
+      if (formData.email !== profile.email && formData.email) {
+        // Supabase sends verification to CURRENT email by default
+        const { error: emailError } = await supabase.auth.updateUser({
+          email: formData.email
+        });
+
+        if (emailError) throw emailError;
+        updates.email = true;
+      }
+
+      // Update password - requires current password
+      if (formData.currentPassword && formData.newPassword) {
+        // First verify current password by attempting to sign in
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: profile.email,
+          password: formData.currentPassword
+        });
+
+        if (signInError) {
+          setLoading(false);
+          await Swal.fire({
+            title: 'Error',
+            text: 'Current password is incorrect',
+            icon: 'error',
+            confirmButtonColor: '#6f4e35'
+          });
+          return;
+        }
+
+        // If current password is correct, update to new password
+        const { error: passwordError } = await supabase.auth.updateUser({
+          password: formData.newPassword
+        });
+
+        if (passwordError) throw passwordError;
+        updates.password = true;
+      }
+
+      setLoading(false);
+
+      // Reset password fields
+      setFormData({ 
+        ...formData, 
+        currentPassword: '', 
+        newPassword: '', 
+        confirmNewPassword: '' 
+      });
+
+      if (updates.email) {
+        await Swal.fire({
+          title: 'Verification Email Sent',
+          html: `We have sent a verification link to your current email address: <strong>${profile.email}</strong><br><br>Please check your inbox and click the link to confirm your email change.<br><br><small>If you no longer have access to this email, please contact support for assistance.</small>`,
+          icon: 'info',
+          confirmButtonColor: '#6f4e35'
+        });
+      } else {
+        await Swal.fire({
+          title: 'Success!',
+          text: 'Your profile has been updated successfully.',
+          icon: 'success',
+          confirmButtonColor: '#6f4e35'
+        });
+      }
+    } catch (error) {
+      setLoading(false);
+      await Swal.fire({
+        title: 'Error',
+        text: error.message || 'Failed to update profile. Please try again.',
+        icon: 'error',
+        confirmButtonColor: '#6f4e35'
+      });
+    }
+  };
+
+  const handleNodeClick = (node) => {
+    setSelectedNode(node);
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-heritage-50 via-heritage-100 to-amber-50 pt-16">
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        <button
+          onClick={() => navigate('/map')}
+          className="flex items-center gap-2 text-heritage-700 hover:text-heritage-900 mb-6 transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          <span>Back to Map</span>
+        </button>
+
+        <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+          <div className="bg-heritage-700 px-8 py-6">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 bg-heritage-100 rounded-full flex items-center justify-center">
+                <User className="w-8 h-8 text-heritage-800" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-white">
+                  {profile?.username || 'User Profile'}
+                </h1>
+                <p className="text-heritage-200">
+                  {discoveredNodesList.length} of {culturalNodes.length} nodes discovered
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="border-b border-neutral-200">
+            <div className="flex">
+              <button
+                onClick={() => setActiveTab('credentials')}
+                className={`flex-1 px-6 py-4 font-semibold transition-colors ${
+                  activeTab === 'credentials'
+                    ? 'border-b-2 border-heritage-700 text-heritage-700'
+                    : 'text-neutral-600 hover:text-heritage-700'
+                }`}
+              >
+                <div className="flex items-center justify-center gap-2">
+                  <Key className="w-5 h-5" />
+                  <span>Credentials</span>
+                </div>
+              </button>
+              <button
+                onClick={() => setActiveTab('discoveries')}
+                className={`flex-1 px-6 py-4 font-semibold transition-colors ${
+                  activeTab === 'discoveries'
+                    ? 'border-b-2 border-heritage-700 text-heritage-700'
+                    : 'text-neutral-600 hover:text-heritage-700'
+                }`}
+              >
+                <div className="flex items-center justify-center gap-2">
+                  <Trophy className="w-5 h-5" />
+                  <span>Discoveries</span>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <div className="p-8">
+            {activeTab === 'credentials' && (
+              <form onSubmit={handleUpdateCredentials} className="space-y-6 max-w-2xl">
+                <div>
+                  <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                    <span className="flex items-center gap-2">
+                      <User className="w-4 h-4" />
+                      Username
+                    </span>
+                  </label>
+                  <input
+                    type="text"
+                    name="username"
+                    value={formData.username}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                    <span className="flex items-center gap-2">
+                      <Mail className="w-4 h-4" />
+                      Email Address
+                    </span>
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
+                  />
+                </div>
+
+                <div className="pt-6 border-t border-neutral-200">
+                  <h3 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center gap-2">
+                    <Mail className="w-5 h-5" />
+                    Change Email Address
+                  </h3>
+                  <div className="mb-4 space-y-2">
+                    <p className="text-sm text-neutral-600 flex items-start gap-2">
+                      <AlertCircle className="w-4 h-4 mt-0.5 text-amber-600" />
+                      Changing your email requires verification. You will receive a confirmation link at your <strong>current email address</strong> ({profile?.email}).
+                    </p>
+                    <p className="text-xs text-neutral-500 pl-6">
+                      Don't have access to your current email? Please contact our support team for assistance.
+                    </p>
+                  </div>
+                  <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                    New Email Address
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
+                  />
+                </div>
+
+                <div className="pt-6 border-t border-neutral-200">
+                  <h3 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center gap-2">
+                    <Key className="w-5 h-5" />
+                    Change Password
+                  </h3>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                        Current Password
+                      </label>
+                      <div className="relative">
+                        <input
+                          type={showCurrentPassword ? "text" : "password"}
+                          name="currentPassword"
+                          value={formData.currentPassword}
+                          onChange={handleChange}
+                          className="w-full px-4 py-3 pr-12 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
+                          placeholder="Enter current password"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-700 transition-colors"
+                          aria-label={showCurrentPassword ? "Hide password" : "Show password"}
+                        >
+                          {showCurrentPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div>
+                  <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                        New Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showNewPassword ? "text" : "password"}
+                      name="newPassword"
+                      value={formData.newPassword}
+                      onChange={handleChange}
+                      onFocus={() => setNewPasswordFocused(true)}
+                      onBlur={() => setNewPasswordFocused(false)}
+                      className="w-full px-4 py-3 pr-12 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
+                      placeholder="Enter new password"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-700 transition-colors"
+                      aria-label={showNewPassword ? "Hide password" : "Show password"}
+                    >
+                      {showNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
+
+                  {formData.newPassword && (
+                    <div className="mt-2">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="flex-1 h-1 bg-neutral-200 rounded-full overflow-hidden">
+                          <div 
+                            className={`h-full transition-all duration-300 ${
+                              passwordStrength.label === 'Weak' ? 'bg-red-500 w-1/3' :
+                              passwordStrength.label === 'Medium' ? 'bg-amber-500 w-2/3' :
+                              passwordStrength.label === 'Strong' ? 'bg-green-500 w-full' : 'w-0'
+                            }`}
+                          />
+                        </div>
+                        {passwordStrength.label && (
+                          <span className={`text-xs font-semibold ${passwordStrength.color}`}>
+                            {passwordStrength.label}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {(newPasswordFocused || formData.newPassword) && formData.newPassword && (
+                    <div className="mt-3 p-3 bg-neutral-50 rounded-lg border border-neutral-200 space-y-2">
+                      <p className="text-xs font-semibold text-neutral-700 mb-2">Password must contain:</p>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          {passwordRequirements.minLength ? (
+                            <Check className="w-4 h-4 text-green-600" />
+                          ) : (
+                            <X className="w-4 h-4 text-neutral-400" />
+                          )}
+                          <span className={`text-xs ${passwordRequirements.minLength ? 'text-green-600 font-medium' : 'text-neutral-600'}`}>
+                            At least 8 characters
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {passwordRequirements.hasUppercase ? (
+                            <Check className="w-4 h-4 text-green-600" />
+                          ) : (
+                            <X className="w-4 h-4 text-neutral-400" />
+                          )}
+                          <span className={`text-xs ${passwordRequirements.hasUppercase ? 'text-green-600 font-medium' : 'text-neutral-600'}`}>
+                            One uppercase letter (A-Z)
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {passwordRequirements.hasLowercase ? (
+                            <Check className="w-4 h-4 text-green-600" />
+                          ) : (
+                            <X className="w-4 h-4 text-neutral-400" />
+                          )}
+                          <span className={`text-xs ${passwordRequirements.hasLowercase ? 'text-green-600 font-medium' : 'text-neutral-600'}`}>
+                            One lowercase letter (a-z)
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {passwordRequirements.hasNumber ? (
+                            <Check className="w-4 h-4 text-green-600" />
+                          ) : (
+                            <X className="w-4 h-4 text-neutral-400" />
+                          )}
+                          <span className={`text-xs ${passwordRequirements.hasNumber ? 'text-green-600 font-medium' : 'text-neutral-600'}`}>
+                            One number (0-9)
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {passwordRequirements.hasSpecial ? (
+                            <Check className="w-4 h-4 text-green-600" />
+                          ) : (
+                            <X className="w-4 h-4 text-neutral-400" />
+                          )}
+                          <span className={`text-xs ${passwordRequirements.hasSpecial ? 'text-green-600 font-medium' : 'text-neutral-600'}`}>
+                            One special character (!@#$%^&*)
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                    Confirm New Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showConfirmPassword ? "text" : "password"}
+                      name="confirmNewPassword"
+                      value={formData.confirmNewPassword}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 pr-12 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
+                      placeholder="Confirm your new password"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-700 transition-colors"
+                      aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                    >
+                      {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
+
+                  {/* Password match indicator */}
+                  {formData.confirmNewPassword && (
+                    <div className="mt-2 flex items-center gap-2">
+                      {formData.newPassword === formData.confirmNewPassword ? (
+                        <>
+                          <Check className="w-4 h-4 text-green-600" />
+                          <span className="text-xs text-green-600 font-medium">Passwords match</span>
+                        </>
+                      ) : (
+                        <>
+                          <X className="w-4 h-4 text-red-600" />
+                          <span className="text-xs text-red-600 font-medium">Passwords do not match</span>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-heritage-700 hover:bg-heritage-800 text-white px-6 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50"
+                >
+                  {loading ? 'Updating...' : 'Update Profile'}
+                </button>
+              </form>
+            )}
+
+            {activeTab === 'discoveries' && (
+              <div>
+                {discoveredNodesList.length === 0 ? (
+                  <div className="text-center py-12">
+                    <MapPin className="w-16 h-16 text-heritage-300 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold text-neutral-900 mb-2">
+                      No Discoveries Yet
+                    </h3>
+                    <p className="text-neutral-600 mb-6">
+                      Start exploring the map to discover cultural heritage nodes!
+                    </p>
+                    <button
+                      onClick={() => navigate('/map')}
+                      className="bg-heritage-700 hover:bg-heritage-800 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+                    >
+                      Go to Map
+                    </button>
+                  </div>
+                ) : (
+                  <div>
+                    <div className="flex items-center justify-between mb-6">
+                      <h3 className="text-xl font-semibold text-neutral-900">
+                        Your Discoveries ({discoveredNodesList.length}/{culturalNodes.length})
+                      </h3>
+                      <div className="flex items-center gap-2 text-sm text-heritage-700">
+                        <Trophy className="w-5 h-5" />
+                        <span className="font-semibold">
+                          {Math.round((discoveredNodesList.length / culturalNodes.length) * 100)}% Complete
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {discoveredNodesList.map((node) => (
+                        <div
+                          key={node.id}
+                          onClick={() => handleNodeClick(node)}
+                          className="group cursor-pointer bg-white border border-neutral-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300"
+                        >
+                          {node.primaryImageUrl && (
+                            <div className="relative h-48 overflow-hidden">
+                              <img
+                                src={node.primaryImageUrl}
+                                alt={node.title}
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                              />
+                              <div className="absolute top-3 right-3 bg-amber-500 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
+                                <Trophy className="w-3 h-3" />
+                                Discovered
+                              </div>
+                            </div>
+                          )}
+                          <div className="p-4">
+                            <h4 className="font-semibold text-neutral-900 mb-2 group-hover:text-heritage-700 transition-colors">
+                              {node.title}
+                            </h4>
+                            <p className="text-sm text-neutral-600 line-clamp-2 mb-3">
+                              {node.description}
+                            </p>
+                            <div className="flex items-center gap-4 text-xs text-neutral-500">
+                              <span>{node.category}</span>
+                              <span>•</span>
+                              <span>{node.historicalPeriod}</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default ProfilePage;

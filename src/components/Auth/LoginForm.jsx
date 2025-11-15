@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { LogIn } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useAuth } from '../../contexts/AuthContext';
+import ForgotPasswordModal from './ForgotPasswordModal';
 
 function LoginForm() {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ function LoginForm() {
     password: ''
   });
   const [loading, setLoading] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -79,7 +81,7 @@ function LoginForm() {
               onChange={handleChange}
               required
               className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
-              placeholder="Username or Email"
+              placeholder="username or email"
             />
           </div>
 
@@ -107,6 +109,15 @@ function LoginForm() {
           </button>
         </form>
 
+        <div className="mt-4 text-center">
+          <button
+            onClick={() => setShowForgotPassword(true)}
+            className="text-sm text-heritage-700 hover:text-heritage-800 font-medium transition-colors"
+          >
+            Forgot Password?
+          </button>
+        </div>
+
         <div className="mt-6 text-center">
           <p className="text-sm text-neutral-600">
             Don't have an account?{' '}
@@ -118,6 +129,10 @@ function LoginForm() {
             </button>
           </p>
         </div>
+
+        {showForgotPassword && (
+          <ForgotPasswordModal onClose={() => setShowForgotPassword(false)} />
+        )}
       </div>
     </div>
   );

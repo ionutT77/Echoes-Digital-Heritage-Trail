@@ -1,10 +1,11 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Map, Settings, LogOut, User } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import Swal from 'sweetalert2';
 
 function Header() {
+  const navigate = useNavigate();
   const location = useLocation();
   const { user, profile, signOut } = useAuth();
 
@@ -54,7 +55,10 @@ function Header() {
         <nav className="flex items-center gap-4">
           {user && (
             <>
-              <div className="flex items-center gap-2 text-sm">
+              <div 
+                onClick={() => navigate('/profile')}
+                className="flex items-center gap-2 text-sm cursor-pointer hover:bg-heritage-50 px-3 py-2 rounded-lg transition-colors"
+              >
                 <User className="w-4 h-4 text-heritage-700" />
                 <span className="text-heritage-700 font-medium">
                   {profile?.username || 'User'}
