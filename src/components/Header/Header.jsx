@@ -21,19 +21,50 @@ function Header() {
   const handleLanguageChange = async (newLanguage) => {
     if (newLanguage === currentLanguage) return;
     
+    // Show loading popup
+    Swal.fire({
+      title: 'Translating...',
+      html: `
+        <div class="flex flex-col items-center gap-4 py-4">
+          <div class="animate-spin rounded-full h-16 w-16 border-4 border-heritage-200 border-t-heritage-700"></div>
+          <p class="text-sm ${isDark ? 'text-neutral-300' : 'text-neutral-600'}">Please wait while we translate the interface...</p>
+        </div>
+      `,
+      showConfirmButton: false,
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      background: isDark ? '#1f2937' : '#ffffff',
+      color: isDark ? '#f3f4f6' : '#000000',
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+    
     setTranslatingUI(true);
     try {
       if (newLanguage !== 'en') {
         await translateAllUI(newLanguage);
       }
       setCurrentLanguage(newLanguage);
+      
+      // Close loading popup and show success
+      Swal.fire({
+        title: 'Translation Complete!',
+        icon: 'success',
+        timer: 1000,
+        showConfirmButton: false,
+        background: isDark ? '#1f2937' : '#ffffff',
+        color: isDark ? '#f3f4f6' : '#000000'
+      });
     } catch (error) {
       console.error('Failed to change language:', error);
       await Swal.fire({
         title: 'Translation Error',
         text: 'Failed to translate the interface. Please try again.',
         icon: 'error',
-        confirmButtonColor: '#6f4e35'
+        confirmButtonColor: '#6f4e35',
+        background: isDark ? '#1f2937' : '#ffffff',
+        color: isDark ? '#f3f4f6' : '#000000'
       });
     } finally {
       setTranslatingUI(false);

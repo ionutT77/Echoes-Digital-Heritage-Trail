@@ -76,8 +76,8 @@ function MapContainer({ mapRef: externalMapRef }) {
   const handleFindPath = async () => {
     if (!userLocation) {
       await Swal.fire({
-        title: 'Location Required',
-        text: 'Please enable location access to plan your route.',
+        title: t('route.locationRequired', currentLanguage),
+        text: t('route.enableLocationAccess', currentLanguage),
         icon: 'warning',
         confirmButtonColor: '#6f4e35',
         background: isDark ? '#1f2937' : '#ffffff',
@@ -91,8 +91,8 @@ function MapContainer({ mapRef: externalMapRef }) {
 
     if (undiscoveredNodes.length === 0) {
       await Swal.fire({
-        title: 'All Discovered!',
-        text: 'Congratulations! You have discovered all cultural nodes!',
+        title: t('route.allDiscovered', currentLanguage),
+        text: t('route.congratsAllDiscovered', currentLanguage),
         icon: 'success',
         confirmButtonColor: '#6f4e35',
         background: isDark ? '#1f2937' : '#ffffff',
@@ -102,6 +102,13 @@ function MapContainer({ mapRef: externalMapRef }) {
     }
 
     const categories = ['Architecture', 'Event', 'Person', 'Artifact', 'Scenic'];
+    const categoryTranslations = {
+      'Architecture': t('categories.architecture', currentLanguage),
+      'Event': t('categories.event', currentLanguage),
+      'Person': t('categories.person', currentLanguage),
+      'Artifact': t('categories.artifact', currentLanguage),
+      'Scenic': t('categories.scenic', currentLanguage)
+    };
     const checkboxesHtml = categories.map(category => `
       <div class="flex items-center gap-2 py-1.5">
         <input 
@@ -112,14 +119,14 @@ function MapContainer({ mapRef: externalMapRef }) {
           class="w-4 h-4 text-heritage-600 ${isDark ? 'bg-neutral-700 border-neutral-500' : 'bg-gray-100 border-gray-300'} rounded focus:ring-heritage-500"
         />
         <label for="category-${category}" class="text-sm font-medium ${isDark ? 'text-neutral-100' : 'text-gray-900'}">
-          ${category}
+          ${categoryTranslations[category]}
         </label>
       </div>
     `).join('');
 
     // Ask user for route parameters
     const { value: formValues } = await Swal.fire({
-      title: 'Plan Your Route',
+      title: t('route.planYourRoute', currentLanguage),
       html: `
         <div class="space-y-4 text-left">
           <div class="${isDark ? 'bg-heritage-900/20 border-heritage-700' : 'bg-heritage-50 border-heritage-200'} p-3 rounded-lg border">
@@ -128,15 +135,15 @@ function MapContainer({ mapRef: externalMapRef }) {
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                 </svg>
-                Filter by Category
+                ${t('route.filterByCategory', currentLanguage)}
               </span>
             </label>
-            <p class="text-xs ${isDark ? 'text-neutral-400' : 'text-neutral-600'} mb-2">Select which types of locations to visit:</p>
+            <p class="text-xs ${isDark ? 'text-neutral-400' : 'text-neutral-600'} mb-2">${t('route.selectLocationTypes', currentLanguage)}</p>
             ${checkboxesHtml}
           </div>
           <div>
             <label class="block text-sm font-semibold ${isDark ? 'text-neutral-100' : 'text-neutral-900'} mb-2">
-              How many locations do you want to visit?
+              ${t('route.howManyLocations', currentLanguage)}
             </label>
             <input 
               id="swal-locations" 
@@ -146,11 +153,11 @@ function MapContainer({ mapRef: externalMapRef }) {
               value="${Math.min(3, undiscoveredNodes.length)}"
               class="w-full px-4 py-2 border ${isDark ? 'border-neutral-600 bg-neutral-700 text-neutral-100' : 'border-neutral-300 bg-white text-neutral-900'} rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500"
             />
-            <p class="text-xs ${isDark ? 'text-neutral-400' : 'text-neutral-600'} mt-1">${undiscoveredNodes.length} undiscovered locations available</p>
+            <p class="text-xs ${isDark ? 'text-neutral-400' : 'text-neutral-600'} mt-1">${undiscoveredNodes.length} ${t('route.undiscoveredLocationsAvailable', currentLanguage)}</p>
           </div>
           <div>
             <label class="block text-sm font-semibold ${isDark ? 'text-neutral-100' : 'text-neutral-900'} mb-2">
-              How much time do you have? (minutes)
+              ${t('route.howMuchTime', currentLanguage)}
             </label>
             <input 
               id="swal-time" 
@@ -160,7 +167,7 @@ function MapContainer({ mapRef: externalMapRef }) {
               value="90"
               class="w-full px-4 py-2 border ${isDark ? 'border-neutral-600 bg-neutral-700 text-neutral-100' : 'border-neutral-300 bg-white text-neutral-900'} rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500"
             />
-            <p class="text-xs ${isDark ? 'text-neutral-400' : 'text-neutral-600'} mt-1">Includes 10 minutes at each location</p>
+            <p class="text-xs ${isDark ? 'text-neutral-400' : 'text-neutral-600'} mt-1">${t('route.includes10Minutes', currentLanguage)}</p>
           </div>
         </div>
       `,
@@ -168,8 +175,8 @@ function MapContainer({ mapRef: externalMapRef }) {
       showCancelButton: true,
       confirmButtonColor: '#6f4e35',
       cancelButtonColor: '#6b7280',
-      confirmButtonText: 'Create Route',
-      cancelButtonText: 'Cancel',
+      confirmButtonText: t('route.createRoute', currentLanguage),
+      cancelButtonText: t('route.cancel', currentLanguage),
       background: isDark ? '#1f2937' : '#ffffff',
       color: isDark ? '#f3f4f6' : '#000000',
       preConfirm: () => {
@@ -218,10 +225,12 @@ function MapContainer({ mapRef: externalMapRef }) {
 
     if (filteredNodes.length === 0) {
       await Swal.fire({
-        title: 'No Matching Locations',
-        text: 'No undiscovered locations match your selected categories.',
+        title: t('route.noMatchingLocations', currentLanguage),
+        text: t('route.noUndiscoveredMatch', currentLanguage),
         icon: 'info',
-        confirmButtonColor: '#6f4e35'
+        confirmButtonColor: '#6f4e35',
+        background: isDark ? '#1f2937' : '#ffffff',
+        color: isDark ? '#f3f4f6' : '#000000'
       });
       return;
     }
@@ -322,16 +331,16 @@ function MapContainer({ mapRef: externalMapRef }) {
       
       if (reducedNodeCount < 1) {
         await Swal.fire({
-          title: 'Route Too Long',
+          title: t('route.routeTooLong', currentLanguage),
           html: `
             <div class="text-left space-y-2">
-              <p class="text-red-600 font-semibold">⚠️ Cannot create a route within your time budget</p>
-              <p><strong>Available time:</strong> ${availableTime} minutes</p>
-              <p><strong>Minimum route time:</strong> ~${routeResult.totalTimeMin} minutes</p>
-              <p class="text-sm ${isDark ? 'text-neutral-400' : 'text-neutral-600'} mt-3">Please try:</p>
+              <p class="text-red-600 font-semibold">⚠️ ${t('route.cannotCreateRoute', currentLanguage)}</p>
+              <p><strong>${t('route.availableTime', currentLanguage)}:</strong> ${availableTime} ${t('route.minutes', currentLanguage)}</p>
+              <p><strong>${t('route.minimumRouteTime', currentLanguage)}:</strong> ~${routeResult.totalTimeMin} ${t('route.minutes', currentLanguage)}</p>
+              <p class="text-sm ${isDark ? 'text-neutral-400' : 'text-neutral-600'} mt-3">${t('route.pleaseTry', currentLanguage)}:</p>
               <ul class="list-disc pl-5 text-sm">
-                <li>Increase your available time</li>
-                <li>Start from a location closer to the heritage sites</li>
+                <li>${t('route.increaseTime', currentLanguage)}</li>
+                <li>${t('route.startCloser', currentLanguage)}</li>
               </ul>
             </div>
           `,
@@ -345,24 +354,24 @@ function MapContainer({ mapRef: externalMapRef }) {
       
       // Ask user if they want a shorter route
       const { value: accept } = await Swal.fire({
-        title: 'Route Adjustment Needed',
+        title: t('route.routeAdjustmentNeeded', currentLanguage),
         html: `
           <div class="text-left space-y-2">
-            <p class="text-orange-600 font-semibold">⚠️ The ${selectedNodes.length}-location route exceeds your time budget</p>
-            <p><strong>Your time budget:</strong> ${availableTime} minutes</p>
-            <p><strong>Route would require:</strong> ${routeResult.totalTimeMin} minutes</p>
+            <p class="text-orange-600 font-semibold">⚠️ ${t('route.theRouteExceeds', currentLanguage).replace('{count}', selectedNodes.length)}</p>
+            <p><strong>${t('route.yourTimeBudget', currentLanguage)}:</strong> ${availableTime} ${t('route.minutes', currentLanguage)}</p>
+            <p><strong>${t('route.routeWouldRequire', currentLanguage)}:</strong> ${routeResult.totalTimeMin} ${t('route.minutes', currentLanguage)}</p>
             <hr class="my-3 ${isDark ? 'border-neutral-600' : 'border-neutral-300'}">
-            <p class="text-green-${isDark ? '400' : '700'} font-semibold">✓ We can create a route with ${reducedNodeCount} location${reducedNodeCount > 1 ? 's' : ''} instead</p>
-            <p class="text-sm ${isDark ? 'text-neutral-400' : 'text-neutral-600'} mt-2">This shorter route should fit within your ${availableTime} minute budget.</p>
-            <p class="text-sm font-semibold ${isDark ? 'text-heritage-400' : 'text-heritage-700'} mt-3">Would you like to create this shorter route?</p>
+            <p class="text-green-${isDark ? '400' : '700'} font-semibold">✓ ${t('route.weCanCreate', currentLanguage).replace('{count}', reducedNodeCount).replace('{s}', reducedNodeCount > 1 ? 's' : '')}</p>
+            <p class="text-sm ${isDark ? 'text-neutral-400' : 'text-neutral-600'} mt-2">${t('route.shorterRouteFit', currentLanguage).replace('{time}', availableTime)}</p>
+            <p class="text-sm font-semibold ${isDark ? 'text-heritage-400' : 'text-heritage-700'} mt-3">${t('route.wouldYouLike', currentLanguage)}</p>
           </div>
         `,
         icon: 'question',
         showCancelButton: true,
         confirmButtonColor: '#6f4e35',
         cancelButtonColor: '#6b7280',
-        confirmButtonText: 'Yes, Create Shorter Route',
-        cancelButtonText: 'No, Cancel',
+        confirmButtonText: t('route.yesCreateShorter', currentLanguage),
+        cancelButtonText: t('route.noCancel', currentLanguage),
         background: isDark ? '#1f2937' : '#ffffff',
         color: isDark ? '#f3f4f6' : '#000000'
       });
@@ -385,8 +394,8 @@ function MapContainer({ mapRef: externalMapRef }) {
           console.log('✅ Shorter route created successfully');
         } else {
           await Swal.fire({
-            title: 'Route Creation Failed',
-            text: 'Unable to create a route that fits your time budget. Please try with more time or fewer locations.',
+            title: t('route.routeCreationFailed', currentLanguage),
+            text: t('route.unableToCreateRoute', currentLanguage),
             icon: 'error',
             confirmButtonColor: '#6f4e35',
             background: isDark ? '#1f2937' : '#ffffff',
@@ -397,8 +406,8 @@ function MapContainer({ mapRef: externalMapRef }) {
     } else {
       console.error('❌ Route creation failed');
       await Swal.fire({
-        title: 'Route Creation Failed',
-        text: 'Failed to create route. Please ensure you have location access and try again.',
+        title: t('route.routeCreationFailed', currentLanguage),
+        text: t('route.failedToCreateRoute', currentLanguage),
         icon: 'error',
         confirmButtonColor: '#6f4e35',
         background: isDark ? '#1f2937' : '#ffffff',
@@ -430,14 +439,14 @@ function MapContainer({ mapRef: externalMapRef }) {
 
       {loading && (
         <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-white px-4 py-2 rounded-lg shadow-lg z-[1000]">
-          <p className="text-sm text-neutral-600">Locating you...</p>
+          <p className="text-sm text-neutral-600">{t('map.locatingYou', currentLanguage)}</p>
         </div>
       )}
 
       {isCalculatingRoute && (
         <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-heritage-700 px-6 py-3 rounded-lg shadow-xl z-[1000] flex items-center gap-3">
           <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
-          <p className="text-sm font-semibold text-white">Calculating optimal route...</p>
+          <p className="text-sm font-semibold text-white">{t('route.calculatingRoute', currentLanguage)}</p>
         </div>
       )}
 

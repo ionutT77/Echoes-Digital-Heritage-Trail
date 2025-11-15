@@ -2,10 +2,12 @@ import { useEffect, useCallback, useRef } from 'react';
 import L from 'leaflet';
 import Swal from 'sweetalert2';
 import useMapStore from '../stores/mapStore';
+import { t } from '../utils/uiTranslations';
 
 function useRouting(mapRef, isDark = false) {
   const routeLayerRef = useRef(null);
   const markersRef = useRef([]);
+  const currentLanguage = useMapStore((state) => state.currentLanguage);
 
   useEffect(() => {
     return () => {
@@ -291,18 +293,18 @@ function useRouting(mapRef, isDark = false) {
       const slightlyOver = availableTime && totalTimeMin > availableTime && totalTimeMin <= availableTime + Math.ceil(availableTime * 0.20);
 
       await Swal.fire({
-        title: '🎯 Route Created!',
+        title: `🎯 ${t('route.routeCreated', currentLanguage)}`,
         html: `
           <div class="text-left space-y-2">
-            ${slightlyOver ? '<p class="text-orange-600 font-semibold mb-2">⚠️ Route slightly exceeds your time budget but within tolerance</p>' : `<p class="text-sm ${isDark ? 'text-green-400' : 'text-green-600'} font-semibold mb-2">✓ Route ${useTSP ? 'optimized for shortest total distance' : 'uses nearest neighbor'}</p>`}
-            <p><strong>Distance:</strong> ${distanceKm} km walking route</p>
-            <p><strong>Walking time:</strong> ${walkingTimeMin} minutes</p>
-            <p><strong>Visit time:</strong> ${visitTimeMin} minutes (10 min per location)</p>
-            <p class="text-lg font-bold ${isDark ? 'text-heritage-400' : 'text-heritage-700'} mt-3">Total time: ${totalTimeMin} minutes</p>
-            ${availableTime ? `<p class="text-sm ${withinBudget ? (isDark ? 'text-green-400' : 'text-green-600') : 'text-orange-600'}">${withinBudget ? '✓ Within' : '⚠️ Slightly over (approved)'} your ${availableTime} minute budget</p>` : ''}
-            <p class="text-sm ${isDark ? 'text-neutral-400' : 'text-neutral-600'} mt-2">Visiting ${orderedNodes.length} location${orderedNodes.length !== 1 ? 's' : ''} ${useTSP ? '(TSP optimized)' : '(always choosing closest unvisited)'}</p>
+            ${slightlyOver ? `<p class="text-orange-600 font-semibold mb-2">⚠️ ${t('route.routeSlightlyOver', currentLanguage)}</p>` : `<p class="text-sm ${isDark ? 'text-green-400' : 'text-green-600'} font-semibold mb-2">✓ ${t('route.routeUses', currentLanguage)} ${useTSP ? t('route.nearestNeighbor', currentLanguage) : t('route.nearestNeighbor', currentLanguage)}</p>`}
+            <p><strong>${t('route.distance', currentLanguage)}:</strong> ${distanceKm} ${t('route.kmWalkingRoute', currentLanguage)}</p>
+            <p><strong>${t('route.walkingTime', currentLanguage)}:</strong> ${walkingTimeMin} ${t('route.minutes', currentLanguage)}</p>
+            <p><strong>${t('route.visitTime', currentLanguage)}:</strong> ${visitTimeMin} ${t('route.minutes', currentLanguage)} (${t('route.minPerLocation', currentLanguage)})</p>
+            <p class="text-lg font-bold ${isDark ? 'text-heritage-400' : 'text-heritage-700'} mt-3">${t('route.totalTime', currentLanguage)}: ${totalTimeMin} ${t('route.minutes', currentLanguage)}</p>
+            ${availableTime ? `<p class="text-sm ${withinBudget ? (isDark ? 'text-green-400' : 'text-green-600') : 'text-orange-600'}">⚠️ ${t('route.slightlyOverApproved', currentLanguage)} ${availableTime} ${t('route.minuteBudget', currentLanguage)}</p>` : ''}
+            <p class="text-sm ${isDark ? 'text-neutral-400' : 'text-neutral-600'} mt-2">${t('route.visiting', currentLanguage)} ${orderedNodes.length} ${orderedNodes.length !== 1 ? t('route.locations', currentLanguage) : t('route.location', currentLanguage)} (${t('route.alwaysClosest', currentLanguage)})</p>
             <div class="mt-3 text-xs ${isDark ? 'text-neutral-400' : 'text-neutral-500'}">
-              <p class="font-semibold mb-1">Route order:</p>
+              <p class="font-semibold mb-1">${t('route.routeOrder', currentLanguage)}:</p>
               <ol class="list-decimal pl-5">
                 ${orderedNodes.map(node => `<li>${node.title}</li>`).join('')}
               </ol>
