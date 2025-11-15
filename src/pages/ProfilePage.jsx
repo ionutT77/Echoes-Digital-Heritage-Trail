@@ -8,6 +8,7 @@ import { fetchCulturalNodes, fetchUserDiscoveries } from '../services/nodesServi
 import { getUserRank } from '../services/leaderboardService';
 import NodeModal from '../components/Node/NodeModal';
 import AudioPlayer from '../components/Audio/AudioPlayer';
+import { t, translateAllUI } from '../utils/uiTranslations';
 import Swal from 'sweetalert2';
 
 function ProfilePage() {
@@ -16,8 +17,11 @@ function ProfilePage() {
   const discoveredNodes = useMapStore((state) => state.discoveredNodes);
   const culturalNodes = useMapStore((state) => state.culturalNodes);
   const setSelectedNode = useMapStore((state) => state.setSelectedNode);
+  const currentLanguage = useMapStore((state) => state.currentLanguage);
+  const setCurrentLanguage = useMapStore((state) => state.setCurrentLanguage);
   const [activeTab, setActiveTab] = useState('credentials');
   const [loading, setLoading] = useState(false);
+  const [translatingUI, setTranslatingUI] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -54,6 +58,44 @@ function ProfilePage() {
     }
     loadUserStats();
   }, [user]);
+
+  useEffect(() => {
+    async function loadNodes() {
+      const nodes = await fetchCulturalNodes();
+      useMapStore.setState({ culturalNodes: nodes });
+      
+      if (user) {
+        const discoveredNodeIds = await fetchUserDiscoveries(user.id);
+        discoveredNodeIds.forEach((nodeId) => {
+          useMapStore.getState().addDiscoveredNode(nodeId);
+        });
+      }
+    }
+    loadNodes();
+  }, [user]);
+
+  // Handle language change with UI translation
+  const handleLanguageChange = async (newLanguage) => {
+    if (newLanguage === currentLanguage) return;
+    
+    setTranslatingUI(true);
+    try {
+      if (newLanguage !== 'en') {
+        await translateAllUI(newLanguage);
+      }
+      setCurrentLanguage(newLanguage);
+    } catch (error) {
+      console.error('Failed to change language:', error);
+      await Swal.fire({
+        title: 'Translation Error',
+        text: 'Failed to translate the interface. Please try again.',
+        icon: 'error',
+        confirmButtonColor: '#6f4e35'
+      });
+    } finally {
+      setTranslatingUI(false);
+    }
+  };
 
   const discoveredNodesList = culturalNodes.filter(node => 
     discoveredNodes.has(node.id)
@@ -285,6 +327,17 @@ function ProfilePage() {
     navigate('/profile', { replace: true });
   };
 
+  if (translatingUI) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-heritage-50 via-heritage-100 to-amber-50 dark:from-neutral-900 dark:via-neutral-800 dark:to-neutral-900 pt-16 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-heritage-700 dark:border-heritage-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-neutral-600 dark:text-neutral-300">Translating interface...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-heritage-50 via-heritage-100 to-amber-50 dark:from-neutral-900 dark:via-neutral-800 dark:to-neutral-900 pt-16">
       <div className="max-w-6xl mx-auto px-4 py-8">
@@ -293,7 +346,7 @@ function ProfilePage() {
           className="flex items-center gap-2 text-heritage-700 dark:text-heritage-300 hover:text-heritage-900 dark:hover:text-heritage-100 mb-6 transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
-          <span>Back to Map</span>
+          <span>{t('profile.backToMap', currentLanguage)}</span>
         </button>
 
         <div className="bg-white dark:bg-neutral-800 rounded-2xl shadow-lg overflow-hidden">
@@ -305,10 +358,10 @@ function ProfilePage() {
                 </div>
                 <div>
                   <h1 className="text-2xl font-bold text-white">
-                    {profile?.username || 'User Profile'}
+                    {profile?.username || t('profile.title', currentLanguage)}
                   </h1>
                   <p className="text-heritage-200">
-                    {discoveredNodesList.length} of {culturalNodes.length} nodes discovered
+                    {discoveredNodesList.length} {t('profile.of', currentLanguage)} {culturalNodes.length} {t('profile.discoveries', currentLanguage)}
                   </p>
                 </div>
               </div>
@@ -317,14 +370,14 @@ function ProfilePage() {
                   <div className="flex items-center gap-2 bg-heritage-600 px-4 py-2 rounded-lg">
                     <Medal className="w-5 h-5 text-amber-300" />
                     <span className="text-white font-semibold">
-                      Rank #{userStats.rank}
+                      {t('profile.rank', currentLanguage)} #{userStats.rank}
                     </span>
                   </div>
                 )}
                 <div className="flex items-center gap-2 bg-amber-500 px-4 py-2 rounded-lg">
                   <Trophy className="w-5 h-5 text-white" />
                   <span className="text-white font-semibold">
-                    {userStats.points} points
+                    {userStats.points} {t('profile.points', currentLanguage)}
                   </span>
                 </div>
               </div>
@@ -343,7 +396,7 @@ function ProfilePage() {
               >
                 <div className="flex items-center justify-center gap-2">
                   <Key className="w-5 h-5" />
-                  <span>Credentials</span>
+                  <span>{t('profile.credentials', currentLanguage)}</span>
                 </div>
               </button>
               <button
@@ -356,7 +409,7 @@ function ProfilePage() {
               >
                 <div className="flex items-center justify-center gap-2">
                   <Trophy className="w-5 h-5" />
-                  <span>Discoveries</span>
+                  <span>{t('profile.yourDiscoveries', currentLanguage)}</span>
                 </div>
               </button>
             </div>
@@ -369,7 +422,7 @@ function ProfilePage() {
                   <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">
                     <span className="flex items-center gap-2">
                       <User className="w-4 h-4" />
-                      Username
+                      {t('profile.username', currentLanguage)}
                     </span>
                   </label>
                   <input
@@ -386,7 +439,7 @@ function ProfilePage() {
                   <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">
                     <span className="flex items-center gap-2">
                       <Mail className="w-4 h-4" />
-                      Email Address
+                      {t('profile.email', currentLanguage)}
                     </span>
                   </label>
                   <input
@@ -403,23 +456,23 @@ function ProfilePage() {
                 <div className="pt-6 border-t border-neutral-200">
                   <h3 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4 flex items-center gap-2">
                     <AlertCircle className="w-5 h-5 text-amber-600" />
-                    Change Email Address (Two-Step Process)
+                    {t('profile.changeEmail', currentLanguage)}
                   </h3>
                   <div className="mb-4 space-y-2 bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg border border-amber-200 dark:border-amber-700">
-                    <p class="text-sm text-neutral-700 dark:text-neutral-300 mb-2"><strong>How it works:</strong></p>
+                    <p class="text-sm text-neutral-700 dark:text-neutral-300 mb-2"><strong>{t('profile.howItWorks', currentLanguage)}</strong></p>
                     <ol class="list-decimal list-inside space-y-1 text-sm text-neutral-600 dark:text-neutral-400">
-                      <li>We send a confirmation link to your <strong>current email</strong> ({profile?.email})</li>
-                      <li>Click the link to authorize the change</li>
-                      <li>We then send a verification link to your <strong>new email</strong></li>
-                      <li>Click the verification link to complete the change</li>
+                      <li>{t('profile.step1', currentLanguage)} <strong>{t('profile.currentEmail', currentLanguage)}</strong> ({profile?.email})</li>
+                      <li>{t('profile.step2', currentLanguage)}</li>
+                      <li>{t('profile.step3', currentLanguage)} <strong>{t('profile.newEmailLower', currentLanguage)}</strong></li>
+                      <li>{t('profile.step4', currentLanguage)}</li>
                     </ol>
                     <p class="text-xs text-amber-700 dark:text-amber-400 mt-3 flex items-start gap-1">
                       <AlertCircle className="w-3 h-3 mt-0.5 flex-shrink-0" />
-                      You'll be logged out automatically for security after starting this process.
+                      {t('profile.logoutWarning', currentLanguage)}
                     </p>
                   </div>
                   <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">
-                    New Email Address
+                    {t('profile.newEmail', currentLanguage)}
                   </label>
                   <input
                     type="email"
@@ -434,13 +487,13 @@ function ProfilePage() {
                 <div className="pt-6 border-t border-neutral-200 dark:border-neutral-700">
                   <h3 className="text-lg font-semibold text-neutral-900 dark:text-white mb-4 flex items-center gap-2">
                     <Key className="w-5 h-5" />
-                    Change Password
+                    {t('profile.changePassword', currentLanguage)}
                   </h3>
                   
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">
-                        Current Password
+                        {t('profile.currentPassword', currentLanguage)}
                       </label>
                       <div className="relative">
                         <input
@@ -449,7 +502,7 @@ function ProfilePage() {
                           value={formData.currentPassword}
                           onChange={handleChange}
                           className="w-full px-4 py-3 pr-12 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
-                          placeholder="Enter current password"
+                          placeholder={t('profile.enterCurrentPassword', currentLanguage)}
                         />
                         <button
                           type="button"
@@ -464,7 +517,7 @@ function ProfilePage() {
 
                     <div>
                   <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">
-                        New Password
+                        {t('profile.newPassword', currentLanguage)}
                   </label>
                   <div className="relative">
                     <input
@@ -475,7 +528,7 @@ function ProfilePage() {
                       onFocus={() => setNewPasswordFocused(true)}
                       onBlur={() => setNewPasswordFocused(false)}
                       className="w-full px-4 py-3 pr-12 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
-                      placeholder="Enter new password"
+                      placeholder={t('profile.enterNewPassword', currentLanguage)}
                     />
                     <button
                       type="button"
@@ -569,7 +622,7 @@ function ProfilePage() {
 
                 <div>
                   <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">
-                    Confirm New Password
+                    {t('profile.confirmPassword', currentLanguage)}
                   </label>
                   <div className="relative">
                     <input
@@ -578,7 +631,7 @@ function ProfilePage() {
                       value={formData.confirmNewPassword}
                       onChange={handleChange}
                       className="w-full px-4 py-3 pr-12 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
-                      placeholder="Confirm your new password"
+                      placeholder={t('profile.confirmNewPassword', currentLanguage)}
                     />
                     <button
                       type="button"
@@ -623,15 +676,15 @@ function ProfilePage() {
             {activeTab === 'discoveries' && (
               <div>
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-semibold text-neutral-900 dark:text-white">
-                    Your Discoveries ({discoveredNodesList.length}/{culturalNodes.length})
+                  <h3 className="text-xl font-semibold text-neutral-900">
+                    {t('profile.yourDiscoveries', currentLanguage)} ({discoveredNodesList.length}/{culturalNodes.length})
                   </h3>
                   <button
                     onClick={() => navigate('/request-location')}
                     className="flex items-center gap-2 bg-heritage-700 hover:bg-heritage-800 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
                   >
                     <Plus className="w-4 h-4" />
-                    <span>Request Location</span>
+                    <span>{t('profile.requestLocation', currentLanguage)}</span>
                   </button>
                 </div>
 
@@ -639,16 +692,16 @@ function ProfilePage() {
                   <div className="text-center py-12">
                     <MapPin className="w-16 h-16 text-heritage-300 dark:text-heritage-600 mx-auto mb-4" />
                     <h3 className="text-xl font-semibold text-neutral-900 dark:text-white mb-2">
-                      No Discoveries Yet
+                      {t('profile.noDiscoveriesYet', currentLanguage)}
                     </h3>
                     <p className="text-neutral-600 dark:text-neutral-300 mb-6">
-                      Start exploring the map to discover cultural heritage nodes!
+                      {t('profile.startExploring', currentLanguage)}
                     </p>
                     <button
                       onClick={() => navigate('/map')}
                       className="bg-heritage-700 hover:bg-heritage-800 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
                     >
-                      Go to Map
+                      {t('profile.goToMap', currentLanguage)}
                     </button>
                   </div>
                 ) : (
@@ -668,7 +721,7 @@ function ProfilePage() {
                             />
                             <div className="absolute top-3 right-3 bg-amber-500 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
                               <Trophy className="w-5 h-5" />
-                              Discovered
+                              {t('profile.discovered', currentLanguage)}
                             </div>
                           </div>
                         )}

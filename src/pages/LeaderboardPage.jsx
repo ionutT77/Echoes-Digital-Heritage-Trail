@@ -3,10 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { Trophy, Medal, Award, ArrowLeft, MapPin, Crown, ChevronDown, ChevronUp, Calendar } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { fetchLeaderboard, getUserRank, getUserDiscoveries } from '../services/leaderboardService';
+import useMapStore from '../stores/mapStore';
+import { t } from '../utils/uiTranslations';
 
 function LeaderboardPage() {
   const navigate = useNavigate();
   const { user, profile } = useAuth();
+  const currentLanguage = useMapStore((state) => state.currentLanguage);
   const [leaderboard, setLeaderboard] = useState([]);
   const [userRank, setUserRank] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -113,7 +116,7 @@ function LeaderboardPage() {
           className="flex items-center gap-2 text-heritage-700 dark:text-heritage-300 hover:text-heritage-900 dark:hover:text-heritage-100 mb-6 transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
-          <span>Back to Map</span>
+          <span>{t('profile.backToMap', currentLanguage)}</span>
         </button>
 
         <div className="bg-white dark:bg-neutral-800 rounded-2xl shadow-lg overflow-hidden mb-6">
@@ -121,8 +124,8 @@ function LeaderboardPage() {
             <div className="flex items-center gap-3">
               <Trophy className="w-10 h-10 text-amber-400" />
               <div>
-                <h1 className="text-3xl font-bold text-white">Leaderboard</h1>
-                <p className="text-heritage-200">Top Heritage Explorers</p>
+                <h1 className="text-3xl font-bold text-white">{t('leaderboard.title', currentLanguage)}</h1>
+                <p className="text-heritage-200">{t('leaderboard.subtitle', currentLanguage)}</p>
               </div>
             </div>
           </div>
@@ -136,13 +139,13 @@ function LeaderboardPage() {
                     <span className="text-white font-bold">#{userRank.rank}</span>
                   </div>
                   <div>
-                    <p className="font-semibold text-neutral-900 dark:text-white">Your Rank</p>
+                    <p className="font-semibold text-neutral-900 dark:text-white">{t('leaderboard.yourRank', currentLanguage)}</p>
                     <p className="text-sm text-neutral-600 dark:text-neutral-300">{profile?.username}</p>
                   </div>
                 </div>
                 <div className="text-right">
                   <p className="text-2xl font-bold text-heritage-700 dark:text-heritage-400">{userRank.points}</p>
-                  <p className="text-sm text-neutral-600 dark:text-neutral-300">points</p>
+                  <p className="text-sm text-neutral-600 dark:text-neutral-300">{t('profile.points', currentLanguage)}</p>
                 </div>
               </div>
             </div>
@@ -154,9 +157,9 @@ function LeaderboardPage() {
               <div className="text-center py-12">
                 <Trophy className="w-16 h-16 text-heritage-300 dark:text-heritage-600 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold text-neutral-900 dark:text-white mb-2">
-                  No explorers yet
+                  {t('leaderboard.noExplorers', currentLanguage)}
                 </h3>
-                <p className="text-neutral-600 dark:text-neutral-300">Be the first to discover locations!</p>
+                <p className="text-neutral-600 dark:text-neutral-300">{t('leaderboard.beFirst', currentLanguage)}</p>
               </div>
             ) : (
               leaderboard.map((entry) => (
@@ -183,7 +186,7 @@ function LeaderboardPage() {
                           </p>
                           <div className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300">
                             <MapPin className="w-4 h-4" />
-                            <span>{entry.discoveriesCount} discoveries</span>
+                            <span>{entry.discoveriesCount} {t('leaderboard.discoveries', currentLanguage)}</span>
                           </div>
                         </div>
                       </div>
@@ -193,7 +196,7 @@ function LeaderboardPage() {
                         <p className="text-2xl font-bold text-heritage-700 dark:text-heritage-400">
                           {entry.points}
                         </p>
-                        <p className="text-xs text-neutral-600 dark:text-neutral-300">points</p>
+                        <p className="text-xs text-neutral-600 dark:text-neutral-300">{t('profile.points', currentLanguage)}</p>
                       </div>
                       {entry.discoveriesCount > 0 && (
                         <button
@@ -268,15 +271,15 @@ function LeaderboardPage() {
 
         {/* Points Info Card */}
         <div className="bg-white dark:bg-neutral-800 rounded-xl shadow-md p-6">
-          <h3 className="text-lg font-bold text-neutral-900 dark:text-white mb-4">How Points Work</h3>
+          <h3 className="text-lg font-bold text-neutral-900 dark:text-white mb-4">{t('leaderboard.howPointsWork', currentLanguage)}</h3>
           <div className="space-y-3">
             <div className="flex items-start gap-3">
               <div className="w-8 h-8 bg-heritage-100 rounded-full flex items-center justify-center flex-shrink-0">
                 <MapPin className="w-4 h-4 text-heritage-700" />
               </div>
               <div>
-                <p className="font-semibold text-neutral-900 dark:text-white">Discover a Location</p>
-                <p className="text-sm text-neutral-600 dark:text-neutral-300">Earn 10 points when you unlock a new cultural node</p>
+                <p className="font-semibold text-neutral-900 dark:text-white">{t('leaderboard.discoverLocation', currentLanguage)}</p>
+                <p className="text-sm text-neutral-600 dark:text-neutral-300">{t('leaderboard.earnPoints', currentLanguage)}</p>
               </div>
             </div>
           </div>

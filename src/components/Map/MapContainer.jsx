@@ -8,7 +8,7 @@ import UserLocation from './UserLocation';
 import useMapStore from '../../stores/mapStore';
 import useRouting from '../../hooks/useRouting';
 import useGeolocation from '../../hooks/useGeolocation';
-import { useTheme } from '../../contexts/ThemeContext';
+import { t } from '../../utils/uiTranslations';
 import 'leaflet/dist/leaflet.css';
 
 function MapContainer({ mapRef: externalMapRef }) {
@@ -20,6 +20,7 @@ function MapContainer({ mapRef: externalMapRef }) {
   const discoveredNodes = useMapStore((state) => state.discoveredNodes);
   const mapCenter = useMapStore((state) => state.mapCenter);
   const mapZoom = useMapStore((state) => state.mapZoom);
+  const currentLanguage = useMapStore((state) => state.currentLanguage);
   const setMap = useMapStore((state) => state.setMap);
   const setClearRouteFunction = useMapStore((state) => state.setClearRouteFunction);
   const setCreateRouteFunction = useMapStore((state) => state.setCreateRouteFunction);
@@ -460,17 +461,17 @@ function MapContainer({ mapRef: externalMapRef }) {
           <button
             onClick={handleFindPath}
             className="bg-heritage-700 text-white px-4 py-3 rounded-lg shadow-lg hover:bg-heritage-800 transition-colors font-semibold text-sm flex items-center gap-2"
-            aria-label="Find my path"
+            aria-label={t('map.findMyPath', currentLanguage)}
           >
             <Navigation className="w-4 h-4" />
-            Find My Path
+            {t('map.findMyPath', currentLanguage)}
           </button>
           <button
             onClick={clearRoute}
             className="bg-white dark:bg-neutral-800 text-heritage-700 dark:text-heritage-300 px-4 py-3 rounded-lg shadow-lg hover:bg-heritage-50 dark:hover:bg-neutral-700 transition-colors font-semibold text-sm border border-heritage-700 dark:border-heritage-400"
-            aria-label="Clear route"
+            aria-label={t('map.clearRoute', currentLanguage)}
           >
-            Clear Route
+            {t('map.clearRoute', currentLanguage)}
           </button>
         </div>
       )}
