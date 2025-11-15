@@ -9,6 +9,7 @@ import SignUpForm from './components/Auth/SignUpForm';
 import LoginForm from './components/Auth/LoginForm';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import ProfilePage from './pages/ProfilePage';
+import LeaderboardPage from './pages/LeaderboardPage';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
             <Route path="/signup" element={<SignUpForm />} />
             <Route path="/login" element={<LoginForm />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route path="/leaderboard" element={<LeaderboardPage />} />
             <Route 
               path="/profile" 
               element={
