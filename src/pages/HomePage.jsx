@@ -1,25 +1,28 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Map, Headphones, Award, MapPin, Navigation, ArrowRight } from 'lucide-react';
+import useMapStore from '../stores/mapStore';
+import { t } from '../utils/uiTranslations';
 
 function HomePage() {
   const navigate = useNavigate();
+  const currentLanguage = useMapStore((state) => state.currentLanguage);
 
   const features = [
     {
       icon: MapPin,
-      title: "Discover Timișoara",
-      description: "Explore the rich cultural heritage of Romania's first free city with GPS-guided walking tours."
+      title: t('home.discoverTimisoara', currentLanguage),
+      description: t('home.discoverTimisoaraDesc', currentLanguage)
     },
     {
       icon: Headphones,
-      title: "Audio Stories",
-      description: "Listen to captivating historical narratives as you approach each heritage location."
+      title: t('home.audioStories', currentLanguage),
+      description: t('home.audioStoriesDesc', currentLanguage)
     },
     {
       icon: Award,
-      title: "Track Your Journey",
-      description: "Build your personal collection of discovered sites and cultural treasures."
+      title: t('home.trackJourney', currentLanguage),
+      description: t('home.trackJourneyDesc', currentLanguage)
     }
   ];
 
@@ -37,11 +40,11 @@ function HomePage() {
               </div>
             </div>
             <h1 className="text-5xl font-bold tracking-tight text-heritage-900 dark:text-heritage-100 sm:text-6xl lg:text-7xl mb-6">
-              Walk Through History in{' '}
+              {t('home.heroTitle', currentLanguage)}{' '}
               <span className="text-heritage-700 dark:text-heritage-400">Timișoara</span>
             </h1>
             <p className="text-xl leading-8 text-heritage-700 dark:text-heritage-300 max-w-2xl mx-auto mb-10">
-              Discover the stories behind Timișoara's iconic landmarks. As you walk through the city, unlock audio narratives, historic photos, and fascinating details about Romania's cultural heart.
+              {t('home.heroSubtitle', currentLanguage)}
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <button
@@ -49,7 +52,7 @@ function HomePage() {
                 className="group inline-flex items-center gap-3 rounded-xl bg-heritage-700 px-8 py-4 text-base font-semibold text-heritage-50 shadow-lg hover:bg-heritage-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-heritage-700 transition-all duration-300 hover:scale-105"
               >
                 <Navigation className="w-5 h-5" />
-                Start Exploring
+                {t('home.startExploring', currentLanguage)}
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
               <button
@@ -59,7 +62,7 @@ function HomePage() {
                 }}
                 className="inline-flex items-center gap-2 text-base font-semibold text-heritage-800 dark:text-heritage-300 hover:text-heritage-900 dark:hover:text-heritage-100 transition-colors"
               >
-                Learn More
+                {t('home.learnMore', currentLanguage)}
               </button>
             </div>
           </div>
@@ -71,10 +74,10 @@ function HomePage() {
         <div className="mx-auto max-w-7xl">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-heritage-900 dark:text-heritage-100 mb-4">
-              Your Personal Heritage Guide
+              {t('home.personalGuide', currentLanguage)}
             </h2>
             <p className="text-lg text-heritage-700 dark:text-heritage-300 max-w-2xl mx-auto">
-              Experience Timișoara's cultural landmarks like never before with immersive, location-based storytelling.
+              {t('home.personalGuideDesc', currentLanguage)}
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -105,10 +108,10 @@ function HomePage() {
         <div className="mx-auto max-w-7xl">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-heritage-50 mb-4">
-              8 Iconic Locations
+              {t('home.iconicLocations', currentLanguage)}
             </h2>
             <p className="text-lg text-heritage-200 max-w-2xl mx-auto">
-              From Victory Square to the Bega Canal, discover the sites that shaped Timișoara's history.
+              {t('home.iconicLocationsDesc', currentLanguage)}
             </p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
@@ -143,7 +146,7 @@ function HomePage() {
               className="inline-flex items-center gap-3 rounded-xl bg-amber-500 px-8 py-4 text-base font-semibold text-heritage-900 shadow-lg hover:bg-amber-400 transition-all duration-300 hover:scale-105"
             >
               <Map className="w-5 h-5" />
-              View on Map
+              {t('home.viewOnMap', currentLanguage)}
             </button>
           </div>
         </div>
@@ -153,17 +156,17 @@ function HomePage() {
       <div className="py-24 px-6 lg:px-8">
         <div className="mx-auto max-w-4xl text-center">
           <h2 className="text-4xl font-bold text-heritage-900 dark:text-heritage-100 mb-6">
-            Ready to Explore?
+            {t('home.readyToExplore', currentLanguage)}
           </h2>
           <p className="text-xl text-heritage-700 dark:text-heritage-300 mb-10 max-w-2xl mx-auto">
-            Start your journey through Timișoara's cultural heritage. Allow location access and begin discovering stories waiting around every corner.
+            {t('home.readyToExploreDesc', currentLanguage)}
           </p>
           <button
             onClick={() => navigate('/map')}
             className="group inline-flex items-center gap-3 rounded-xl bg-heritage-700 px-10 py-5 text-lg font-semibold text-heritage-50 shadow-xl hover:bg-heritage-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-heritage-700 transition-all duration-300 hover:scale-105"
           >
             <Navigation className="w-6 h-6" />
-            Begin Your Journey
+            {t('home.beginJourney', currentLanguage)}
             <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
           </button>
         </div>

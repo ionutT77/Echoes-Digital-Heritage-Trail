@@ -4,7 +4,7 @@ import { X, MapPin, Calendar, Tag, Play, Pause, Navigation, Loader } from 'lucid
 import useMapStore from '../../stores/mapStore';
 import useAudioStore from '../../stores/audioStore';
 import { translateLocationContent, getLanguageName } from '../../services/geminiService';
-import { t } from '../../utils/translations';
+import { t } from '../../utils/uiTranslations';
 import Swal from 'sweetalert2';
 
 function NodeModal() {
@@ -151,11 +151,11 @@ function NodeModal() {
                 <div className="sticky top-0 bg-white dark:bg-neutral-800 px-6 py-4 border-b border-neutral-200 dark:border-neutral-700 flex items-center justify-between rounded-t-3xl z-10">
                   <div className="flex-1 pr-4">
                     <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">
-                      {displayNode.title}
+                      {displayNode?.title || selectedNode.title}
                     </h3>
                     {currentLanguage !== 'en' && (
                       <p className="text-xs text-heritage-600 dark:text-heritage-400 mt-1">
-                        🌐 {t('translatedTo', currentLanguage)} {getLanguageName(currentLanguage)}
+                        🌐 {t('node.translatedTo', currentLanguage)} {getLanguageName(currentLanguage)}
                       </p>
                     )}
                   </div>
@@ -218,7 +218,7 @@ function NodeModal() {
                   {selectedNode.videos[currentVideoIndex].caption && (
                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
                       <p className="text-sm text-white">
-                        {selectedNode.videos[currentVideoIndex].caption}
+                        {displayNode?.videos?.[currentVideoIndex]?.caption || selectedNode.videos[currentVideoIndex].caption}
                       </p>
                     </div>
                   )}
@@ -260,14 +260,14 @@ function NodeModal() {
                   className="w-full mb-6 bg-amber-600 hover:bg-amber-700 text-white px-6 py-4 rounded-xl flex items-center justify-center gap-3 transition-colors font-semibold"
                 >
                   <Navigation className="w-5 h-5" />
-                  <span>{t('getDirections', currentLanguage)}</span>
+                  <span>{t('node.getDirections', currentLanguage)}</span>
                 </button>
               )}
 
               <p className="text-neutral-700 dark:text-neutral-300 mb-6 leading-relaxed">
                 {isDiscovered
                   ? (displayNode.description || selectedNode.description)
-                  : t('unlockLocation', currentLanguage)}
+                  : t('node.unlockLocation', currentLanguage)}
               </p>
 
               {isDiscovered && selectedNode.audioUrl && (
@@ -278,13 +278,13 @@ function NodeModal() {
                   {isCurrentlyPlaying ? (
                     <>
                       <Pause className="w-5 h-5" />
-                      <span className="font-semibold">{t('pauseStory', currentLanguage)}</span>
+                      <span className="font-semibold">{t('node.pauseStory', currentLanguage)}</span>
                     </>
                   ) : (
                     <>
                       <Play className="w-5 h-5" />
                       <span className="font-semibold">
-                        {t('listenToStory', currentLanguage)} ({Math.floor(selectedNode.audioDuration / 60)}:
+                        {t('node.listenToStory', currentLanguage)} ({Math.floor(selectedNode.audioDuration / 60)}:
                         {(selectedNode.audioDuration % 60).toString().padStart(2, '0')})
                       </span>
                     </>
@@ -292,28 +292,23 @@ function NodeModal() {
                 </button>
               )}
 
-              <div className="prose prose-neutral max-w-none">
-                <p className="text-neutral-700 dark:text-neutral-300 leading-relaxed">
-                  {isDiscovered
-                    ? selectedNode.description
-                    : "Walk within 100 meters of this location to unlock the full story and historic images."}
-                </p>
-              </div>
-
               {isDiscovered && selectedNode.images && selectedNode.images.length > 0 && (
                 <div className="mt-6 space-y-4">
-                  {selectedNode.images.map((image, index) => (
-                    <div key={index} className="space-y-2">
-                      <img
-                        src={image.url}
-                        alt={image.caption}
-                        className="w-full rounded-lg"
-                      />
-                      <p className="text-sm text-neutral-600 dark:text-neutral-400 italic">
-                        {image.caption}
-                      </p>
-                    </div>
-                  ))}
+                  {selectedNode.images.map((image, index) => {
+                    const translatedCaption = displayNode?.images?.[index]?.caption || image.caption;
+                    return (
+                      <div key={index} className="space-y-2">
+                        <img
+                          src={image.url}
+                          alt={translatedCaption}
+                          className="w-full rounded-lg"
+                        />
+                        <p className="text-sm text-neutral-600 dark:text-neutral-400 italic">
+                          {translatedCaption}
+                        </p>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>

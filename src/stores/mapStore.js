@@ -14,6 +14,7 @@ const useMapStore = create((set, get) => ({
   // Translation state
   currentLanguage: 'en',
   translatedNodes: {}, // { nodeId: { language: translatedContent } }
+  translatedUI: {}, // { language: { key: translatedValue } }
   
   setMap: (map) => set({ map: map }),
   setClearRouteFunction: (fn) => set({ clearRouteFunction: fn }),
@@ -40,6 +41,14 @@ const useMapStore = create((set, get) => ({
           ...state.translatedNodes[nodeId],
           [language]: translatedContent
         }
+      }
+    })),
+  
+  setTranslatedUI: (language, translations) =>
+    set((state) => ({
+      translatedUI: {
+        ...state.translatedUI,
+        [language]: translations
       }
     })),
   

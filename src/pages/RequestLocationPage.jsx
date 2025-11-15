@@ -3,11 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, MapPin, Upload, X, Image, Music, Loader, CheckCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { submitLocationRequest, uploadLocationPhoto, uploadLocationAudio, deleteLocationPhoto } from '../services/locationRequestService';
+import useMapStore from '../stores/mapStore';
+import { t } from '../utils/uiTranslations';
 import Swal from 'sweetalert2';
 
 function RequestLocationPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const currentLanguage = useMapStore((state) => state.currentLanguage);
   const [loading, setLoading] = useState(false);
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
   const [uploadingAudio, setUploadingAudio] = useState(false);
@@ -318,7 +321,7 @@ function RequestLocationPage() {
           className="flex items-center gap-2 text-heritage-700 hover:text-heritage-900 mb-6 transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
-          <span>Back to Profile</span>
+          <span>{t('requestLocation.backToProfile', currentLanguage)}</span>
         </button>
 
         <div className="bg-white dark:bg-neutral-800 rounded-2xl shadow-lg overflow-hidden">
@@ -326,8 +329,8 @@ function RequestLocationPage() {
             <div className="flex items-center gap-3">
               <MapPin className="w-10 h-10 text-amber-400" />
               <div>
-                <h1 className="text-3xl font-bold text-white">Request a Location</h1>
-                <p className="text-heritage-200">Help us expand Timișoara's heritage trail</p>
+                <h1 className="text-3xl font-bold text-white">{t('requestLocation.title', currentLanguage)}</h1>
+                <p className="text-heritage-200">{t('requestLocation.subtitle', currentLanguage)}</p>
               </div>
             </div>
           </div>
@@ -335,19 +338,19 @@ function RequestLocationPage() {
           <form onSubmit={handleSubmit} className="p-8 space-y-6">
             {/* Location Details */}
             <div className="space-y-4">
-              <h2 className="text-xl font-bold text-neutral-900 dark:text-white border-b border-neutral-200 dark:border-neutral-700 pb-2">                Location Details
+              <h2 className="text-xl font-bold text-neutral-900 dark:text-white border-b border-neutral-200 dark:border-neutral-700 pb-2">{t('requestLocation.locationDetails', currentLanguage)}
               </h2>
 
               <div>
                 <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200 mb-2">
-                  Location Name <span className="text-red-500">*</span>
+                  {t('requestLocation.locationName', currentLanguage)} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   name="title"
                   value={formData.title}
                   onChange={handleInputChange}
-                  placeholder="e.g., Old Town Hall"
+                  placeholder={t('requestLocation.locationNamePlaceholder', currentLanguage)}
                   className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
                   required
                 />
@@ -355,13 +358,13 @@ function RequestLocationPage() {
 
               <div>
                 <label className="block text-sm font-semibold text-neutral-700 mb-2">
-                  Description & Historical Significance <span className="text-red-500">*</span>
+                  {t('requestLocation.description', currentLanguage)} <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   name="description"
                   value={formData.description}
                   onChange={handleInputChange}
-                  placeholder="Describe the location, its history, and why it should be added to the heritage trail..."
+                  placeholder={t('requestLocation.descriptionPlaceholder', currentLanguage)}
                   rows={6}
                   className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
                   required
@@ -371,7 +374,7 @@ function RequestLocationPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-neutral-700 mb-2">
-                    Category
+                    {t('requestLocation.category', currentLanguage)}
                   </label>
                   <select
                     name="category"
@@ -379,7 +382,7 @@ function RequestLocationPage() {
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
                   >
-                    <option value="">Select a category</option>
+                    <option value="">{t('requestLocation.selectCategory', currentLanguage)}</option>
                     {categories.map(cat => (
                       <option key={cat} value={cat}>{cat}</option>
                     ))}
@@ -388,14 +391,14 @@ function RequestLocationPage() {
 
                 <div>
                   <label className="block text-sm font-semibold text-neutral-700 mb-2">
-                    Historical Period
+                    {t('requestLocation.historicalPeriod', currentLanguage)}
                   </label>
                   <input
                     type="text"
                     name="historicalPeriod"
                     value={formData.historicalPeriod}
                     onChange={handleInputChange}
-                    placeholder="e.g., 18th Century, 1890-1920"
+                    placeholder={t('requestLocation.historicalPeriodPlaceholder', currentLanguage)}
                     className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
                   />
                 </div>
@@ -403,7 +406,7 @@ function RequestLocationPage() {
 
               <div>
                 <label className="block text-sm font-semibold text-neutral-700 mb-2">
-                  GPS Coordinates <span className="text-red-500">*</span>
+                  {t('requestLocation.gpsCoordinates', currentLanguage)} <span className="text-red-500">*</span>
                 </label>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <input
@@ -411,7 +414,7 @@ function RequestLocationPage() {
                     name="latitude"
                     value={formData.latitude}
                     onChange={handleInputChange}
-                    placeholder="Latitude (e.g., 45.7489)"
+                    placeholder={t('requestLocation.latitudePlaceholder', currentLanguage)}
                     step="0.000001"
                     className="px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
                     required
@@ -421,7 +424,7 @@ function RequestLocationPage() {
                     name="longitude"
                     value={formData.longitude}
                     onChange={handleInputChange}
-                    placeholder="Longitude (e.g., 21.2087)"
+                    placeholder={t('requestLocation.longitudePlaceholder', currentLanguage)}
                     step="0.000001"
                     className="px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
                     required
@@ -433,7 +436,7 @@ function RequestLocationPage() {
                   className="mt-2 text-sm text-heritage-700 hover:text-heritage-900 font-medium flex items-center gap-2"
                 >
                   <MapPin className="w-4 h-4" />
-                  Use My Current Location
+                  {t('requestLocation.useMyLocation', currentLanguage)}
                 </button>
               </div>
             </div>
@@ -441,9 +444,9 @@ function RequestLocationPage() {
             {/* Photos Upload */}
             <div className="space-y-4">
               <h2 className="text-xl font-bold text-neutral-900 border-b border-neutral-200 pb-2">
-                Photos <span className="text-red-500">*</span>
+                {t('requestLocation.photos', currentLanguage)} <span className="text-red-500">*</span>
               </h2>
-              <p className="text-sm text-neutral-600">Upload up to 10 photos of the location (JPG, PNG)</p>
+              <p className="text-sm text-neutral-600">{t('requestLocation.photosDescription', currentLanguage)}</p>
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {photos.map((photo, index) => (
@@ -489,9 +492,9 @@ function RequestLocationPage() {
             {/* Audio Upload */}
             <div className="space-y-4">
               <h2 className="text-xl font-bold text-neutral-900 border-b border-neutral-200 pb-2">
-                Audio Story <span className="text-red-500">*</span>
+                {t('requestLocation.audioStory', currentLanguage)} <span className="text-red-500">*</span>
               </h2>
-              <p className="text-sm text-neutral-600">Choose how you want to provide the audio story for this location</p>
+              <p className="text-sm text-neutral-600">{t('requestLocation.audioDescription', currentLanguage)}</p>
 
               {/* Audio Option Selection */}
               {!audioOption && (
@@ -504,8 +507,8 @@ function RequestLocationPage() {
                     <div className="flex items-start gap-3">
                       <Upload className="w-6 h-6 text-heritage-700 flex-shrink-0 mt-1" />
                       <div>
-                        <h3 className="font-semibold text-neutral-900 mb-1">Upload Your Audio</h3>
-                        <p className="text-sm text-neutral-600">Upload a pre-recorded audio file (MP3, WAV, max 10MB)</p>
+                        <h3 className="font-semibold text-neutral-900 mb-1">{t('requestLocation.uploadYourAudio', currentLanguage)}</h3>
+                        <p className="text-sm text-neutral-600">{t('requestLocation.uploadAudioDescription', currentLanguage)}</p>
                       </div>
                     </div>
                   </button>
@@ -518,8 +521,8 @@ function RequestLocationPage() {
                     <div className="flex items-start gap-3">
                       <Music className="w-6 h-6 text-heritage-700 flex-shrink-0 mt-1" />
                       <div>
-                        <h3 className="font-semibold text-neutral-900 mb-1">Let Us Generate Audio</h3>
-                        <p className="text-sm text-neutral-600">Provide a detailed description and we'll create the audio for you</p>
+                        <h3 className="font-semibold text-neutral-900 mb-1">{t('requestLocation.generateAudio', currentLanguage)}</h3>
+                        <p className="text-sm text-neutral-600">{t('requestLocation.generateAudioDescription', currentLanguage)}</p>
                       </div>
                     </div>
                   </button>
@@ -530,7 +533,7 @@ function RequestLocationPage() {
               {audioOption === 'upload' && (
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-neutral-900">Upload Audio File</h3>
+                    <h3 className="font-semibold text-neutral-900">{t('requestLocation.uploadAudioFile', currentLanguage)}</h3>
                     <button
                       type="button"
                       onClick={() => {
@@ -540,7 +543,7 @@ function RequestLocationPage() {
                       }}
                       className="text-sm text-heritage-700 hover:text-heritage-900 font-medium"
                     >
-                      Change Option
+                      {t('requestLocation.changeOption', currentLanguage)}
                     </button>
                   </div>
 
@@ -579,9 +582,9 @@ function RequestLocationPage() {
                           <Upload className="w-12 h-12 text-neutral-400 mb-3" />
                         )}
                         <p className="text-neutral-700 font-medium">
-                          {uploadingAudio ? 'Uploading...' : 'Click to upload audio file'}
+                          {uploadingAudio ? t('requestLocation.uploading', currentLanguage) : t('requestLocation.clickToUpload', currentLanguage)}
                         </p>
-                        <p className="text-sm text-neutral-500 mt-1">MP3, WAV (max 10MB)</p>
+                        <p className="text-sm text-neutral-500 mt-1">{t('requestLocation.audioFileTypes', currentLanguage)}</p>
                       </div>
                     </label>
                   )}
@@ -592,7 +595,7 @@ function RequestLocationPage() {
               {audioOption === 'generate' && (
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-neutral-900">Audio Story Description</h3>
+                    <h3 className="font-semibold text-neutral-900">{t('requestLocation.audioStoryDescription', currentLanguage)}</h3>
                     <button
                       type="button"
                       onClick={() => {
@@ -601,28 +604,28 @@ function RequestLocationPage() {
                       }}
                       className="text-sm text-heritage-700 hover:text-heritage-900 font-medium"
                     >
-                      Change Option
+                      {t('requestLocation.changeOption', currentLanguage)}
                     </button>
                   </div>
                   
                   <div>
                     <label className="block text-sm font-semibold text-neutral-700 mb-2">
-                      Write 8-10 sentences describing the location's story
+                      {t('requestLocation.write8to10Sentences', currentLanguage)}
                     </label>
                     <textarea
                       name="audioStoryDescription"
                       value={formData.audioStoryDescription}
                       onChange={handleInputChange}
-                      placeholder="Tell us about this location's history, significance, interesting facts, and what makes it special. Be descriptive and engaging - this will be used to generate the audio narration that visitors will hear when they discover this location..."
+                      placeholder={t('requestLocation.audioStoryPlaceholder', currentLanguage)}
                       rows={8}
                       className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
                     />
                     <div className="mt-2 flex items-center justify-between">
                       <p className="text-xs text-neutral-500">
-                        💡 Tip: Write in an engaging, storytelling style. Include historical dates, key figures, and interesting anecdotes.
+                        💡 {t('requestLocation.audioTip', currentLanguage)}
                       </p>
                       <p className="text-xs text-neutral-600">
-                        {formData.audioStoryDescription.split(/[.!?]+/).filter(s => s.trim()).length} sentences
+                        {formData.audioStoryDescription.split(/[.!?]+/).filter(s => s.trim()).length} {t('requestLocation.sentences', currentLanguage)}
                       </p>
                     </div>
                   </div>
@@ -633,20 +636,20 @@ function RequestLocationPage() {
             {/* Contact Information */}
             <div className="space-y-4">
               <h2 className="text-xl font-bold text-neutral-900 border-b border-neutral-200 pb-2">
-                Your Contact Information <span className="text-red-500">*</span>
+                {t('requestLocation.contactInformation', currentLanguage)} <span className="text-red-500">*</span>
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-neutral-700 mb-2">
-                    Full Name <span className="text-red-500">*</span>
+                    {t('requestLocation.fullName', currentLanguage)} <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     name="submitterName"
                     value={formData.submitterName}
                     onChange={handleInputChange}
-                    placeholder="Your name"
+                    placeholder={t('requestLocation.yourName', currentLanguage)}
                     className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
                     required
                   />
@@ -654,14 +657,14 @@ function RequestLocationPage() {
 
                 <div>
                   <label className="block text-sm font-semibold text-neutral-700 mb-2">
-                    Email <span className="text-red-500">*</span>
+                    {t('requestLocation.email', currentLanguage)} <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="email"
                     name="submitterEmail"
                     value={formData.submitterEmail}
                     onChange={handleInputChange}
-                    placeholder="your.email@example.com"
+                    placeholder={t('requestLocation.emailPlaceholder', currentLanguage)}
                     readOnly
                     className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
                     required
@@ -671,14 +674,14 @@ function RequestLocationPage() {
 
               <div>
                 <label className="block text-sm font-semibold text-neutral-700 mb-2">
-                  Phone Number <span className="text-red-500">*</span>
+                  {t('requestLocation.phoneNumber', currentLanguage)} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="tel"
                   name="submitterPhone"
                   value={formData.submitterPhone}
                   onChange={handleInputChange}
-                  placeholder="+40 123 456 789"
+                  placeholder={t('requestLocation.phonePlaceholder', currentLanguage)}
                   className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
                   required
                 />
@@ -692,7 +695,7 @@ function RequestLocationPage() {
                 onClick={() => navigate('/map')}
                 className="flex-1 px-6 py-3 border-2 border-heritage-700 text-heritage-700 rounded-lg font-semibold hover:bg-heritage-50 transition-colors"
               >
-                Cancel
+                {t('requestLocation.cancel', currentLanguage)}
               </button>
               <button
                 type="submit"
@@ -702,12 +705,12 @@ function RequestLocationPage() {
                 {loading ? (
                   <>
                     <Loader className="w-5 h-5 animate-spin" />
-                    Submitting...
+                    {t('requestLocation.submitting', currentLanguage)}
                   </>
                 ) : (
                   <>
                     <CheckCircle className="w-5 h-5" />
-                    Submit Request
+                    {t('requestLocation.submitRequest', currentLanguage)}
                   </>
                 )}
               </button>

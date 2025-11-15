@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Map, Settings, LogOut, User, Trophy, Moon, Sun } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import useMapStore from '../../stores/mapStore';
-import { t } from '../../utils/translations';
+import LanguageSelector from '../Map/LanguageSelector';
+import { t, translateAllUI } from '../../utils/uiTranslations';
 import Swal from 'sweetalert2';
 
 function Header() {
@@ -13,10 +14,34 @@ function Header() {
   const { user, profile, signOut } = useAuth();
   const { isDark, toggleDarkMode } = useTheme();
   const currentLanguage = useMapStore((state) => state.currentLanguage);
+  const setCurrentLanguage = useMapStore((state) => state.setCurrentLanguage);
+  const [translatingUI, setTranslatingUI] = useState(false);
+
+  const handleLanguageChange = async (newLanguage) => {
+    if (newLanguage === currentLanguage) return;
+    
+    setTranslatingUI(true);
+    try {
+      if (newLanguage !== 'en') {
+        await translateAllUI(newLanguage);
+      }
+      setCurrentLanguage(newLanguage);
+    } catch (error) {
+      console.error('Failed to change language:', error);
+      await Swal.fire({
+        title: 'Translation Error',
+        text: 'Failed to translate the interface. Please try again.',
+        icon: 'error',
+        confirmButtonColor: '#6f4e35'
+      });
+    } finally {
+      setTranslatingUI(false);
+    }
+  };
 
   const handleSignOut = async () => {
     const result = await Swal.fire({
-      title: 'Sign Out',
+      title: t('header.signOut', currentLanguage),
       text: 'Are you sure you want to sign out?',
       icon: 'question',
       showCancelButton: true,
@@ -38,7 +63,7 @@ function Header() {
         });
       } else {
         await Swal.fire({
-          title: 'Error',
+          title: t('common.error', currentLanguage),
           text: error || 'Failed to sign out. Please try again.',
           icon: 'error',
           confirmButtonColor: '#6f4e35'
@@ -58,6 +83,14 @@ function Header() {
         </Link>
 
         <nav className="flex items-center gap-4">
+          {/* Language Selector */}
+          <div className={translatingUI ? 'opacity-50 pointer-events-none' : ''}>
+            <LanguageSelector
+              currentLanguage={currentLanguage}
+              onLanguageChange={handleLanguageChange}
+            />
+          </div>
+          
           <button
             onClick={toggleDarkMode}
             className="p-2 rounded-lg text-heritage-700 dark:text-heritage-300 hover:bg-heritage-50 dark:hover:bg-neutral-700 transition-colors"
@@ -75,7 +108,7 @@ function Header() {
             }`}
           >
             <Trophy className="w-5 h-5" />
-            <span className="hidden sm:inline font-medium">{t('leaderboard', currentLanguage)}</span>
+            <span className="hidden sm:inline font-medium">{t('header.leaderboard', currentLanguage)}</span>
           </Link>
           
           {user && (
@@ -97,7 +130,7 @@ function Header() {
                       ? 'bg-heritage-100 dark:bg-heritage-800 text-heritage-700 dark:text-heritage-300'
                       : 'text-heritage-700 dark:text-heritage-300 hover:bg-heritage-50 dark:hover:bg-neutral-700'
                   }`}
-                  aria-label="Admin"
+                  aria-label={t('header.admin', currentLanguage)}
                 >
                   <Settings className="w-5 h-5" />
                 </Link>
@@ -105,7 +138,7 @@ function Header() {
               <button
                 onClick={handleSignOut}
                 className="p-2 rounded-lg text-heritage-700 dark:text-heritage-300 hover:bg-heritage-50 dark:hover:bg-neutral-700 transition-colors"
-                aria-label="Sign Out"
+                aria-label={t('header.signOut', currentLanguage)}
               >
                 <LogOut className="w-5 h-5" />
               </button>
@@ -114,14 +147,9 @@ function Header() {
           {!user && (
           <Link
             to="/login"
-            className={`p-2 rounded-lg transition-colors ${
-              location.pathname === '/login'
-                ? 'bg-heritage-100 dark:bg-heritage-800 text-heritage-700 dark:text-heritage-300'
-                : 'text-heritage-700 dark:text-heritage-300 hover:bg-heritage-50 dark:hover:bg-neutral-700'
-            }`}
-            aria-label="Log In"
+            className="bg-heritage-700 hover:bg-heritage-800 text-white px-4 py-2 rounded-lg font-semibold transition-colors text-sm"
           >
-            <User className="w-5 h-5" />
+            {t('header.login', currentLanguage)}
           </Link>
           )}
         </nav>

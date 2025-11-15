@@ -5,14 +5,13 @@ import MapContainer from '../components/Map/MapContainer';
 import NodeModal from '../components/Node/NodeModal';
 import AudioPlayer from '../components/Audio/AudioPlayer';
 import OnboardingOverlay from '../components/Onboarding/OnboardingOverlay';
-import LanguageSelector from '../components/Map/LanguageSelector';
 import DebugPanel from '../components/Debug/DebugPanel';
 import useProximity from '../hooks/useProximity';
 import useMapStore from '../stores/mapStore';
 import { fetchCulturalNodes, fetchUserDiscoveries } from '../services/nodesService';
 import { checkAvailableModels } from '../services/geminiService';
 import { useAuth } from '../contexts/AuthContext';
-import { Bug, Plus } from 'lucide-react';
+import { Bug } from 'lucide-react';
 
 function MapPage() {
   const mapRef = useRef(null);
@@ -22,8 +21,6 @@ function MapPage() {
   const { profile } = useAuth();
   const setCulturalNodes = useMapStore((state) => state.setCulturalNodes);
   const addDiscoveredNode = useMapStore((state) => state.addDiscoveredNode);
-  const currentLanguage = useMapStore((state) => state.currentLanguage);
-  const setCurrentLanguage = useMapStore((state) => state.setCurrentLanguage);
   useProximity();
 
   useEffect(() => {
@@ -51,26 +48,6 @@ function MapPage() {
       <NodeModal />
       <AudioPlayer />
       <OnboardingOverlay />
-      
-      {/* Language Selector - Bottom left above Find My Path */}
-      <div className="absolute bottom-24 left-4 z-[1000]">
-        <LanguageSelector
-          currentLanguage={currentLanguage}
-          onLanguageChange={setCurrentLanguage}
-        />
-      </div>
-      
-      {/* Request Location Button */}
-      {/* {user && (
-        <button
-          onClick={() => navigate('/request-location')}
-          className="fixed bottom-24 right-4 bg-heritage-700 text-white px-4 py-3 rounded-full shadow-lg hover:bg-heritage-800 transition-colors z-[2000] flex items-center gap-2"
-          aria-label="Request a location"
-        >
-          <Plus className="w-5 h-5" />
-          <span className="hidden sm:inline font-medium">Request Location</span>
-        </button>
-      )} */}
       
       {/* Debug Toggle Button - Admin Only */}
       {profile?.is_admin && (

@@ -140,3 +140,65 @@ export async function translateBatch(locations, targetLanguage) {
   
   return translations;
 }
+
+// New function to translate UI text
+export async function translateUIText(texts, targetLanguage) {
+  const modelNames = [
+    "gemini-2.5-flash",
+    "gemini-flash-latest",
+    "gemini-2.0-flash",
+    "gemini-pro-latest",
+    "gemini-2.5-pro"
+  ];
+  
+  const textsJSON = JSON.stringify(texts, null, 2);
+  
+  const prompt = `
+    Translate these UI text labels to ${targetLanguage}.
+    
+    Original texts (JSON):
+    ${textsJSON}
+    
+    Requirements:
+    - Keep the same JSON structure
+    - Translate all text values to ${targetLanguage}
+    - Keep any placeholders like {name}, {count}, etc. unchanged
+    - Use appropriate formal/informal tone for UI elements
+    - Return ONLY valid JSON without markdown
+    
+    Return the translated JSON with the same structure.
+  `;
+
+  let lastError = null;
+  
+  for (const modelName of modelNames) {
+    try {
+      console.log(`🔄 Trying UI translation with model: ${modelName}`);
+      const model = genAI.getGenerativeModel({ model: modelName });
+      
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const text = response.text();
+      
+      let cleanedText = text.trim();
+      cleanedText = cleanedText.replace(/```json\s*/g, '').replace(/```\s*/g, '');
+      
+      const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        throw new Error('No JSON found in response');
+      }
+      
+      const parsed = JSON.parse(jsonMatch[0]);
+      console.log(`✅ UI translation successful with ${modelName}`);
+      return parsed;
+      
+    } catch (error) {
+      console.warn(`❌ UI translation with ${modelName} failed:`, error.message);
+      lastError = error;
+      continue;
+    }
+  }
+  
+  console.error('❌ All models failed for UI translation. Last error:', lastError);
+  throw new Error(`Failed to translate UI with any model: ${lastError?.message}`);
+}
