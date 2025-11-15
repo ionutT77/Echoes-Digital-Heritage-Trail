@@ -663,6 +663,7 @@ function RequestLocationPage() {
                     value={formData.submitterEmail}
                     onChange={handleInputChange}
                     placeholder="your.email@example.com"
+                    readOnly
                     className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
                     required
                   />
