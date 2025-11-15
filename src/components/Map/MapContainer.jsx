@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { MapContainer as LeafletMap, TileLayer, ZoomControl } from 'react-leaflet';
 import L from 'leaflet';
-import { Navigation } from 'lucide-react';
+import { Navigation, MapPin as MapPinIcon } from 'lucide-react';
+import Swal from 'sweetalert2';
 import NodeMarker from './NodeMarker';
 import UserLocation from './UserLocation';
 import useMapStore from '../../stores/mapStore';
@@ -66,29 +67,147 @@ function MapContainer({ mapRef: externalMapRef }) {
     }
   };
 
-  const handleFindPath = () => {
+  const handleFindPath = async () => {
     if (!userLocation) {
+      await Swal.fire({
+        title: 'Location Required',
+        text: 'Please enable location access to plan your route.',
+        icon: 'warning',
+        confirmButtonColor: '#6f4e35'
+      });
       return;
     }
 
     // Get undiscovered nodes
     const undiscoveredNodes = culturalNodes.filter((node) => !discoveredNodes.has(node.id));
 
-    console.log('🗺️ Creating route to', undiscoveredNodes.length, 'undiscovered nodes');
-    
     if (undiscoveredNodes.length === 0) {
-      alert('Congratulations! You have discovered all nodes!');
+      await Swal.fire({
+        title: 'All Discovered!',
+        text: 'Congratulations! You have discovered all cultural nodes!',
+        icon: 'success',
+        confirmButtonColor: '#6f4e35'
+      });
       return;
     }
 
-    // Create route through all undiscovered nodes
-    const routeCreated = createRoute(userLocation, undiscoveredNodes);
+    // Ask user for route parameters
+    const { value: formValues } = await Swal.fire({
+      title: 'Plan Your Route',
+      html: `
+        <div class="space-y-4 text-left">
+          <div>
+            <label class="block text-sm font-semibold text-neutral-900 mb-2">
+              How many locations do you want to visit?
+            </label>
+            <input 
+              id="swal-locations" 
+              type="number" 
+              min="1" 
+              max="${undiscoveredNodes.length}" 
+              value="${Math.min(3, undiscoveredNodes.length)}"
+              class="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500"
+            />
+            <p class="text-xs text-neutral-600 mt-1">${undiscoveredNodes.length} undiscovered locations available</p>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-neutral-900 mb-2">
+              How much time do you have? (minutes)
+            </label>
+            <input 
+              id="swal-time" 
+              type="number" 
+              min="30" 
+              max="480" 
+              value="90"
+              class="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500"
+            />
+            <p class="text-xs text-neutral-600 mt-1">Includes 10 minutes at each location</p>
+          </div>
+        </div>
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonColor: '#6f4e35',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Create Route',
+      cancelButtonText: 'Cancel',
+      preConfirm: () => {
+        const locations = parseInt(document.getElementById('swal-locations').value);
+        const time = parseInt(document.getElementById('swal-time').value);
+        
+        if (!locations || locations < 1) {
+          Swal.showValidationMessage('Please enter at least 1 location');
+          return false;
+        }
+        
+        if (locations > undiscoveredNodes.length) {
+          Swal.showValidationMessage(`Maximum ${undiscoveredNodes.length} locations available`);
+          return false;
+        }
+        
+        if (!time || time < 30) {
+          Swal.showValidationMessage('Please enter at least 30 minutes');
+          return false;
+        }
+        
+        return { locations, time };
+      }
+    });
+
+    if (!formValues) {
+      return; // User cancelled
+    }
+
+    const { locations: requestedLocations, time: availableTime } = formValues;
+
+    // Calculate how many locations we can fit in the available time
+    // Each location gets 10 minutes + walking time estimate (2 min per location average)
+    const timePerLocation = 10; // 10 minutes visit time
+    const estimatedWalkingTimePerLocation = 2; // rough estimate
+    const totalTimePerLocation = timePerLocation + estimatedWalkingTimePerLocation;
+    
+    const maxLocationsByTime = Math.floor(availableTime / totalTimePerLocation);
+    const actualLocations = Math.min(requestedLocations, maxLocationsByTime, undiscoveredNodes.length);
+
+    if (actualLocations < requestedLocations) {
+      await Swal.fire({
+        title: 'Route Adjusted',
+        html: `Based on your available time of ${availableTime} minutes, we can visit <strong>${actualLocations} locations</strong> instead of ${requestedLocations}.<br><br>This includes 10 minutes at each location plus walking time.`,
+        icon: 'info',
+        confirmButtonColor: '#6f4e35'
+      });
+    }
+
+    // Select closest nodes to optimize route
+    const nodesWithDistance = undiscoveredNodes.map(node => ({
+      ...node,
+      distance: Math.sqrt(
+        Math.pow(node.latitude - userLocation.lat, 2) +
+        Math.pow(node.longitude - userLocation.lng, 2)
+      )
+    }));
+
+    // Sort by distance and take the requested number
+    const selectedNodes = nodesWithDistance
+      .sort((a, b) => a.distance - b.distance)
+      .slice(0, actualLocations);
+
+    console.log(`🗺️ Creating route to ${selectedNodes.length} locations (${availableTime} min available)`);
+    
+    // Create route through selected nodes
+    const routeCreated = createRoute(userLocation, selectedNodes);
     
     if (routeCreated) {
       console.log('✅ Route creation initiated');
     } else {
       console.error('❌ Failed to create route');
-      alert('Failed to create route. Please ensure you have location access.');
+      await Swal.fire({
+        title: 'Route Creation Failed',
+        text: 'Failed to create route. Please ensure you have location access.',
+        icon: 'error',
+        confirmButtonColor: '#6f4e35'
+      });
     }
   };
 

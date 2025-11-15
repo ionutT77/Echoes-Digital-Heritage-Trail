@@ -136,14 +136,24 @@ function useRouting(mapRef) {
       const totalDistance = feature.properties?.summary?.distance || 0; // in meters
       const totalDuration = feature.properties?.summary?.duration || 0; // in seconds
       const distanceKm = (totalDistance / 1000).toFixed(1);
-      const timeMin = Math.round(totalDuration / 60);
+      const walkingTimeMin = Math.round(totalDuration / 60);
+      const visitTimeMin = (nodes.length - 1) * 10; // 10 min per location (excluding start point)
+      const totalTimeMin = walkingTimeMin + visitTimeMin;
 
       await Swal.fire({
         title: 'Route Created!',
-        html: `<strong>${distanceKm} km</strong> walking route<br>Estimated time: <strong>${timeMin} minutes</strong>`,
+        html: `
+          <div class="text-left space-y-2">
+            <p><strong>Distance:</strong> ${distanceKm} km walking route</p>
+            <p><strong>Walking time:</strong> ${walkingTimeMin} minutes</p>
+            <p><strong>Visit time:</strong> ${visitTimeMin} minutes (10 min per location)</p>
+            <p class="text-lg font-bold text-heritage-700 mt-3">Total time: ${totalTimeMin} minutes</p>
+            <p class="text-sm text-neutral-600 mt-2">Visiting ${nodes.length - 1} location${nodes.length - 1 !== 1 ? 's' : ''}</p>
+          </div>
+        `,
         icon: 'success',
         confirmButtonColor: '#6f4e35',
-        timer: 3000
+        timer: 5000
       });
 
       // Fit map to route bounds
