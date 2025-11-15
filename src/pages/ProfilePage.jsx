@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Mail, Key, MapPin, Trophy, ArrowLeft, Eye, EyeOff, Check, X, AlertCircle } from 'lucide-react';
+import { User, Mail, Key, MapPin, Trophy, ArrowLeft, Eye, EyeOff, Check, X, AlertCircle, Plus } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import useMapStore from '../stores/mapStore';
 import { supabase } from '../lib/supabaseClient';
@@ -589,6 +589,19 @@ function ProfilePage() {
 
             {activeTab === 'discoveries' && (
               <div>
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-semibold text-neutral-900">
+                    Your Discoveries ({discoveredNodesList.length}/{culturalNodes.length})
+                  </h3>
+                  <button
+                    onClick={() => navigate('/request-location')}
+                    className="flex items-center gap-2 bg-heritage-700 hover:bg-heritage-800 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Request Location</span>
+                  </button>
+                </div>
+
                 {discoveredNodesList.length === 0 ? (
                   <div className="text-center py-12">
                     <MapPin className="w-16 h-16 text-heritage-300 dark:text-heritage-600 mx-auto mb-4" />
@@ -606,55 +619,43 @@ function ProfilePage() {
                     </button>
                   </div>
                 ) : (
-                  <div>
-                    <div className="flex items-center justify-between mb-6">
-                      <h3 className="text-xl font-semibold text-neutral-900 dark:text-white">
-                        Your Discoveries ({discoveredNodesList.length}/{culturalNodes.length})
-                      </h3>
-                      <div className="flex items-center gap-2 text-sm text-heritage-700 dark:text-heritage-400">
-                        <Trophy className="w-5 h-5" />
-                        <span className="font-semibold">
-                          {Math.round((discoveredNodesList.length / culturalNodes.length) * 100)}% Complete
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {discoveredNodesList.map((node) => (
-                        <div
-                          key={node.id}
-                          onClick={() => handleNodeClick(node)}
-                          className="group cursor-pointer bg-white border border-neutral-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300"
-                        >
-                          {node.primaryImageUrl && (
-                            <div className="relative h-48 overflow-hidden">
-                              <img
-                                src={node.primaryImageUrl}
-                                alt={node.title}
-                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                              />
-                              <div className="absolute top-3 right-3 bg-amber-500 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
-                                <Trophy className="w-3 h-3" />
-                                Discovered
-                              </div>
-                            </div>
-                          )}
-                          <div className="p-4">
-                            <h4 className="font-semibold text-neutral-900 dark:text-white mb-2 group-hover:text-heritage-700 dark:group-hover:text-heritage-400 transition-colors">
-                              {node.title}
-                            </h4>
-                            <p className="text-sm text-neutral-600 dark:text-neutral-300 line-clamp-2 mb-3">
-                              {node.description}
-                            </p>
-                            <div className="flex items-center gap-4 text-xs text-neutral-500 dark:text-neutral-400">
-                              <span>{node.category}</span>
-                              <span>•</span>
-                              <span>{node.historicalPeriod}</span>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {discoveredNodesList.map((node) => (
+                      <div
+                        key={node.id}
+                        onClick={() => handleNodeClick(node)}
+                        className="group cursor-pointer bg-white border border-neutral-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300"
+                      >
+                        {node.primaryImageUrl && (
+                          <div className="relative h-48 overflow-hidden">
+                            <img
+                              src={node.primaryImageUrl}
+                              alt={node.title}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                            />
+                            <div className="absolute top-3 right-3 bg-amber-500 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
+                              <Trophy className="w-5 h-5" />
+                              Discovered
                             </div>
                           </div>
+                        )}
+                        <div
+                          className="p-4"
+                        >
+                          <h4 className="font-semibold text-neutral-900 mb-2 group-hover:text-heritage-700 transition-colors">
+                            {node.title}
+                          </h4>
+                          <p className="text-sm text-neutral-600 line-clamp-2 mb-3">
+                            {node.description}
+                          </p>
+                          <div className="flex items-center gap-4 text-xs text-neutral-500">
+                            <span>{node.category}</span>
+                            <span>•</span>
+                            <span>{node.historicalPeriod}</span>
+                          </div>
                         </div>
-                      ))}
-                    </div>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
