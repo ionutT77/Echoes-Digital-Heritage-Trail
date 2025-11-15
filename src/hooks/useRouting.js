@@ -1,6 +1,7 @@
 import { useEffect, useCallback, useRef } from 'react';
 import L from 'leaflet';
 import Swal from 'sweetalert2';
+import useMapStore from '../stores/mapStore';
 
 function useRouting(mapRef) {
   const routeLayerRef = useRef(null);
@@ -13,7 +14,9 @@ function useRouting(mapRef) {
   }, []);
 
   const createRoute = useCallback(async (userLocation, nodes) => {
-    if (!mapRef.current) {
+    // Get the actual map instance from the store if mapRef is not available
+    const map = mapRef.current || useMapStore.getState().map;
+    if (!map) {
       return false;
     }
     if (!userLocation) {
@@ -37,8 +40,8 @@ function useRouting(mapRef) {
     // Clear existing route
     clearRoute();
 
-    // Limit waypoints to avoid overwhelming API (max 8 nodes + user location)
-    const maxNodes = 8;
+    // Limit waypoints to avoid overwhelming API (max 5 nodes + user location)
+    const maxNodes = 5;
     const limitedNodes = nodes.length > maxNodes ? nodes.slice(0, maxNodes) : nodes;
     if (nodes.length > maxNodes) {
       await Swal.fire({
@@ -101,7 +104,7 @@ function useRouting(mapRef) {
         color: '#6f4e35',
         weight: 6,
         opacity: 0.8
-      }).addTo(mapRef.current);
+      }).addTo(map);
 
       // Add markers for waypoints
       waypoints.forEach((waypoint, i) => {
@@ -125,7 +128,7 @@ function useRouting(mapRef) {
 
         const marker = L.marker([waypoint.lat, waypoint.lng], {
           icon: markerIcon
-        }).addTo(mapRef.current);
+        }).addTo(map);
         markersRef.current.push(marker);
       });
 
@@ -145,7 +148,7 @@ function useRouting(mapRef) {
 
       // Fit map to route bounds
       const bounds = L.latLngBounds(polyline);
-      mapRef.current.fitBounds(bounds, {
+      map.fitBounds(bounds, {
         padding: [80, 80],
         maxZoom: 16
       });
@@ -165,30 +168,34 @@ function useRouting(mapRef) {
       createSimplePath(waypoints);
       return true;
     }
-  }, [mapRef]);
+  }, []);
 
   const clearRoute = useCallback(() => {
-    if (routeLayerRef.current && mapRef.current) {
-      mapRef.current.removeLayer(routeLayerRef.current);
+    const map = mapRef.current || useMapStore.getState().map;
+    if (routeLayerRef.current && map) {
+      map.removeLayer(routeLayerRef.current);
       routeLayerRef.current = null;
     }
     markersRef.current.forEach(marker => {
-      if (mapRef.current) {
-        mapRef.current.removeLayer(marker);
+      if (map) {
+        map.removeLayer(marker);
       }
     });
     markersRef.current = [];
-  }, [mapRef]);
+  }, []);
 
   // Fallback: Create simple straight-line path
   function createSimplePath(waypoints) {
+    const map = mapRef.current || useMapStore.getState().map;
+    if (!map) return;
+    
     const coordinates = waypoints.map(w => [w.lat, w.lng]);
     routeLayerRef.current = L.polyline(coordinates, {
       color: '#6f4e35',
       weight: 6,
       opacity: 0.8,
       dashArray: '10, 10'
-    }).addTo(mapRef.current);
+    }).addTo(map);
 
     // Add markers
     waypoints.forEach((waypoint, i) => {
@@ -212,13 +219,13 @@ function useRouting(mapRef) {
 
       const marker = L.marker([waypoint.lat, waypoint.lng], {
         icon: markerIcon
-      }).addTo(mapRef.current);
+      }).addTo(map);
       markersRef.current.push(marker);
     });
 
     // Fit map to show all waypoints
     const bounds = L.latLngBounds(coordinates);
-    mapRef.current.fitBounds(bounds, {
+    map.fitBounds(bounds, {
       padding: [80, 80],
       maxZoom: 16
     });

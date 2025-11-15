@@ -7,6 +7,8 @@ const useMapStore = create((set) => ({
   culturalNodes: [],
   mapCenter: [45.7489, 21.2087],
   mapZoom: 14,
+  map: null,
+  setMap: (map) => set({ map: map }),
   setCulturalNodes: (nodes) => set({ culturalNodes: nodes }),
   setUserLocation: (location) => set({ userLocation: location }),
   setSelectedNode: (node) => set({ selectedNode: node }),

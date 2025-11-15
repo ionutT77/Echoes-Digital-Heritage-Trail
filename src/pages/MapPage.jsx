@@ -1,5 +1,5 @@
 import React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import MapContainer from '../components/Map/MapContainer';
 import NodeModal from '../components/Node/NodeModal';
 import AudioPlayer from '../components/Audio/AudioPlayer';
@@ -12,6 +12,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Bug } from 'lucide-react';
 
 function MapPage() {
+  const mapRef = useRef(null);
   const [showDebug, setShowDebug] = useState(false);
   const { user } = useAuth();
   const { profile } = useAuth();

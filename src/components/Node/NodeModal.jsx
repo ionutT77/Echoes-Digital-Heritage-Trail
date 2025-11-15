@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, MapPin, Calendar, Tag, Play, Pause } from 'lucide-react';
+import { X, MapPin, Calendar, Tag, Play, Pause, Navigation } from 'lucide-react';
 import useMapStore from '../../stores/mapStore';
 import useAudioStore from '../../stores/audioStore';
+import useRouting from '../../hooks/useRouting';
 
 function NodeModal() {
   const selectedNode = useMapStore((state) => state.selectedNode);
@@ -13,6 +14,8 @@ function NodeModal() {
   const isPlaying = useAudioStore((state) => state.isPlaying);
   const playAudio = useAudioStore((state) => state.playAudio);
   const pauseAudio = useAudioStore((state) => state.pauseAudio);
+  const mapRef = React.useRef(null);
+  const { createRoute } = useRouting(mapRef);
 
   useEffect(() => {
     if (selectedNode) {
@@ -36,6 +39,16 @@ function NodeModal() {
     } else {
       playAudio(selectedNode);
     }
+  };
+
+  const handleGetDirections = () => {
+    if (!userLocation || !selectedNode) return;
+    
+    // Create route to this specific node
+    createRoute(userLocation, [selectedNode]);
+    
+    // Close modal after creating route
+    clearSelectedNode();
   };
 
   return (
@@ -98,6 +111,16 @@ function NodeModal() {
                   <span>{selectedNode.category}</span>
                 </div>
               </div>
+
+              {userLocation && (
+                <button
+                  onClick={handleGetDirections}
+                  className="w-full mb-6 bg-amber-600 hover:bg-amber-700 text-white px-6 py-4 rounded-xl flex items-center justify-center gap-3 transition-colors font-semibold"
+                >
+                  <Navigation className="w-5 h-5" />
+                  <span>Get Directions</span>
+                </button>
+              )}
 
               {isDiscovered && selectedNode.audioUrl && (
                 <button

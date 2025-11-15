@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { MapContainer as LeafletMap, TileLayer, ZoomControl } from 'react-leaflet';
 import L from 'leaflet';
 import { Navigation } from 'lucide-react';
@@ -9,7 +9,7 @@ import useRouting from '../../hooks/useRouting';
 import useGeolocation from '../../hooks/useGeolocation';
 import 'leaflet/dist/leaflet.css';
 
-function MapContainer() {
+function MapContainer({ mapRef: externalMapRef }) {
   const mapRef = useRef(null);
   const { error, loading } = useGeolocation();
   const userLocation = useMapStore((state) => state.userLocation);
@@ -17,8 +17,22 @@ function MapContainer() {
   const discoveredNodes = useMapStore((state) => state.discoveredNodes);
   const mapCenter = useMapStore((state) => state.mapCenter);
   const mapZoom = useMapStore((state) => state.mapZoom);
-  const setMapCenter = useMapStore((state) => state.setMapCenter);
+  const setMap = useMapStore((state) => state.setMap);
   const { createRoute, clearRoute } = useRouting(mapRef);
+
+  // Expose map ref to parent if provided
+  useEffect(() => {
+    if (externalMapRef) {
+      externalMapRef.current = mapRef.current;
+    }
+  }, [externalMapRef]);
+
+  // Store map instance in global store when available
+  useEffect(() => {
+    if (mapRef.current) {
+      setMap(mapRef.current);
+    }
+  }, [mapRef.current, setMap]);
 
   useEffect(() => {
     if (userLocation && mapRef.current) {
