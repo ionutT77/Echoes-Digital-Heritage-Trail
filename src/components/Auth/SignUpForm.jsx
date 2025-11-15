@@ -3,11 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { UserPlus } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import { Eye, EyeOff, Check, X } from 'lucide-react';
 
 function SignUpForm() {
   const navigate = useNavigate();
   const { signUp } = useAuth();
+  const { isDark } = useTheme();
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -55,7 +57,9 @@ function SignUpForm() {
         title: 'Error',
         text: 'Passwords do not match',
         icon: 'error',
-        confirmButtonColor: '#6f4e35'
+        confirmButtonColor: '#6f4e35',
+        background: isDark ? '#1f2937' : '#ffffff',
+        color: isDark ? '#f3f4f6' : '#000000'
       });
       return;
     }
@@ -65,7 +69,9 @@ function SignUpForm() {
         title: 'Error',
         text: 'Please meet all password requirements',
         icon: 'error',
-        confirmButtonColor: '#6f4e35'
+        confirmButtonColor: '#6f4e35',
+        background: isDark ? '#1f2937' : '#ffffff',
+        color: isDark ? '#f3f4f6' : '#000000'
       });
       return;
     }
@@ -85,7 +91,9 @@ function SignUpForm() {
         title: 'Success!',
         text: 'Account created successfully. Check your email inbox to verify it before logging in.',
         icon: 'success',
-        confirmButtonColor: '#6f4e35'
+        confirmButtonColor: '#6f4e35',
+        background: isDark ? '#1f2937' : '#ffffff',
+        color: isDark ? '#f3f4f6' : '#000000'
       });
       navigate('/login');
     } else {
@@ -93,27 +101,29 @@ function SignUpForm() {
         title: 'Error',
         text: result.error,
         icon: 'error',
-        confirmButtonColor: '#6f4e35'
+        confirmButtonColor: '#6f4e35',
+        background: isDark ? '#1f2937' : '#ffffff',
+        color: isDark ? '#f3f4f6' : '#000000'
       });
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-heritage-50 via-heritage-100 to-amber-50 pt-16 flex items-center justify-center px-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8">
+    <div className="min-h-screen bg-gradient-to-br from-heritage-50 via-heritage-100 to-amber-50 dark:from-neutral-900 dark:via-neutral-800 dark:to-neutral-900 pt-16 flex items-center justify-center px-4">
+      <div className="max-w-md w-full bg-white dark:bg-neutral-800 rounded-2xl shadow-lg p-8">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-12 h-12 bg-heritage-200 rounded-xl flex items-center justify-center">
-            <UserPlus className="w-6 h-6 text-heritage-800" />
+          <div className="w-12 h-12 bg-heritage-200 dark:bg-heritage-800 rounded-xl flex items-center justify-center">
+            <UserPlus className="w-6 h-6 text-heritage-800 dark:text-heritage-200" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-neutral-900">Sign Up</h1>
-            <p className="text-neutral-600">Create your Echoes account</p>
+            <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Sign Up</h1>
+            <p className="text-neutral-600 dark:text-neutral-300">Create your Echoes account</p>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-semibold text-neutral-900 mb-2">
+            <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">
               Username
             </label>
             <input
@@ -122,13 +132,13 @@ function SignUpForm() {
               value={formData.username}
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
+              className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
               placeholder="johndoe"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-neutral-900 mb-2">
+            <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">
               Email
             </label>
             <input
@@ -137,13 +147,13 @@ function SignUpForm() {
               value={formData.email}
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
+              className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
               placeholder="you@example.com"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-neutral-900 mb-2">
+            <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">
               Password
             </label>
             <div className="relative">
@@ -155,13 +165,13 @@ function SignUpForm() {
                 onFocus={() => setPasswordFocused(true)}
                 onBlur={() => setPasswordFocused(false)}
                 required
-                className="w-full px-4 py-3 pr-12 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
+                className="w-full px-4 py-3 pr-12 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
                 placeholder="Create a strong password"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-700 transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 transition-colors"
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -172,7 +182,7 @@ function SignUpForm() {
             {formData.password && (
               <div className="mt-2">
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="flex-1 h-1 bg-neutral-200 rounded-full overflow-hidden">
+                  <div className="flex-1 h-1 bg-neutral-200 dark:bg-neutral-700 rounded-full overflow-hidden">
                     <div 
                       className={`h-full transition-all duration-300 ${
                         passwordStrength.label === 'Weak' ? 'bg-red-500 w-1/3' :
@@ -192,8 +202,8 @@ function SignUpForm() {
 
             {/* Password requirements checklist */}
             {(passwordFocused || formData.password) && (
-              <div className="mt-3 p-3 bg-neutral-50 rounded-lg border border-neutral-200 space-y-2">
-                <p className="text-xs font-semibold text-neutral-700 mb-2">Password must contain:</p>
+              <div className="mt-3 p-3 bg-neutral-50 dark:bg-neutral-900 rounded-lg border border-neutral-200 dark:border-neutral-700 space-y-2">
+                <p className="text-xs font-semibold text-neutral-700 dark:text-neutral-200 mb-2">Password must contain:</p>
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     {passwordRequirements.minLength ? (
@@ -201,7 +211,7 @@ function SignUpForm() {
                     ) : (
                       <X className="w-4 h-4 text-neutral-400" />
                     )}
-                    <span className={`text-xs ${passwordRequirements.minLength ? 'text-green-600 font-medium' : 'text-neutral-600'}`}>
+                    <span className={`text-xs ${passwordRequirements.minLength ? 'text-green-600 dark:text-green-400 font-medium' : 'text-neutral-600 dark:text-neutral-400'}`}>
                       At least 8 characters
                     </span>
                   </div>
@@ -211,7 +221,7 @@ function SignUpForm() {
                     ) : (
                       <X className="w-4 h-4 text-neutral-400" />
                     )}
-                    <span className={`text-xs ${passwordRequirements.hasUppercase ? 'text-green-600 font-medium' : 'text-neutral-600'}`}>
+                    <span className={`text-xs ${passwordRequirements.hasUppercase ? 'text-green-600 dark:text-green-400 font-medium' : 'text-neutral-600 dark:text-neutral-400'}`}>
                       One uppercase letter (A-Z)
                     </span>
                   </div>
@@ -221,7 +231,7 @@ function SignUpForm() {
                     ) : (
                       <X className="w-4 h-4 text-neutral-400" />
                     )}
-                    <span className={`text-xs ${passwordRequirements.hasLowercase ? 'text-green-600 font-medium' : 'text-neutral-600'}`}>
+                    <span className={`text-xs ${passwordRequirements.hasLowercase ? 'text-green-600 dark:text-green-400 font-medium' : 'text-neutral-600 dark:text-neutral-400'}`}>
                       One lowercase letter (a-z)
                     </span>
                   </div>
@@ -231,7 +241,7 @@ function SignUpForm() {
                     ) : (
                       <X className="w-4 h-4 text-neutral-400" />
                     )}
-                    <span className={`text-xs ${passwordRequirements.hasNumber ? 'text-green-600 font-medium' : 'text-neutral-600'}`}>
+                    <span className={`text-xs ${passwordRequirements.hasNumber ? 'text-green-600 dark:text-green-400 font-medium' : 'text-neutral-600 dark:text-neutral-400'}`}>
                       One number (0-9)
                     </span>
                   </div>
@@ -241,7 +251,7 @@ function SignUpForm() {
                     ) : (
                       <X className="w-4 h-4 text-neutral-400" />
                     )}
-                    <span className={`text-xs ${passwordRequirements.hasSpecial ? 'text-green-600 font-medium' : 'text-neutral-600'}`}>
+                    <span className={`text-xs ${passwordRequirements.hasSpecial ? 'text-green-600 dark:text-green-400 font-medium' : 'text-neutral-600 dark:text-neutral-400'}`}>
                       One special character (!@#$%^&*)
                     </span>
                   </div>
@@ -251,7 +261,7 @@ function SignUpForm() {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-neutral-900 mb-2">
+            <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">
               Confirm Password
             </label>
             <div className="relative">
@@ -261,13 +271,13 @@ function SignUpForm() {
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 pr-12 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
+                className="w-full px-4 py-3 pr-12 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
                 placeholder="Confirm your password"
               />
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-700 transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 transition-colors"
                 aria-label={showConfirmPassword ? "Hide password" : "Show password"}
               >
                 {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -302,11 +312,11 @@ function SignUpForm() {
         </form>
 
         <div className="mt-6 text-center">
-          <p className="text-sm text-neutral-600">
+          <p className="text-sm text-neutral-600 dark:text-neutral-400">
             Already have an account?{' '}
             <button
               onClick={() => navigate('/login')}
-              className="text-heritage-700 font-semibold hover:text-heritage-800"
+              className="text-heritage-700 dark:text-heritage-400 font-semibold hover:text-heritage-800 dark:hover:text-heritage-300"
             >
               Log In
             </button>

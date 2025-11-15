@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Map, Settings, LogOut, User, Trophy, Moon, Sun } from 'lucide-react';
+import { Map, Settings, LogOut, User, Trophy, Moon, Sun, Menu, X } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import useMapStore from '../../stores/mapStore';
@@ -12,6 +12,7 @@ function Header() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, profile, signOut } = useAuth();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { isDark, toggleDarkMode } = useTheme();
   const currentLanguage = useMapStore((state) => state.currentLanguage);
   const setCurrentLanguage = useMapStore((state) => state.setCurrentLanguage);
@@ -39,6 +40,14 @@ function Header() {
     }
   };
 
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+  };
+
   const handleSignOut = async () => {
     const result = await Swal.fire({
       title: t('header.signOut', currentLanguage),
@@ -47,7 +56,9 @@ function Header() {
       showCancelButton: true,
       confirmButtonColor: '#6f4e35',
       cancelButtonColor: '#6b7280',
-      confirmButtonText: 'Yes, sign out'
+      confirmButtonText: 'Yes, sign out',
+      background: isDark ? '#1f2937' : '#ffffff',
+      color: isDark ? '#f3f4f6' : '#000000'
     });
 
     if (result.isConfirmed) {
@@ -59,14 +70,18 @@ function Header() {
           text: 'You have been successfully signed out.',
           icon: 'success',
           confirmButtonColor: '#6f4e35',
-          timer: 1500
+          timer: 1500,
+          background: isDark ? '#1f2937' : '#ffffff',
+          color: isDark ? '#f3f4f6' : '#000000'
         });
       } else {
         await Swal.fire({
           title: t('common.error', currentLanguage),
           text: error || 'Failed to sign out. Please try again.',
           icon: 'error',
-          confirmButtonColor: '#6f4e35'
+          confirmButtonColor: '#6f4e35',
+          background: isDark ? '#1f2937' : '#ffffff',
+          color: isDark ? '#f3f4f6' : '#000000'
         });
       }
     }
@@ -114,7 +129,10 @@ function Header() {
           {user && (
             <>
               <div 
-                onClick={() => navigate('/profile')}
+                onClick={() => {
+                  navigate('/profile');
+                  closeMobileMenu();
+                }}
                 className="flex items-center gap-2 text-sm cursor-pointer hover:bg-heritage-50 dark:hover:bg-neutral-700 px-3 py-2 rounded-lg transition-colors"
               >
                 <User className="w-4 h-4 text-heritage-700 dark:text-heritage-300" />
@@ -125,6 +143,7 @@ function Header() {
               {profile?.is_admin && (
                 <Link
                   to="/admin"
+                  onClick={closeMobileMenu}
                   className={`p-2 rounded-lg transition-colors ${
                     location.pathname === '/admin'
                       ? 'bg-heritage-100 dark:bg-heritage-800 text-heritage-700 dark:text-heritage-300'
@@ -136,7 +155,10 @@ function Header() {
                 </Link>
               )}
               <button
-                onClick={handleSignOut}
+                onClick={() => {
+                  handleSignOut();
+                  closeMobileMenu();
+                }}
                 className="p-2 rounded-lg text-heritage-700 dark:text-heritage-300 hover:bg-heritage-50 dark:hover:bg-neutral-700 transition-colors"
                 aria-label={t('header.signOut', currentLanguage)}
               >
@@ -153,7 +175,103 @@ function Header() {
           </Link>
           )}
         </nav>
+
+        {/* Mobile Menu Button */}
+        <button
+          onClick={toggleMobileMenu}
+          className="md:hidden p-2 rounded-lg text-heritage-700 dark:text-heritage-300 hover:bg-heritage-50 dark:hover:bg-neutral-700 transition-colors"
+          aria-label="Toggle menu"
+        >
+          {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        </button>
       </div>
+
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden border-t border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800">
+          <nav className="flex flex-col gap-2 px-4 py-4">
+            <button
+              onClick={() => {
+                toggleDarkMode();
+                closeMobileMenu();
+              }}
+              className="flex items-center gap-2 p-2 rounded-lg text-heritage-700 dark:text-heritage-300 hover:bg-heritage-50 dark:hover:bg-neutral-700 transition-colors"
+              aria-label="Toggle dark mode"
+            >
+              {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              <span className="font-medium">{isDark ? 'Light Mode' : 'Dark Mode'}</span>
+            </button>
+            
+            <Link
+              to="/leaderboard"
+              onClick={closeMobileMenu}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
+                location.pathname === '/leaderboard'
+                  ? 'bg-heritage-100 dark:bg-heritage-800 text-heritage-700 dark:text-heritage-300'
+                  : 'text-heritage-700 dark:text-heritage-300 hover:bg-heritage-50 dark:hover:bg-neutral-700'
+              }`}
+            >
+              <Trophy className="w-5 h-5" />
+              <span className="font-medium">Leaderboard</span>
+            </Link>
+            
+            {user && (
+              <>
+                <div 
+                  onClick={() => {
+                    navigate('/profile');
+                    closeMobileMenu();
+                  }}
+                  className="flex items-center gap-2 text-sm cursor-pointer hover:bg-heritage-50 dark:hover:bg-neutral-700 px-3 py-2 rounded-lg transition-colors"
+                >
+                  <User className="w-4 h-4 text-heritage-700 dark:text-heritage-300" />
+                  <span className="text-heritage-700 dark:text-heritage-300 font-medium">
+                    {profile?.username || 'User'}
+                  </span>
+                </div>
+                {profile?.is_admin && (
+                  <Link
+                    to="/admin"
+                    onClick={closeMobileMenu}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
+                      location.pathname === '/admin'
+                        ? 'bg-heritage-100 dark:bg-heritage-800 text-heritage-700 dark:text-heritage-300'
+                        : 'text-heritage-700 dark:text-heritage-300 hover:bg-heritage-50 dark:hover:bg-neutral-700'
+                    }`}
+                  >
+                    <Settings className="w-5 h-5" />
+                    <span className="font-medium">Admin Panel</span>
+                  </Link>
+                )}
+                <button
+                  onClick={() => {
+                    handleSignOut();
+                    closeMobileMenu();
+                  }}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-heritage-700 dark:text-heritage-300 hover:bg-heritage-50 dark:hover:bg-neutral-700 transition-colors"
+                >
+                  <LogOut className="w-5 h-5" />
+                  <span className="font-medium">Logout</span>
+                </button>
+              </>
+            )}
+            {!user && (
+              <Link
+                to="/login"
+                onClick={closeMobileMenu}
+                className={`p-2 rounded-lg transition-colors ${
+                  location.pathname === '/login'
+                    ? 'bg-heritage-100 dark:bg-heritage-800 text-heritage-700 dark:text-heritage-300'
+                    : 'text-heritage-700 dark:text-heritage-300 hover:bg-heritage-50 dark:hover:bg-neutral-700'
+                }`}
+                aria-label="Log In"
+              >
+                <User className="w-5 h-5" />
+              </Link>
+            )}
+          </nav>
+        </div>
+      )}
     </header>
   );
 }

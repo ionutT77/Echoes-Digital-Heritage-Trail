@@ -3,10 +3,12 @@ import { useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 
 function ProtectedRoute({ children }) {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
+  const { isDark } = useTheme();
   const [shouldRedirect, setShouldRedirect] = useState(false);
 
   useEffect(() => {
@@ -19,7 +21,9 @@ function ProtectedRoute({ children }) {
         confirmButtonColor: '#6f4e35',
         cancelButtonColor: '#6b7280',
         confirmButtonText: 'Go to Login',
-        cancelButtonText: 'Cancel'
+        cancelButtonText: 'Cancel',
+        background: isDark ? '#1f2937' : '#ffffff',
+        color: isDark ? '#ffffff' : '#000000'
       }).then((result) => {
         if (result.isConfirmed) {
           navigate('/login');
@@ -28,7 +32,7 @@ function ProtectedRoute({ children }) {
         }
       });
     }
-  }, [user, loading]);
+  }, [user, loading, isDark]);
 
   if (loading) {
     return (

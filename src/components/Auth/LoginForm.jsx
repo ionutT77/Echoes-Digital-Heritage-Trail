@@ -3,11 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { LogIn } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import ForgotPasswordModal from './ForgotPasswordModal';
 
 function LoginForm() {
   const navigate = useNavigate();
   const { signIn } = useAuth();
+  const { isDark } = useTheme();
   const [formData, setFormData] = useState({
     emailOrUsername: '',
     password: ''
@@ -43,7 +45,9 @@ function LoginForm() {
         text: 'You have successfully logged in.',
         icon: 'success',
         confirmButtonColor: '#6f4e35',
-        timer: 1500
+        timer: 1500,
+        background: isDark ? '#1f2937' : '#ffffff',
+        color: isDark ? '#ffffff' : '#000000'
       });
       navigate('/map');
     } else {
@@ -51,7 +55,9 @@ function LoginForm() {
         title: 'Error',
         text: result.error,
         icon: 'error',
-        confirmButtonColor: '#6f4e35'
+        confirmButtonColor: '#6f4e35',
+        background: isDark ? '#1f2937' : '#ffffff',
+        color: isDark ? '#ffffff' : '#000000'
       });
     }
   };
@@ -60,8 +66,8 @@ function LoginForm() {
     <div className="min-h-screen bg-gradient-to-br from-heritage-50 via-heritage-100 to-amber-50 dark:from-neutral-900 dark:via-neutral-800 dark:to-neutral-900 pt-16 flex items-center justify-center px-4">
       <div className="max-w-md w-full bg-white dark:bg-neutral-800 rounded-2xl shadow-lg p-8">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-12 h-12 bg-heritage-200 rounded-xl flex items-center justify-center">
-            <LogIn className="w-6 h-6 text-heritage-800" />
+          <div className="w-12 h-12 bg-heritage-200 dark:bg-heritage-900 rounded-xl flex items-center justify-center">
+            <LogIn className="w-6 h-6 text-heritage-800 dark:text-heritage-300" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Log In</h1>
@@ -103,7 +109,7 @@ function LoginForm() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-heritage-700 hover:bg-heritage-800 text-white px-6 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50"
+            className="w-full bg-heritage-700 dark:bg-heritage-600 hover:bg-heritage-800 dark:hover:bg-heritage-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50"
           >
             {loading ? 'Logging In...' : 'Log In'}
           </button>

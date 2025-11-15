@@ -3,7 +3,7 @@ import L from 'leaflet';
 import Swal from 'sweetalert2';
 import useMapStore from '../stores/mapStore';
 
-function useRouting(mapRef) {
+function useRouting(mapRef, isDark = false) {
   const routeLayerRef = useRef(null);
   const markersRef = useRef([]);
 
@@ -32,7 +32,9 @@ function useRouting(mapRef) {
         title: 'API Key Missing',
         text: 'Please add your OpenRouteService API key to the .env file as VITE_OPENROUTESERVICE_API_KEY',
         icon: 'error',
-        confirmButtonColor: '#6f4e35'
+        confirmButtonColor: '#6f4e35',
+        background: isDark ? '#1f2937' : '#ffffff',
+        color: isDark ? '#f3f4f6' : '#000000'
       });
       return { success: false };
     }
@@ -49,81 +51,143 @@ function useRouting(mapRef) {
         text: `Showing route to the nearest ${maxNodes} nodes. Discover these first!`,
         icon: 'info',
         confirmButtonColor: '#6f4e35',
-        timer: 3000
+        timer: 3000,
+        background: isDark ? '#1f2937' : '#ffffff',
+        color: isDark ? '#f3f4f6' : '#000000'
       });
     }
 
     try {
-      // Step 1: Use OpenRouteService Optimization API to find the optimal order
-      const optimizationUrl = 'https://api.openrouteservice.org/optimization';
+      // Hybrid approach: Use TSP optimization for 4+ nodes, nearest neighbor for fewer
+      const useTSP = limitedNodes.length >= 4;
       
-      // Build jobs (destinations to visit)
-      const jobs = limitedNodes.map((node, index) => ({
-        id: index + 1,
-        service: 600, // 10 minutes per location in seconds
-        location: [node.longitude, node.latitude],
-        skills: [1]
-      }));
+      let orderedNodes;
+      
+      if (useTSP) {
+        console.log('🔍 Using TSP optimization for', limitedNodes.length, 'nodes...');
+        
+        // Use OpenRouteService Optimization API to find the optimal order
+        const optimizationUrl = 'https://api.openrouteservice.org/optimization';
+        
+        // Build jobs (destinations to visit)
+        const jobs = limitedNodes.map((node, index) => ({
+          id: index + 1,
+          service: 600, // 10 minutes per location in seconds
+          location: [node.longitude, node.latitude],
+          skills: [1]
+        }));
 
-      // Build vehicle (starting from user location)
-      const vehicle = {
-        id: 1,
-        profile: 'foot-walking',
-        start: [userLocation.lng, userLocation.lat],
-        end: [userLocation.lng, userLocation.lat], // Return to start
-        skills: [1]
-      };
+        // Build vehicle (starting from user location)
+        const vehicle = {
+          id: 1,
+          profile: 'foot-walking',
+          start: [userLocation.lng, userLocation.lat],
+          end: [userLocation.lng, userLocation.lat], // Return to start
+          skills: [1]
+        };
 
-      const optimizationBody = {
-        jobs: jobs,
-        vehicles: [vehicle],
-        options: {
-          g: true // Return geometry
+        const optimizationBody = {
+          jobs: jobs,
+          vehicles: [vehicle],
+          options: {
+            g: true // Return geometry
+          }
+        };
+
+        const optimizationResponse = await fetch(optimizationUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': orsApiKey
+          },
+          body: JSON.stringify(optimizationBody)
+        });
+
+        if (!optimizationResponse.ok) {
+          const errorText = await optimizationResponse.text();
+          console.error('Optimization API error:', errorText);
+          throw new Error(`Optimization API error: ${optimizationResponse.status}`);
         }
-      };
 
-      console.log('🔍 Requesting route optimization...');
-      const optimizationResponse = await fetch(optimizationUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': orsApiKey
-        },
-        body: JSON.stringify(optimizationBody)
-      });
+        const optimizationData = await optimizationResponse.json();
+        console.log('✅ TSP Optimization result:', optimizationData);
 
-      if (!optimizationResponse.ok) {
-        const errorText = await optimizationResponse.text();
-        console.error('Optimization API error:', errorText);
-        throw new Error(`Optimization API error: ${optimizationResponse.status}`);
+        // Extract optimized route
+        if (!optimizationData.routes || optimizationData.routes.length === 0) {
+          throw new Error('No optimized route found');
+        }
+
+        const optimizedRoute = optimizationData.routes[0];
+        const orderedSteps = optimizedRoute.steps.filter(step => step.type === 'job');
+        
+        // Reorder nodes based on optimization
+        orderedNodes = orderedSteps.map(step => {
+          const jobId = step.job - 1; // job IDs start at 1
+          return limitedNodes[jobId];
+        });
+
+        console.log('📍 TSP optimized order:', orderedNodes.map(n => n.title));
+      } else {
+        console.log('🔍 Using nearest neighbor for', limitedNodes.length, 'nodes...');
+        
+        // Nearest Neighbor algorithm for simpler, greedy optimization
+        // This ensures we always visit the closest unvisited node
+        const calculateDistance = (lat1, lon1, lat2, lon2) => {
+          const R = 6371e3; // Earth's radius in meters
+          const φ1 = (lat1 * Math.PI) / 180;
+          const φ2 = (lat2 * Math.PI) / 180;
+          const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+          const Δλ = ((lon2 - lon1) * Math.PI) / 180;
+
+          const a =
+            Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+            Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+          const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+          return R * c; // Distance in meters
+        };
+
+        // Nearest Neighbor optimization - always pick closest unvisited node
+        const unvisited = [...limitedNodes];
+        orderedNodes = [];
+        let currentLat = userLocation.lat;
+        let currentLon = userLocation.lng;
+
+        while (unvisited.length > 0) {
+          // Find nearest unvisited node
+          let nearestIndex = 0;
+          let nearestDistance = Infinity;
+
+          for (let i = 0; i < unvisited.length; i++) {
+            const distance = calculateDistance(
+              currentLat,
+              currentLon,
+              unvisited[i].latitude,
+              unvisited[i].longitude
+            );
+            if (distance < nearestDistance) {
+              nearestDistance = distance;
+              nearestIndex = i;
+            }
+          }
+
+          // Add nearest node to ordered list and remove from unvisited
+          const nearestNode = unvisited.splice(nearestIndex, 1)[0];
+          orderedNodes.push(nearestNode);
+          currentLat = nearestNode.latitude;
+          currentLon = nearestNode.longitude;
+        }
+
+        console.log('📍 Nearest neighbor order:', orderedNodes.map(n => n.title));
       }
 
-      const optimizationData = await optimizationResponse.json();
-      console.log('✅ Optimization result:', optimizationData);
-
-      // Extract optimized route
-      if (!optimizationData.routes || optimizationData.routes.length === 0) {
-        throw new Error('No optimized route found');
-      }
-
-      const optimizedRoute = optimizationData.routes[0];
-      const orderedSteps = optimizedRoute.steps.filter(step => step.type === 'job');
-      
-      // Reorder nodes based on optimization
-      const orderedNodes = orderedSteps.map(step => {
-        const jobId = step.job - 1; // job IDs start at 1
-        return limitedNodes[jobId];
-      });
-
-      console.log('📍 Optimized order:', orderedNodes.map(n => n.title));
-
-      // Build optimized waypoints
+      // Build waypoints from ordered nodes
       const waypoints = [
         { lat: userLocation.lat, lng: userLocation.lng },
         ...orderedNodes.map(node => ({ lat: node.latitude, lng: node.longitude }))
       ];
 
-      // Step 2: Get detailed walking directions for the optimized route
+      // Get detailed walking directions for the ordered route
       const coordinates = waypoints.map(wp => [wp.lng, wp.lat]);
       const directionsUrl = 'https://api.openrouteservice.org/v2/directions/foot-walking/geojson';
       
@@ -227,17 +291,17 @@ function useRouting(mapRef) {
       const slightlyOver = availableTime && totalTimeMin > availableTime && totalTimeMin <= availableTime + Math.ceil(availableTime * 0.20);
 
       await Swal.fire({
-        title: '🎯 Optimized Route Created!',
+        title: '🎯 Route Created!',
         html: `
           <div class="text-left space-y-2">
-            ${slightlyOver ? '<p class="text-orange-600 font-semibold mb-2">⚠️ Route slightly exceeds your time budget but within tolerance</p>' : '<p class="text-sm text-green-600 font-semibold mb-2">✓ Route optimized for shortest distance</p>'}
+            ${slightlyOver ? '<p class="text-orange-600 font-semibold mb-2">⚠️ Route slightly exceeds your time budget but within tolerance</p>' : `<p class="text-sm ${isDark ? 'text-green-400' : 'text-green-600'} font-semibold mb-2">✓ Route ${useTSP ? 'optimized for shortest total distance' : 'uses nearest neighbor'}</p>`}
             <p><strong>Distance:</strong> ${distanceKm} km walking route</p>
             <p><strong>Walking time:</strong> ${walkingTimeMin} minutes</p>
             <p><strong>Visit time:</strong> ${visitTimeMin} minutes (10 min per location)</p>
-            <p class="text-lg font-bold text-heritage-700 mt-3">Total time: ${totalTimeMin} minutes</p>
-            ${availableTime ? `<p class="text-sm ${withinBudget ? 'text-green-600' : 'text-orange-600'}">${withinBudget ? '✓ Within' : '⚠️ Slightly over (approved)'} your ${availableTime} minute budget</p>` : ''}
-            <p class="text-sm text-neutral-600 mt-2">Visiting ${orderedNodes.length} location${orderedNodes.length !== 1 ? 's' : ''} in optimal order</p>
-            <div class="mt-3 text-xs text-neutral-500">
+            <p class="text-lg font-bold ${isDark ? 'text-heritage-400' : 'text-heritage-700'} mt-3">Total time: ${totalTimeMin} minutes</p>
+            ${availableTime ? `<p class="text-sm ${withinBudget ? (isDark ? 'text-green-400' : 'text-green-600') : 'text-orange-600'}">${withinBudget ? '✓ Within' : '⚠️ Slightly over (approved)'} your ${availableTime} minute budget</p>` : ''}
+            <p class="text-sm ${isDark ? 'text-neutral-400' : 'text-neutral-600'} mt-2">Visiting ${orderedNodes.length} location${orderedNodes.length !== 1 ? 's' : ''} ${useTSP ? '(TSP optimized)' : '(always choosing closest unvisited)'}</p>
+            <div class="mt-3 text-xs ${isDark ? 'text-neutral-400' : 'text-neutral-500'}">
               <p class="font-semibold mb-1">Route order:</p>
               <ol class="list-decimal pl-5">
                 ${orderedNodes.map(node => `<li>${node.title}</li>`).join('')}
@@ -247,7 +311,9 @@ function useRouting(mapRef) {
         `,
         icon: slightlyOver ? 'warning' : 'success',
         confirmButtonColor: '#6f4e35',
-        confirmButtonText: 'OK'
+        confirmButtonText: 'OK',
+        background: isDark ? '#1f2937' : '#ffffff',
+        color: isDark ? '#f3f4f6' : '#000000'
       });
 
       // Fit map to route bounds
@@ -260,10 +326,10 @@ function useRouting(mapRef) {
       return { success: true, totalTimeMin, nodes: orderedNodes };
 
     } catch (error) {
-      console.error('❌ Route optimization failed:', error);
+      console.error('❌ Route creation failed:', error);
       
-      // Fallback: Use nearest neighbor algorithm for optimization
-      console.log('🔄 Falling back to nearest neighbor algorithm...');
+      // Fallback to simple straight-line path
+      console.log('🔄 Falling back to simple path...');
       return await createFallbackOptimizedRoute(userLocation, limitedNodes, map, availableTime, skipTimeCheck);
     }
   }, []);
@@ -404,14 +470,14 @@ function useRouting(mapRef) {
             title: '✓ Optimized Route Created!',
             html: `
               <div class="text-left space-y-2">
-                ${slightlyOver ? '<p class="text-orange-600 font-semibold mb-2">⚠️ Route slightly exceeds your time budget but within tolerance</p>' : '<p class="text-sm text-blue-600 font-semibold mb-2">Using nearest-neighbor optimization</p>'}
+                ${slightlyOver ? '<p class="text-orange-600 font-semibold mb-2">⚠️ Route slightly exceeds your time budget but within tolerance</p>' : `<p class="text-sm ${isDark ? 'text-blue-400' : 'text-blue-600'} font-semibold mb-2">Using nearest-neighbor optimization</p>`}
                 <p><strong>Distance:</strong> ${distanceKm} km</p>
                 <p><strong>Walking time:</strong> ${walkingTimeMin} min</p>
                 <p><strong>Visit time:</strong> ${visitTimeMin} min</p>
-                <p class="text-lg font-bold text-heritage-700 mt-3">Total: ${totalTimeMin} min</p>
-                ${availableTime ? `<p class="text-sm ${withinBudget ? 'text-green-600' : 'text-orange-600'}">${withinBudget ? '✓ Within' : '⚠️ Slightly over (approved)'} your ${availableTime} minute budget</p>` : ''}
-                <p class="text-sm text-neutral-600 mt-2">${orderedNodes.length} locations</p>
-                <div class="mt-3 text-xs text-neutral-500">
+                <p class="text-lg font-bold ${isDark ? 'text-heritage-400' : 'text-heritage-700'} mt-3">Total: ${totalTimeMin} min</p>
+                ${availableTime ? `<p class="text-sm ${withinBudget ? (isDark ? 'text-green-400' : 'text-green-600') : 'text-orange-600'}">${withinBudget ? '✓ Within' : '⚠️ Slightly over (approved)'} your ${availableTime} minute budget</p>` : ''}
+                <p class="text-sm ${isDark ? 'text-neutral-400' : 'text-neutral-600'} mt-2">${orderedNodes.length} locations</p>
+                <div class="mt-3 text-xs ${isDark ? 'text-neutral-400' : 'text-neutral-500'}">
                   <p class="font-semibold mb-1">Route order:</p>
                   <ol class="list-decimal pl-5">
                     ${orderedNodes.map(node => `<li>${node.title}</li>`).join('')}
@@ -421,7 +487,9 @@ function useRouting(mapRef) {
             `,
             icon: slightlyOver ? 'warning' : 'success',
             confirmButtonColor: '#6f4e35',
-            confirmButtonText: 'OK'
+            confirmButtonText: 'OK',
+            background: isDark ? '#1f2937' : '#ffffff',
+            color: isDark ? '#f3f4f6' : '#000000'
           });
 
           // Fit bounds
@@ -544,14 +612,14 @@ function useRouting(mapRef) {
       title: 'Simple Route Created',
       html: `
         <div class="text-left space-y-2">
-          ${slightlyOver ? '<p class="text-orange-600 font-semibold mb-2">⚠️ Route slightly exceeds your time budget but within tolerance</p>' : '<p class="text-sm text-neutral-600 mb-2">Using straight-line approximation</p>'}
+          ${slightlyOver ? '<p class="text-orange-600 font-semibold mb-2">⚠️ Route slightly exceeds your time budget but within tolerance</p>' : `<p class="text-sm ${isDark ? 'text-neutral-400' : 'text-neutral-600'} mb-2">Using straight-line approximation</p>`}
           <p><strong>Approx. distance:</strong> ${distanceKm} km</p>
           <p><strong>Est. walking time:</strong> ${walkingTimeMin} min</p>
           <p><strong>Visit time:</strong> ${visitTimeMin} min</p>
-          <p class="text-lg font-bold text-heritage-700 mt-3">Total: ~${totalTimeMin} min</p>
-          ${availableTime ? `<p class="text-sm ${withinBudget ? 'text-green-600' : 'text-orange-600'}">${withinBudget ? '✓ Within' : '⚠️ Slightly over (approved)'} your ${availableTime} minute budget</p>` : ''}
+          <p class="text-lg font-bold ${isDark ? 'text-heritage-400' : 'text-heritage-700'} mt-3">Total: ~${totalTimeMin} min</p>
+          ${availableTime ? `<p class="text-sm ${withinBudget ? (isDark ? 'text-green-400' : 'text-green-600') : 'text-orange-600'}">${withinBudget ? '✓ Within' : '⚠️ Slightly over (approved)'} your ${availableTime} minute budget</p>` : ''}
           ${orderedNodes ? `
-            <div class="mt-3 text-xs text-neutral-500">
+            <div class="mt-3 text-xs ${isDark ? 'text-neutral-400' : 'text-neutral-500'}">
               <p class="font-semibold mb-1">Route order:</p>
               <ol class="list-decimal pl-5">
                 ${orderedNodes.map(node => `<li>${node.title}</li>`).join('')}
@@ -562,7 +630,9 @@ function useRouting(mapRef) {
       `,
       icon: slightlyOver ? 'warning' : 'info',
       confirmButtonColor: '#6f4e35',
-      confirmButtonText: 'OK'
+      confirmButtonText: 'OK',
+      background: isDark ? '#1f2937' : '#ffffff',
+      color: isDark ? '#f3f4f6' : '#000000'
     });
 
     // Fit map to show all waypoints

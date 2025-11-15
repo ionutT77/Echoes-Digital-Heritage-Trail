@@ -448,6 +448,7 @@ function ProfilePage() {
                     value={formData.email}
                     onChange={handleChange}
                     required
+                    readOnly
                     className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
                   />
                 </div>
@@ -709,7 +710,7 @@ function ProfilePage() {
                       <div
                         key={node.id}
                         onClick={() => handleNodeClick(node)}
-                        className="group cursor-pointer bg-white border border-neutral-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300"
+                        className="group cursor-pointer bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300"
                       >
                         {node.primaryImageUrl && (
                           <div className="relative h-48 overflow-hidden">
@@ -727,13 +728,13 @@ function ProfilePage() {
                         <div
                           className="p-4"
                         >
-                          <h4 className="font-semibold text-neutral-900 mb-2 group-hover:text-heritage-700 transition-colors">
+                          <h4 className="font-semibold text-neutral-900 dark:text-white mb-2 group-hover:text-heritage-700 dark:group-hover:text-heritage-400 transition-colors">
                             {node.title}
                           </h4>
-                          <p className="text-sm text-neutral-600 line-clamp-2 mb-3">
+                          <p className="text-sm text-neutral-600 dark:text-neutral-300 line-clamp-2 mb-3">
                             {node.description}
                           </p>
-                          <div className="flex items-center gap-4 text-xs text-neutral-500">
+                          <div className="flex items-center gap-4 text-xs text-neutral-500 dark:text-neutral-400">
                             <span>{node.category}</span>
                             <span>•</span>
                             <span>{node.historicalPeriod}</span>

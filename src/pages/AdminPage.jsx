@@ -482,6 +482,7 @@ function AdminPage() {
                   <option value="Event">Event</option>
                   <option value="Person">Person</option>
                   <option value="Artifact">Artifact</option>
+                  <option value="Scenic">Scenic</option>
                 </select>
               </div>
 

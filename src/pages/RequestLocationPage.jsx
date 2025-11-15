@@ -318,7 +318,7 @@ function RequestLocationPage() {
       <div className="max-w-4xl mx-auto px-4 py-8">
         <button
           onClick={() => navigate('/profile')}
-          className="flex items-center gap-2 text-heritage-700 hover:text-heritage-900 mb-6 transition-colors"
+          className="flex items-center gap-2 text-heritage-700 dark:text-heritage-300 hover:text-heritage-900 dark:hover:text-heritage-100 mb-6 transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
           <span>{t('requestLocation.backToProfile', currentLanguage)}</span>
@@ -366,7 +366,7 @@ function RequestLocationPage() {
                   onChange={handleInputChange}
                   placeholder={t('requestLocation.descriptionPlaceholder', currentLanguage)}
                   rows={6}
-                  className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
                   required
                 />
               </div>
@@ -380,7 +380,7 @@ function RequestLocationPage() {
                     name="category"
                     value={formData.category}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
                   >
                     <option value="">{t('requestLocation.selectCategory', currentLanguage)}</option>
                     {categories.map(cat => (
@@ -416,7 +416,7 @@ function RequestLocationPage() {
                     onChange={handleInputChange}
                     placeholder={t('requestLocation.latitudePlaceholder', currentLanguage)}
                     step="0.000001"
-                    className="px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
+                    className="px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
                     required
                   />
                   <input
@@ -426,14 +426,14 @@ function RequestLocationPage() {
                     onChange={handleInputChange}
                     placeholder={t('requestLocation.longitudePlaceholder', currentLanguage)}
                     step="0.000001"
-                    className="px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
+                    className="px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
                     required
                   />
                 </div>
                 <button
                   type="button"
                   onClick={getCurrentLocation}
-                  className="mt-2 text-sm text-heritage-700 hover:text-heritage-900 font-medium flex items-center gap-2"
+                  className="mt-2 text-sm text-heritage-700 dark:text-heritage-400 hover:text-heritage-900 dark:hover:text-heritage-300 font-medium flex items-center gap-2"
                 >
                   <MapPin className="w-4 h-4" />
                   {t('requestLocation.useMyLocation', currentLanguage)}
@@ -451,10 +451,10 @@ function RequestLocationPage() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {photos.map((photo, index) => (
                   <div key={index} className="relative group">
-                    <img
+                      <img
                       src={photo.url}
                       alt={`Location photo ${index + 1}`}
-                      className="w-full h-32 object-cover rounded-lg border-2 border-neutral-200"
+                      className="w-full h-32 object-cover rounded-lg border-2 border-neutral-200 dark:border-neutral-600"
                     />
                     <button
                       type="button"
@@ -467,7 +467,7 @@ function RequestLocationPage() {
                 ))}
 
                 {photos.length < 10 && (
-                  <label className="w-full h-32 border-2 border-dashed border-neutral-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-heritage-500 hover:bg-heritage-50 transition-colors">
+                  <label className="w-full h-32 border-2 border-dashed border-neutral-300 dark:border-neutral-600 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-heritage-500 hover:bg-heritage-50 dark:hover:bg-heritage-900/20 transition-colors">
                     <input
                       type="file"
                       accept="image/*"
@@ -480,8 +480,8 @@ function RequestLocationPage() {
                       <Loader className="w-8 h-8 text-heritage-700 animate-spin" />
                     ) : (
                       <>
-                        <Image className="w-8 h-8 text-neutral-400 mb-2" />
-                        <span className="text-sm text-neutral-600">Add Photos</span>
+                        <Image className="w-8 h-8 text-neutral-400 dark:text-neutral-500 mb-2" />
+                        <span className="text-sm text-neutral-600 dark:text-neutral-400">Add Photos</span>
                       </>
                     )}
                   </label>
@@ -502,10 +502,10 @@ function RequestLocationPage() {
                   <button
                     type="button"
                     onClick={() => setAudioOption('upload')}
-                    className="p-6 border-2 border-neutral-300 rounded-lg hover:border-heritage-500 hover:bg-heritage-50 transition-colors text-left"
+                    className="p-6 border-2 border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 rounded-lg hover:border-heritage-500 hover:bg-heritage-50 dark:hover:bg-heritage-900/20 transition-colors text-left"
                   >
                     <div className="flex items-start gap-3">
-                      <Upload className="w-6 h-6 text-heritage-700 flex-shrink-0 mt-1" />
+                      <Upload className="w-6 h-6 text-heritage-700 dark:text-heritage-400 flex-shrink-0 mt-1" />
                       <div>
                         <h3 className="font-semibold text-neutral-900 mb-1">{t('requestLocation.uploadYourAudio', currentLanguage)}</h3>
                         <p className="text-sm text-neutral-600">{t('requestLocation.uploadAudioDescription', currentLanguage)}</p>
@@ -516,10 +516,10 @@ function RequestLocationPage() {
                   <button
                     type="button"
                     onClick={() => setAudioOption('generate')}
-                    className="p-6 border-2 border-neutral-300 rounded-lg hover:border-heritage-500 hover:bg-heritage-50 transition-colors text-left"
+                    className="p-6 border-2 border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 rounded-lg hover:border-heritage-500 hover:bg-heritage-50 dark:hover:bg-heritage-900/20 transition-colors text-left"
                   >
                     <div className="flex items-start gap-3">
-                      <Music className="w-6 h-6 text-heritage-700 flex-shrink-0 mt-1" />
+                      <Music className="w-6 h-6 text-heritage-700 dark:text-heritage-400 flex-shrink-0 mt-1" />
                       <div>
                         <h3 className="font-semibold text-neutral-900 mb-1">{t('requestLocation.generateAudio', currentLanguage)}</h3>
                         <p className="text-sm text-neutral-600">{t('requestLocation.generateAudioDescription', currentLanguage)}</p>
@@ -541,19 +541,19 @@ function RequestLocationPage() {
                         setAudioFile(null);
                         setAudioUrl('');
                       }}
-                      className="text-sm text-heritage-700 hover:text-heritage-900 font-medium"
+                      className="text-sm text-heritage-700 dark:text-heritage-400 hover:text-heritage-900 dark:hover:text-heritage-300 font-medium"
                     >
                       {t('requestLocation.changeOption', currentLanguage)}
                     </button>
                   </div>
 
                   {audioFile ? (
-                    <div className="flex items-center justify-between p-4 bg-heritage-50 border border-heritage-200 rounded-lg">
+                    <div className="flex items-center justify-between p-4 bg-heritage-50 dark:bg-heritage-900/20 border border-heritage-200 dark:border-heritage-700 rounded-lg">
                       <div className="flex items-center gap-3">
-                        <Music className="w-8 h-8 text-heritage-700" />
+                        <Music className="w-8 h-8 text-heritage-700 dark:text-heritage-400" />
                         <div>
-                          <p className="font-medium text-neutral-900">{audioFile.name}</p>
-                          <p className="text-sm text-neutral-600">
+                          <p className="font-medium text-neutral-900 dark:text-white">{audioFile.name}</p>
+                          <p className="text-sm text-neutral-600 dark:text-neutral-400">
                             {(audioFile.size / 1024 / 1024).toFixed(2)} MB
                           </p>
                         </div>
@@ -567,7 +567,7 @@ function RequestLocationPage() {
                       </button>
                     </div>
                   ) : (
-                    <label className="block w-full p-6 border-2 border-dashed border-neutral-300 rounded-lg cursor-pointer hover:border-heritage-500 hover:bg-heritage-50 transition-colors">
+                    <label className="block w-full p-6 border-2 border-dashed border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 rounded-lg cursor-pointer hover:border-heritage-500 hover:bg-heritage-50 dark:hover:bg-heritage-900/20 transition-colors">
                       <input
                         type="file"
                         accept="audio/*"
@@ -577,9 +577,9 @@ function RequestLocationPage() {
                       />
                       <div className="flex flex-col items-center">
                         {uploadingAudio ? (
-                          <Loader className="w-12 h-12 text-heritage-700 animate-spin mb-3" />
+                          <Loader className="w-12 h-12 text-heritage-700 dark:text-heritage-400 animate-spin mb-3" />
                         ) : (
-                          <Upload className="w-12 h-12 text-neutral-400 mb-3" />
+                          <Upload className="w-12 h-12 text-neutral-400 dark:text-neutral-500 mb-3" />
                         )}
                         <p className="text-neutral-700 font-medium">
                           {uploadingAudio ? t('requestLocation.uploading', currentLanguage) : t('requestLocation.clickToUpload', currentLanguage)}
@@ -602,7 +602,7 @@ function RequestLocationPage() {
                         setAudioOption('');
                         setFormData(prev => ({ ...prev, audioStoryDescription: '' }));
                       }}
-                      className="text-sm text-heritage-700 hover:text-heritage-900 font-medium"
+                      className="text-sm text-heritage-700 dark:text-heritage-400 hover:text-heritage-900 dark:hover:text-heritage-300 font-medium"
                     >
                       {t('requestLocation.changeOption', currentLanguage)}
                     </button>
@@ -618,7 +618,7 @@ function RequestLocationPage() {
                       onChange={handleInputChange}
                       placeholder={t('requestLocation.audioStoryPlaceholder', currentLanguage)}
                       rows={8}
-                      className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
+                      className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
                     />
                     <div className="mt-2 flex items-center justify-between">
                       <p className="text-xs text-neutral-500">
@@ -666,7 +666,7 @@ function RequestLocationPage() {
                     onChange={handleInputChange}
                     placeholder={t('requestLocation.emailPlaceholder', currentLanguage)}
                     readOnly
-                    className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-transparent"
                     required
                   />
                 </div>
@@ -693,7 +693,7 @@ function RequestLocationPage() {
               <button
                 type="button"
                 onClick={() => navigate('/map')}
-                className="flex-1 px-6 py-3 border-2 border-heritage-700 text-heritage-700 rounded-lg font-semibold hover:bg-heritage-50 transition-colors"
+                className="flex-1 px-6 py-3 border-2 border-heritage-700 dark:border-heritage-400 text-heritage-700 dark:text-heritage-400 rounded-lg font-semibold hover:bg-heritage-50 dark:hover:bg-heritage-900/20 transition-colors"
               >
                 {t('requestLocation.cancel', currentLanguage)}
               </button>
