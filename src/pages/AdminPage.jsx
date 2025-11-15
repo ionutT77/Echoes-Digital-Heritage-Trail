@@ -12,6 +12,7 @@ function AdminPage() {
   const [activeTab, setActiveTab] = useState('create');
   const [requests, setRequests] = useState([]);
   const [loadingRequests, setLoadingRequests] = useState(false);
+  const [processingRequest, setProcessingRequest] = useState(null);
   const [expandedRequest, setExpandedRequest] = useState(null);
   const [formData, setFormData] = useState({
     title: '',
@@ -65,6 +66,129 @@ function AdminPage() {
       });
     } finally {
       setLoadingRequests(false);
+    }
+  };
+
+  const handleApproveRequest = async (requestId) => {
+    setProcessingRequest(requestId);
+    try {
+      const { error } = await supabase
+        .from('location_requests')
+        .update({
+          status: 'approved',
+          reviewed_at: new Date().toISOString()
+        })
+        .eq('id', requestId);
+
+      if (error) throw error;
+
+      await Swal.fire({
+        title: 'Approved!',
+        text: 'Location request has been approved.',
+        icon: 'success',
+        confirmButtonColor: '#6f4e35'
+      });
+
+      fetchRequests();
+    } catch (error) {
+      console.error('Error approving request:', error);
+      await Swal.fire({
+        title: 'Error',
+        text: 'Failed to approve request',
+        icon: 'error',
+        confirmButtonColor: '#6f4e35'
+      });
+    } finally {
+      setProcessingRequest(null);
+    }
+  };
+
+  const handleDiscardRequest = async (requestId) => {
+    const result = await Swal.fire({
+      title: 'Discard Request?',
+      text: 'This will reject this location request. This action cannot be undone.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Yes, discard it'
+    });
+
+    if (!result.isConfirmed) return;
+
+    setProcessingRequest(requestId);
+    try {
+      const { error } = await supabase
+        .from('location_requests')
+        .update({
+          status: 'rejected',
+          reviewed_at: new Date().toISOString()
+        })
+        .eq('id', requestId);
+
+      if (error) throw error;
+
+      await Swal.fire({
+        title: 'Discarded!',
+        text: 'Location request has been rejected.',
+        icon: 'success',
+        confirmButtonColor: '#6f4e35'
+      });
+
+      fetchRequests();
+    } catch (error) {
+      console.error('Error discarding request:', error);
+      await Swal.fire({
+        title: 'Error',
+        text: 'Failed to discard request',
+        icon: 'error',
+        confirmButtonColor: '#6f4e35'
+      });
+    } finally {
+      setProcessingRequest(null);
+    }
+  };
+
+  const handleDeleteRequest = async (requestId) => {
+    const result = await Swal.fire({
+      title: 'Delete Request Permanently?',
+      text: 'This will permanently remove this request from the database. This action cannot be undone.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Yes, delete it permanently'
+    });
+
+    if (!result.isConfirmed) return;
+
+    setProcessingRequest(requestId);
+    try {
+      const { error } = await supabase
+        .from('location_requests')
+        .delete()
+        .eq('id', requestId);
+
+      if (error) throw error;
+
+      await Swal.fire({
+        title: 'Deleted!',
+        text: 'Location request has been permanently deleted.',
+        icon: 'success',
+        confirmButtonColor: '#6f4e35'
+      });
+
+      fetchRequests();
+    } catch (error) {
+      console.error('Error deleting request:', error);
+      await Swal.fire({
+        title: 'Error',
+        text: 'Failed to delete request',
+        icon: 'error',
+        confirmButtonColor: '#6f4e35'
+      });
+    } finally {
+      setProcessingRequest(null);
     }
   };
 
@@ -221,7 +345,7 @@ function AdminPage() {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-neutral-900">Admin Panel</h1>
-              <p className="text-neutral-600">Create new nodes and see Location requests</p>
+              <p className="text-neutral-600">Create new location and Review Location Requests</p>
             </div>
           </div>
 
@@ -235,7 +359,7 @@ function AdminPage() {
               }`}
             >
               <Plus className="w-5 h-5 inline mr-2" />
-              Create Node
+              Create Location
             </button>
             <button
               onClick={() => setActiveTab('requests')}
@@ -624,26 +748,73 @@ function AdminPage() {
                   {requests.map((request, index) => (
                     <div
                       key={request.id}
-                      className="border border-neutral-200 rounded-lg overflow-hidden bg-white"
+                      className="border border-neutral-200 rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow"
                     >
-                      <button
-                        onClick={() => setExpandedRequest(expandedRequest === request.id ? null : request.id)}
-                        className="w-full px-6 py-4 flex items-center justify-between hover:bg-neutral-50 transition-colors"
-                      >
-                        <div className="flex items-center gap-3">
-                          <span className="text-sm font-bold text-heritage-700 bg-heritage-100 px-3 py-1 rounded-full">
-                            Request #{index + 1}
-                          </span>
-                          <span className="text-sm text-neutral-500">
-                            {new Date(request.created_at).toLocaleDateString()}
-                          </span>
+                      <div className="w-full px-6 py-4">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-3 flex-1">
+                            <span className="text-sm font-bold text-heritage-700 bg-heritage-100 px-3 py-1 rounded-full">
+                              Request #{index + 1}
+                            </span>
+                            <span className="text-sm text-neutral-500">
+                              {new Date(request.created_at).toLocaleDateString()}
+                            </span>
+                            <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
+                              request.status === 'approved' ? 'bg-green-100 text-green-700' :
+                              request.status === 'rejected' ? 'bg-red-100 text-red-700' :
+                              'bg-amber-100 text-amber-700'
+                            }`}>
+                              {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                            </span>
+                          </div>
+                          <button
+                            onClick={() => setExpandedRequest(expandedRequest === request.id ? null : request.id)}
+                            className="p-2 hover:bg-neutral-100 rounded-lg transition-colors"
+                          >
+                            {expandedRequest === request.id ? (
+                              <ChevronUp className="w-5 h-5 text-neutral-400" />
+                            ) : (
+                              <ChevronDown className="w-5 h-5 text-neutral-400" />
+                            )}
+                          </button>
                         </div>
-                        {expandedRequest === request.id ? (
-                          <ChevronUp className="w-5 h-5 text-neutral-400" />
-                        ) : (
-                          <ChevronDown className="w-5 h-5 text-neutral-400" />
-                        )}
-                      </button>
+
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={() => handleApproveRequest(request.id)}
+                            disabled={processingRequest === request.id || request.status === 'approved'}
+                            className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                          >
+                            {processingRequest === request.id ? (
+                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            ) : null}
+                            Approve
+                          </button>
+                          {request.status === 'rejected' ? (
+                            <button
+                              onClick={() => handleDeleteRequest(request.id)}
+                              disabled={processingRequest === request.id}
+                              className="flex-1 px-4 py-2 bg-red-700 hover:bg-red-800 text-white rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            >
+                              {processingRequest === request.id ? (
+                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                              ) : null}
+                              Delete Permanently
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleDiscardRequest(request.id)}
+                              disabled={processingRequest === request.id || request.status === 'rejected'}
+                              className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            >
+                              {processingRequest === request.id ? (
+                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                              ) : null}
+                              {request.status === 'rejected' ? 'Delete Permanently' : 'Discard'}
+                            </button>
+                          )}
+                        </div>
+                      </div>
                       
                       {expandedRequest === request.id && (
                         <div className="px-6 pb-6 pt-4 border-t border-neutral-100 bg-neutral-50">
