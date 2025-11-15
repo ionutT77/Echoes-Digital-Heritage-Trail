@@ -3,11 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { LogIn } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import ForgotPasswordModal from './ForgotPasswordModal';
 
 function LoginForm() {
   const navigate = useNavigate();
   const { signIn } = useAuth();
+  const { isDark } = useTheme();
   const [formData, setFormData] = useState({
     emailOrUsername: '',
     password: ''
@@ -43,7 +45,9 @@ function LoginForm() {
         text: 'You have successfully logged in.',
         icon: 'success',
         confirmButtonColor: '#6f4e35',
-        timer: 1500
+        timer: 1500,
+        background: isDark ? '#1f2937' : '#ffffff',
+        color: isDark ? '#ffffff' : '#000000'
       });
       navigate('/map');
     } else {
@@ -51,7 +55,9 @@ function LoginForm() {
         title: 'Error',
         text: result.error,
         icon: 'error',
-        confirmButtonColor: '#6f4e35'
+        confirmButtonColor: '#6f4e35',
+        background: isDark ? '#1f2937' : '#ffffff',
+        color: isDark ? '#ffffff' : '#000000'
       });
     }
   };
