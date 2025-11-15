@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, MapPin, Calendar, Tag, Play, Pause, Navigation } from 'lucide-react';
 import useMapStore from '../../stores/mapStore';
@@ -16,10 +16,12 @@ function NodeModal() {
   const isPlaying = useAudioStore((state) => state.isPlaying);
   const playAudio = useAudioStore((state) => state.playAudio);
   const pauseAudio = useAudioStore((state) => state.pauseAudio);
+  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
 
   useEffect(() => {
     if (selectedNode) {
       document.body.style.overflow = 'hidden';
+      setCurrentVideoIndex(0);
     } else {
       document.body.style.overflow = 'unset';
     }
@@ -32,6 +34,7 @@ function NodeModal() {
 
   const isDiscovered = discoveredNodes.has(selectedNode.id);
   const isCurrentlyPlaying = currentNode?.id === selectedNode.id && isPlaying;
+  const hasVideos = selectedNode.videos && selectedNode.videos.length > 0;
 
   const handleAudioToggle = () => {
     if (isCurrentlyPlaying) {
@@ -43,17 +46,26 @@ function NodeModal() {
 
   const handleGetDirections = () => {
     if (!userLocation || !selectedNode || !map) return;
-    
     if (!createRouteFunction) {
       console.error('Create route function not available');
       return;
     }
-    
-    // Create route to this specific node
     createRouteFunction(userLocation, [selectedNode]);
-    
-    // Close modal after creating route
     clearSelectedNode();
+  };
+
+  const handleNextVideo = () => {
+    if (hasVideos) {
+      setCurrentVideoIndex((prev) => (prev + 1) % selectedNode.videos.length);
+    }
+  };
+
+  const handlePrevVideo = () => {
+    if (hasVideos) {
+      setCurrentVideoIndex((prev) => 
+        prev === 0 ? selectedNode.videos.length - 1 : prev - 1
+      );
+    }
   };
 
   return (
@@ -88,6 +100,62 @@ function NodeModal() {
             </div>
 
             <div className="p-6">
+              {hasVideos && (
+                <div className="relative w-full mb-6 rounded-xl overflow-hidden bg-black">
+                  <video
+                    key={currentVideoIndex}
+                    className="w-full h-64 object-cover"
+                    controls
+                    autoPlay
+                    playsInline
+                  >
+                    <source src={selectedNode.videos[currentVideoIndex].url} type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+                  {selectedNode.videos.length > 1 && (
+                    <>
+                      <button
+                        onClick={handlePrevVideo}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
+                        aria-label="Previous video"
+                      >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={handleNextVideo}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
+                        aria-label="Next video"
+                      >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
+                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+                        {selectedNode.videos.map((_, index) => (
+                          <button
+                            key={index}
+                            onClick={() => setCurrentVideoIndex(index)}
+                            className={`w-2 h-2 rounded-full transition-colors ${
+                              index === currentVideoIndex ? 'bg-white' : 'bg-white/50'
+                            }`}
+                            aria-label={`Video ${index + 1}`}
+                          />
+                        ))}
+                      </div>
+                    </>
+                  )}
+                  {selectedNode.videos[currentVideoIndex].caption && (
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+                      <p className="text-sm text-white">
+                        {selectedNode.videos[currentVideoIndex].caption}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {selectedNode.primaryImageUrl && (
                 <div className="relative w-full h-64 rounded-xl overflow-hidden mb-6">
                   <img

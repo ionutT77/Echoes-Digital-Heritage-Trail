@@ -25,6 +25,7 @@ export async function fetchCulturalNodes() {
       audioUrl: node.audio_url,
       audioDuration: node.audio_duration,
       primaryImageUrl: node.primary_image_url,
+      videos: node.videos || [],
       images: node.images || []
     }));
   } catch (error) {
@@ -49,6 +50,7 @@ export async function createCulturalNode(nodeData) {
         audio_url: nodeData.audioUrl,
         audio_duration: nodeData.audioDuration,
         primary_image_url: nodeData.primaryImageUrl,
+        videos: nodeData.videos || [],
         images: nodeData.images || []
       }])
       .select()
