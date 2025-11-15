@@ -18,6 +18,8 @@ function MapContainer({ mapRef: externalMapRef }) {
   const mapCenter = useMapStore((state) => state.mapCenter);
   const mapZoom = useMapStore((state) => state.mapZoom);
   const setMap = useMapStore((state) => state.setMap);
+  const setClearRouteFunction = useMapStore((state) => state.setClearRouteFunction);
+  const setCreateRouteFunction = useMapStore((state) => state.setCreateRouteFunction);
   const { createRoute, clearRoute } = useRouting(mapRef);
 
   // Expose map ref to parent if provided
@@ -33,6 +35,20 @@ function MapContainer({ mapRef: externalMapRef }) {
       setMap(mapRef.current);
     }
   }, [mapRef.current, setMap]);
+
+  // Store clear route function globally
+  useEffect(() => {
+    if (clearRoute) {
+      setClearRouteFunction(clearRoute);
+    }
+  }, [clearRoute, setClearRouteFunction]);
+
+  // Store create route function globally
+  useEffect(() => {
+    if (createRoute) {
+      setCreateRouteFunction(createRoute);
+    }
+  }, [createRoute, setCreateRouteFunction]);
 
   useEffect(() => {
     if (userLocation && mapRef.current) {

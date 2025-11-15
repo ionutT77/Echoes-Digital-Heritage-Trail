@@ -3,19 +3,19 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, MapPin, Calendar, Tag, Play, Pause, Navigation } from 'lucide-react';
 import useMapStore from '../../stores/mapStore';
 import useAudioStore from '../../stores/audioStore';
-import useRouting from '../../hooks/useRouting';
 
 function NodeModal() {
   const selectedNode = useMapStore((state) => state.selectedNode);
   const clearSelectedNode = useMapStore((state) => state.clearSelectedNode);
   const discoveredNodes = useMapStore((state) => state.discoveredNodes);
   const userLocation = useMapStore((state) => state.userLocation);
+  const map = useMapStore((state) => state.map);
+  const clearRouteFunction = useMapStore((state) => state.clearRouteFunction);
+  const createRouteFunction = useMapStore((state) => state.createRouteFunction);
   const currentNode = useAudioStore((state) => state.currentNode);
   const isPlaying = useAudioStore((state) => state.isPlaying);
   const playAudio = useAudioStore((state) => state.playAudio);
   const pauseAudio = useAudioStore((state) => state.pauseAudio);
-  const mapRef = React.useRef(null);
-  const { createRoute } = useRouting(mapRef);
 
   useEffect(() => {
     if (selectedNode) {
@@ -42,10 +42,15 @@ function NodeModal() {
   };
 
   const handleGetDirections = () => {
-    if (!userLocation || !selectedNode) return;
+    if (!userLocation || !selectedNode || !map) return;
+    
+    if (!createRouteFunction) {
+      console.error('Create route function not available');
+      return;
+    }
     
     // Create route to this specific node
-    createRoute(userLocation, [selectedNode]);
+    createRouteFunction(userLocation, [selectedNode]);
     
     // Close modal after creating route
     clearSelectedNode();

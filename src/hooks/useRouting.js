@@ -41,7 +41,7 @@ function useRouting(mapRef) {
     clearRoute();
 
     // Limit waypoints to avoid overwhelming API (max 5 nodes + user location)
-    const maxNodes = 5;
+    const maxNodes = 8;
     const limitedNodes = nodes.length > maxNodes ? nodes.slice(0, maxNodes) : nodes;
     if (nodes.length > maxNodes) {
       await Swal.fire({
