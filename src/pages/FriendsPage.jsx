@@ -241,18 +241,14 @@ function FriendsPage() {
                   >
                     <div className="flex items-center gap-4">
                       <div className={`w-12 h-12 rounded-full ${isDark ? 'bg-neutral-700' : 'bg-neutral-200'} flex items-center justify-center`}>
-                        {friend.friend_avatar ? (
-                          <img src={friend.friend_avatar} alt={friend.friend_username} className="w-12 h-12 rounded-full object-cover" />
-                        ) : (
-                          <Users className={`w-6 h-6 ${isDark ? 'text-neutral-400' : 'text-neutral-600'}`} />
-                        )}
+                        <Users className={`w-6 h-6 ${isDark ? 'text-neutral-400' : 'text-neutral-600'}`} />
                       </div>
                       <div>
                         <h3 className={`font-bold ${isDark ? 'text-white' : 'text-neutral-900'}`}>
                           {friend.friend_username}
                         </h3>
                         <p className={`text-sm ${isDark ? 'text-neutral-400' : 'text-neutral-600'}`}>
-                          {friend.total_discoveries || 0} {t('friends.discoveries', currentLanguage)} • {friend.points || 0} {t('friends.points', currentLanguage)}
+                          {friend.total_discoveries || 0} {t('friends.discoveries', currentLanguage)}
                         </p>
                       </div>
                     </div>
@@ -287,10 +283,10 @@ function FriendsPage() {
                 <button
                   onClick={handleSearch}
                   disabled={loading || !searchTerm.trim()}
-                  className="bg-heritage-700 hover:bg-heritage-800 text-white px-6 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  className="bg-heritage-700 hover:bg-heritage-800 text-white px-4 md:px-6 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
                   {loading ? <Loader className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
-                  {t('friends.tabFind', currentLanguage)}
+                  <span className="hidden md:inline">{t('friends.tabFind', currentLanguage)}</span>
                 </button>
               </div>
             </div>
@@ -306,11 +302,7 @@ function FriendsPage() {
                   >
                     <div className="flex items-center gap-4">
                       <div className={`w-12 h-12 rounded-full ${isDark ? 'bg-neutral-700' : 'bg-neutral-200'} flex items-center justify-center`}>
-                        {user.avatar_url ? (
-                          <img src={user.avatar_url} alt={user.username} className="w-12 h-12 rounded-full object-cover" />
-                        ) : (
-                          <Users className={`w-6 h-6 ${isDark ? 'text-neutral-400' : 'text-neutral-600'}`} />
-                        )}
+                        <Users className={`w-6 h-6 ${isDark ? 'text-neutral-400' : 'text-neutral-600'}`} />
                       </div>
                       <div>
                         <h3 className={`font-bold ${isDark ? 'text-white' : 'text-neutral-900'}`}>
@@ -376,11 +368,7 @@ function FriendsPage() {
                     >
                       <div className="flex items-center gap-4">
                         <div className={`w-12 h-12 rounded-full ${isDark ? 'bg-neutral-700' : 'bg-neutral-200'} flex items-center justify-center`}>
-                          {request.requester_avatar ? (
-                            <img src={request.requester_avatar} alt={request.requester_username} className="w-12 h-12 rounded-full object-cover" />
-                          ) : (
-                            <Users className={`w-6 h-6 ${isDark ? 'text-neutral-400' : 'text-neutral-600'}`} />
-                          )}
+                          <Users className={`w-6 h-6 ${isDark ? 'text-neutral-400' : 'text-neutral-600'}`} />
                         </div>
                         <div>
                           <h3 className={`font-bold ${isDark ? 'text-white' : 'text-neutral-900'}`}>
@@ -437,11 +425,7 @@ function FriendsPage() {
                     >
                       <div className="flex items-center gap-4">
                         <div className={`w-12 h-12 rounded-full ${isDark ? 'bg-neutral-700' : 'bg-neutral-200'} flex items-center justify-center`}>
-                          {request.recipient_avatar ? (
-                            <img src={request.recipient_avatar} alt={request.recipient_username} className="w-12 h-12 rounded-full object-cover" />
-                          ) : (
-                            <Users className={`w-6 h-6 ${isDark ? 'text-neutral-400' : 'text-neutral-600'}`} />
-                          )}
+                          <Users className={`w-6 h-6 ${isDark ? 'text-neutral-400' : 'text-neutral-600'}`} />
                         </div>
                         <div>
                           <h3 className={`font-bold ${isDark ? 'text-white' : 'text-neutral-900'}`}>

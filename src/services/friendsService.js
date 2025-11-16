@@ -1,19 +1,34 @@
 import { supabase } from '../lib/supabase';
 
 /**
- * Search for users by username or email
+ * Search for users by username
  */
 export async function searchUsers(searchTerm) {
   try {
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, username, avatar_url, total_discoveries, points')
-      .or(`username.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`)
+      .select('id, username')
+      .ilike('username', `%${searchTerm}%`)
       .limit(20);
 
     if (error) throw error;
 
-    return { success: true, users: data || [] };
+    // Get discovery counts for each user
+    const usersWithStats = await Promise.all(
+      (data || []).map(async (user) => {
+        const { count } = await supabase
+          .from('user_nodes')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id);
+        
+        return {
+          ...user,
+          total_discoveries: count || 0
+        };
+      })
+    );
+
+    return { success: true, users: usersWithStats };
   } catch (error) {
     console.error('Error searching users:', error);
     return { success: false, error: error.message, users: [] };
@@ -195,10 +210,7 @@ export async function getFriendsList() {
         created_at,
         profiles:user_id (
           id,
-          username,
-          avatar_url,
-          total_discoveries,
-          points
+          username
         )
       `)
       .eq('friend_id', user.id)
@@ -206,24 +218,32 @@ export async function getFriendsList() {
 
     if (reverseError) throw reverseError;
 
+    // Get discovery counts for reverse friends
+    const reverseFriendsWithStats = await Promise.all(
+      (reverseFriends || []).map(async (f) => {
+        const { count } = await supabase
+          .from('user_nodes')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', f.user_id);
+        
+        return {
+          friend_id: f.user_id,
+          friend_username: f.profiles?.username,
+          total_discoveries: count || 0,
+          friends_since: f.created_at
+        };
+      })
+    );
+
     // Combine and format friends
     const allFriends = [
       ...(data || []).map(f => ({
         friend_id: f.friend_id,
         friend_username: f.friend_username,
-        friend_avatar: f.friend_avatar,
-        total_discoveries: f.total_discoveries,
-        points: f.points,
+        total_discoveries: f.total_discoveries || 0,
         friends_since: f.friends_since
       })),
-      ...(reverseFriends || []).map(f => ({
-        friend_id: f.user_id,
-        friend_username: f.profiles?.username,
-        friend_avatar: f.profiles?.avatar_url,
-        total_discoveries: f.profiles?.total_discoveries,
-        points: f.profiles?.points,
-        friends_since: f.created_at
-      }))
+      ...reverseFriendsWithStats
     ];
 
     // Remove duplicates
