@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Map, Settings, LogOut, User, Trophy, Moon, Sun, Menu, X } from 'lucide-react';
+import { Map, Settings, LogOut, User, Trophy, Moon, Sun, Menu, X, Users } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -158,6 +158,20 @@ function Header() {
             <Trophy className="w-5 h-5" />
             <span className="font-medium">{t('header.leaderboard', currentLanguage)}</span>
           </Link>
+
+          {user && (
+            <Link
+              to="/friends"
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
+                location.pathname === '/friends'
+                  ? 'bg-heritage-100 dark:bg-heritage-800 text-heritage-700 dark:text-heritage-300'
+                  : 'text-heritage-700 dark:text-heritage-300 hover:bg-heritage-50 dark:hover:bg-neutral-700'
+              }`}
+            >
+              <Users className="w-5 h-5" />
+              <span className="font-medium">{t('header.friends', currentLanguage)}</span>
+            </Link>
+          )}
           
           {user && (
             <>
@@ -255,6 +269,21 @@ function Header() {
               <Trophy className="w-5 h-5" />
               <span className="font-medium">Leaderboard</span>
             </Link>
+
+            {user && (
+              <Link
+                to="/friends"
+                onClick={closeMobileMenu}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
+                  location.pathname === '/friends'
+                    ? 'bg-heritage-100 dark:bg-heritage-800 text-heritage-700 dark:text-heritage-300'
+                    : 'text-heritage-700 dark:text-heritage-300 hover:bg-heritage-50 dark:hover:bg-neutral-700'
+                }`}
+              >
+                <Users className="w-5 h-5" />
+                <span className="font-medium">{t('header.friends', currentLanguage)}</span>
+              </Link>
+            )}
             
             {user && (
               <>

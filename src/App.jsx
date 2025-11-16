@@ -12,6 +12,7 @@ import ResetPasswordPage from './pages/ResetPasswordPage';
 import ProfilePage from './pages/ProfilePage';
 import LeaderboardPage from './pages/LeaderboardPage';
 import RequestLocationPage from './pages/RequestLocationPage';
+import FriendsPage from './pages/FriendsPage';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
 
 function App() {
@@ -35,6 +36,14 @@ function App() {
             <Route path="/login" element={<LoginForm />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/leaderboard" element={<LeaderboardPage />} />
+            <Route 
+              path="/friends" 
+              element={
+                <ProtectedRoute>
+                  <FriendsPage />
+                </ProtectedRoute>
+              } 
+            />
             <Route 
               path="/request-location" 
               element={
