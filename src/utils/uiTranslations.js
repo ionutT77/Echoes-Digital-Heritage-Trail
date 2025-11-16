@@ -253,6 +253,35 @@ export const defaultTranslations = {
     delete: 'Delete',
     edit: 'Edit',
     close: 'Close',
+  },
+  
+  // Reviews
+  reviews: {
+    title: 'Reviews',
+    reviews: 'reviews',
+    leaveReview: 'Leave Review',
+    editReview: 'Edit Review',
+    rating: 'Rating',
+    yourReview: 'Your Review',
+    optional: 'Optional',
+    sharethoughts: 'Share your thoughts about this location...',
+    update: 'Update',
+    submit: 'Submit',
+    selectRating: 'Please select a rating',
+    success: 'Success!',
+    reviewSubmitted: 'Your review has been submitted',
+    reviewUpdated: 'Your review has been updated',
+    submitFailed: 'Failed to submit review. Please try again.',
+    unlockFirst: 'Unlock Location First',
+    discoverToReview: 'You must discover this location before leaving a review.',
+    unlockToReview: 'Unlock location to review',
+    deleteConfirm: 'Delete Review?',
+    deleteWarning: 'This action cannot be undone.',
+    deleted: 'Deleted',
+    reviewDeleted: 'Your review has been deleted',
+    deleteFailed: 'Failed to delete review. Please try again.',
+    noReviews: 'No reviews yet. Be the first to review!',
+    beFirst: 'Leave the First Review',
   }
 };
 
