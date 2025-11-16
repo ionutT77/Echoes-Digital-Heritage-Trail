@@ -581,9 +581,11 @@ function MapContainer({ mapRef: externalMapRef }) {
       />
 
       {/* Chatbot Modal */}
-      <ChatbotModal
-        isOpen={isChatbotOpen}
+      <ChatbotModal 
+        isOpen={isChatbotOpen} 
         onClose={() => setIsChatbotOpen(false)}
+        onCreateRoute={createRoute}
+        userLocation={userLocation}
       />
     </div>
   );

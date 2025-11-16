@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, Bot, User, Loader } from 'lucide-react';
+import Swal from 'sweetalert2';
 import { useTheme } from '../../contexts/ThemeContext';
 import useMapStore from '../../stores/mapStore';
 import { t } from '../../utils/uiTranslations';
@@ -8,7 +9,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 
-function ChatbotModal({ isOpen, onClose }) {
+function ChatbotModal({ isOpen, onClose, onCreateRoute, userLocation }) {
   const { isDark } = useTheme();
   const currentLanguage = useMapStore((state) => state.currentLanguage);
   const culturalNodes = useMapStore((state) => state.culturalNodes);
@@ -56,7 +57,7 @@ function ChatbotModal({ isOpen, onClose }) {
     setLoading(true);
 
     try {
-      const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+      const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
       
       // Prepare cultural nodes data for context
       const locationsData = culturalNodes.map(node => ({
@@ -79,12 +80,26 @@ Your role:
 1. Help users learn about these specific locations in detail
 2. Provide historical context and interesting facts about the monuments
 3. Recommend nearby restaurants, cafes, and attractions around these locations
-4. Suggest visiting routes and best times to visit
+4. Create custom trip itineraries based on user preferences (interests, time available, etc.)
 5. Answer questions about the architecture, history, and cultural significance
 6. Provide practical information like opening hours, accessibility, etc.
 
-When users ask about a specific location from the list, provide detailed information.
-If they ask for recommendations near a location, suggest real places (restaurants, cafes, shops) in that area of Timișoara.
+IMPORTANT: When a user asks you to create a trip, plan a route, or make an itinerary based on their interests (like "make me a trip based on architecture" or "plan a 2-hour route for history lovers"), you MUST:
+1. Select the most relevant locations from the database that match their preferences
+2. Include a special JSON block at the END of your response with this exact format:
+
+---ROUTE_DATA---
+{"locations": ["Location Title 1", "Location Title 2", "Location Title 3"]}
+---END_ROUTE_DATA---
+
+3. Before the JSON block, provide a friendly explanation of the route in natural language
+
+For example, if someone asks "make me a trip based on architecture":
+- First, write a friendly response explaining the route
+- Then add the JSON block with exact location titles from the database
+
+Categories available: ${[...new Set(culturalNodes.map(n => n.category))].join(', ')}
+
 Be conversational, informative, and enthusiastic about Timișoara's rich history.
 Keep responses concise but informative (2-4 paragraphs max).
 Respond in ${currentLanguage === 'ro' ? 'Romanian' : currentLanguage === 'hu' ? 'Hungarian' : currentLanguage === 'de' ? 'German' : currentLanguage === 'fr' ? 'French' : currentLanguage === 'es' ? 'Spanish' : 'English'}.
@@ -95,13 +110,213 @@ User question: ${userMessage}`;
       const response = await result.response;
       const text = response.text();
 
-      // Add assistant response
+      console.log('AI Response:', text);
+
+      // Check if response contains route data
+      const routeMatch = text.match(/---ROUTE_DATA---(.*?)---END_ROUTE_DATA---/s);
+      
+      console.log('Route match found:', !!routeMatch);
+      
+      if (routeMatch) {
+        try {
+          const routeData = JSON.parse(routeMatch[1].trim());
+          const locationTitles = routeData.locations || [];
+          
+          console.log('Parsed location titles:', locationTitles);
+          
+          // Find matching nodes from database
+          const selectedNodes = culturalNodes.filter(node => 
+            locationTitles.some(title => 
+              node.title.toLowerCase().includes(title.toLowerCase()) ||
+              title.toLowerCase().includes(node.title.toLowerCase())
+            )
+          );
+
+          console.log('Selected nodes:', selectedNodes.length, selectedNodes.map(n => n.title));
+
+          if (selectedNodes.length > 0 && userLocation && onCreateRoute) {
+            // Remove the JSON block from the displayed message
+            const cleanText = text.replace(/---ROUTE_DATA---.*?---END_ROUTE_DATA---/s, '').trim();
+            
+            // Add assistant response without JSON
+            setMessages(prev => [...prev, { role: 'assistant', content: cleanText }]);
+            
+            // Close chatbot before showing confirmation dialog
+            onClose();
+            
+            // Show confirmation dialog with selected locations
+            const isDarkMode = document.documentElement.classList.contains('dark');
+            
+            // Translate category names
+            const translateCategory = (category) => {
+              const categoryMap = {
+                'Architecture': {
+                  ro: 'Arhitectură',
+                  hu: 'Építészet',
+                  de: 'Architektur',
+                  fr: 'Architecture',
+                  es: 'Arquitectura',
+                  en: 'Architecture'
+                },
+                'Monument': {
+                  ro: 'Monument',
+                  hu: 'Emlékmű',
+                  de: 'Denkmal',
+                  fr: 'Monument',
+                  es: 'Monumento',
+                  en: 'Monument'
+                },
+                'Museum': {
+                  ro: 'Muzeu',
+                  hu: 'Múzeum',
+                  de: 'Museum',
+                  fr: 'Musée',
+                  es: 'Museo',
+                  en: 'Museum'
+                },
+                'Park': {
+                  ro: 'Parc',
+                  hu: 'Park',
+                  de: 'Park',
+                  fr: 'Parc',
+                  es: 'Parque',
+                  en: 'Park'
+                },
+                'Church': {
+                  ro: 'Biserică',
+                  hu: 'Templom',
+                  de: 'Kirche',
+                  fr: 'Église',
+                  es: 'Iglesia',
+                  en: 'Church'
+                },
+                'Square': {
+                  ro: 'Piață',
+                  hu: 'Tér',
+                  de: 'Platz',
+                  fr: 'Place',
+                  es: 'Plaza',
+                  en: 'Square'
+                }
+              };
+              return categoryMap[category]?.[currentLanguage] || category;
+            };
+            
+            const locationsList = selectedNodes.map((node, i) => 
+              `<div style="text-align: left; padding: 8px; margin: 4px 0; background: ${isDarkMode ? '#374151' : '#f3f4f6'}; border-radius: 6px;">
+                <strong>${i + 1}. ${node.title}</strong>
+                <div style="font-size: 0.9em; opacity: 0.8; margin-top: 4px;">${translateCategory(node.category)}</div>
+              </div>`
+            ).join('');
+            
+            setTimeout(async () => {
+              const result = await Swal.fire({
+                title: currentLanguage === 'ro' ? 'Confirmare Traseu' :
+                       currentLanguage === 'hu' ? 'Útvonal Megerősítése' :
+                       currentLanguage === 'de' ? 'Route Bestätigen' :
+                       currentLanguage === 'fr' ? 'Confirmer l\'Itinéraire' :
+                       currentLanguage === 'es' ? 'Confirmar Ruta' :
+                       'Confirm Trip',
+                html: `
+                  <div style="text-align: center; margin-bottom: 16px;">
+                    <p style="margin-bottom: 12px; font-size: 1.1em;">
+                      ${currentLanguage === 'ro' ? `Am găsit ${selectedNodes.length} locații pentru tine:` :
+                        currentLanguage === 'hu' ? `${selectedNodes.length} helyszínt találtam számodra:` :
+                        currentLanguage === 'de' ? `Ich habe ${selectedNodes.length} Orte für Sie gefunden:` :
+                        currentLanguage === 'fr' ? `J'ai trouvé ${selectedNodes.length} lieux pour vous:` :
+                        currentLanguage === 'es' ? `He encontrado ${selectedNodes.length} lugares para ti:` :
+                        `I found ${selectedNodes.length} locations for you:`}
+                    </p>
+                  </div>
+                  ${locationsList}
+                  <p style="margin-top: 16px; font-size: 0.95em;">
+                    ${currentLanguage === 'ro' ? 'Doriți să creez acest traseu pe hartă?' :
+                      currentLanguage === 'hu' ? 'Szeretnéd, hogy létrehozzam ezt az útvonalat a térképen?' :
+                      currentLanguage === 'de' ? 'Soll ich diese Route auf der Karte erstellen?' :
+                      currentLanguage === 'fr' ? 'Voulez-vous que je crée cet itinéraire sur la carte?' :
+                      currentLanguage === 'es' ? '¿Quieres que cree esta ruta en el mapa?' :
+                      'Would you like me to create this route on the map?'}
+                  </p>
+                `,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: currentLanguage === 'ro' ? 'Da, creează traseul' :
+                                   currentLanguage === 'hu' ? 'Igen, hozd létre' :
+                                   currentLanguage === 'de' ? 'Ja, erstellen' :
+                                   currentLanguage === 'fr' ? 'Oui, créer' :
+                                   currentLanguage === 'es' ? 'Sí, crear' :
+                                   'Yes, create route',
+                cancelButtonText: currentLanguage === 'ro' ? 'Nu, mulțumesc' :
+                                  currentLanguage === 'hu' ? 'Nem, köszönöm' :
+                                  currentLanguage === 'de' ? 'Nein, danke' :
+                                  currentLanguage === 'fr' ? 'Non, merci' :
+                                  currentLanguage === 'es' ? 'No, gracias' :
+                                  'No, thanks',
+                confirmButtonColor: '#6f4e35',
+                cancelButtonColor: '#9ca3af',
+                background: isDarkMode ? '#1f2937' : '#ffffff',
+                color: isDarkMode ? '#f3f4f6' : '#000000',
+                width: '600px'
+              });
+
+              if (result.isConfirmed) {
+                // Create the route on the map
+                onCreateRoute(userLocation, selectedNodes);
+                
+                await Swal.fire({
+                  title: currentLanguage === 'ro' ? 'Traseu Creat!' :
+                         currentLanguage === 'hu' ? 'Útvonal Létrehozva!' :
+                         currentLanguage === 'de' ? 'Route Erstellt!' :
+                         currentLanguage === 'fr' ? 'Itinéraire Créé!' :
+                         currentLanguage === 'es' ? 'Ruta Creada!' :
+                         'Route Created!',
+                  text: currentLanguage === 'ro' ? 'Traseul tău a fost creat. Bucură-te de vizită!' :
+                        currentLanguage === 'hu' ? 'Az útvonalad elkészült. Élvezd a látogatást!' :
+                        currentLanguage === 'de' ? 'Ihre Route wurde erstellt. Viel Spaß beim Besuch!' :
+                        currentLanguage === 'fr' ? 'Votre itinéraire a été créé. Profitez de votre visite!' :
+                        currentLanguage === 'es' ? 'Tu ruta ha sido creada. ¡Disfruta de tu visita!' :
+                        'Your route has been created. Enjoy your visit!',
+                  icon: 'success',
+                  timer: 2000,
+                  showConfirmButton: false,
+                  background: isDarkMode ? '#1f2937' : '#ffffff',
+                  color: isDarkMode ? '#f3f4f6' : '#000000'
+                });
+              }
+            }, 500);
+            
+            return;
+          }
+        } catch (parseError) {
+          console.error('Failed to parse route data:', parseError);
+        }
+      }
+
+      // Add assistant response (normal conversation)
       setMessages(prev => [...prev, { role: 'assistant', content: text }]);
     } catch (error) {
       console.error('Chat error:', error);
+      
+      // Check if it's a rate limit error
+      let errorMessage = t('chatbot.errorMessage', currentLanguage);
+      
+      if (error.message && error.message.includes('quota')) {
+        errorMessage = currentLanguage === 'ro' 
+          ? 'Limită de solicitări atinsă. Vă rugăm să încercați din nou mai târziu (aproximativ 40 de secunde).'
+          : currentLanguage === 'hu'
+          ? 'Kéréslimit elérve. Kérjük, próbáld újra később (körülbelül 40 másodperc múlva).'
+          : currentLanguage === 'de'
+          ? 'Anforderungslimit erreicht. Bitte versuchen Sie es später erneut (etwa 40 Sekunden).'
+          : currentLanguage === 'fr'
+          ? 'Limite de requêtes atteinte. Veuillez réessayer plus tard (environ 40 secondes).'
+          : currentLanguage === 'es'
+          ? 'Límite de solicitudes alcanzado. Por favor, inténtalo de nuevo más tarde (aproximadamente 40 segundos).'
+          : 'Request limit reached. Please try again later (approximately 40 seconds).';
+      }
+      
       setMessages(prev => [...prev, { 
         role: 'assistant', 
-        content: t('chatbot.errorMessage', currentLanguage)
+        content: errorMessage
       }]);
     } finally {
       setLoading(false);
