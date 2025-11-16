@@ -26,7 +26,7 @@ function MapContainer({ mapRef: externalMapRef }) {
   const setMap = useMapStore((state) => state.setMap);
   const setClearRouteFunction = useMapStore((state) => state.setClearRouteFunction);
   const setCreateRouteFunction = useMapStore((state) => state.setCreateRouteFunction);
-  const { createRoute, clearRoute } = useRouting(mapRef, isDark);
+  const { createRoute, clearRoute } = useRouting(mapRef);
   const [isCalculatingRoute, setIsCalculatingRoute] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [isCustomPathModalOpen, setIsCustomPathModalOpen] = useState(false);
