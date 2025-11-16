@@ -35,14 +35,14 @@ function RequestLocationPage() {
   const [tempRequestId] = useState(`temp-${Date.now()}`);
 
   const categories = [
-    'Architecture',
-    'Monument',
-    'Museum',
-    'Religious Site',
-    'Historical Building',
-    'Cultural Center',
-    'Park & Garden',
-    'Other'
+    { key: 'architecture', value: 'Architecture' },
+    { key: 'monument', value: 'Monument' },
+    { key: 'museum', value: 'Museum' },
+    { key: 'religiousSite', value: 'Religious Site' },
+    { key: 'historicalBuilding', value: 'Historical Building' },
+    { key: 'culturalCenter', value: 'Cultural Center' },
+    { key: 'parkGarden', value: 'Park & Garden' },
+    { key: 'other', value: 'Other' }
   ];
 
   const handleInputChange = (e) => {
@@ -384,7 +384,9 @@ function RequestLocationPage() {
                   >
                     <option value="">{t('requestLocation.selectCategory', currentLanguage)}</option>
                     {categories.map(cat => (
-                      <option key={cat} value={cat}>{cat}</option>
+                      <option key={cat.key} value={cat.value}>
+                        {t(`locationCategories.${cat.key}`, currentLanguage)}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -481,7 +483,7 @@ function RequestLocationPage() {
                     ) : (
                       <>
                         <Image className="w-8 h-8 text-neutral-400 dark:text-neutral-500 mb-2" />
-                        <span className="text-sm text-neutral-600 dark:text-neutral-400">Add Photos</span>
+                        <span className="text-sm text-neutral-600 dark:text-neutral-400">{t('requestLocation.addPhotos', currentLanguage)}</span>
                       </>
                     )}
                   </label>

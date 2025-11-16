@@ -5,11 +5,14 @@ import Swal from 'sweetalert2';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { Eye, EyeOff, Check, X } from 'lucide-react';
+import useMapStore from '../../stores/mapStore';
+import { t } from '../../utils/uiTranslations';
 
 function SignUpForm() {
   const navigate = useNavigate();
   const { signUp } = useAuth();
   const { isDark } = useTheme();
+  const currentLanguage = useMapStore((state) => state.currentLanguage);
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -42,9 +45,9 @@ function SignUpForm() {
   const getPasswordStrength = () => {
     const metCount = Object.values(passwordRequirements).filter(Boolean).length;
     if (metCount === 0) return { label: '', color: '' };
-    if (metCount <= 2) return { label: 'Weak', color: 'text-red-600' };
-    if (metCount <= 4) return { label: 'Medium', color: 'text-amber-600' };
-    return { label: 'Strong', color: 'text-green-600' };
+    if (metCount <= 2) return { label: t('auth.passwordStrengthWeak', currentLanguage), color: 'text-red-600' };
+    if (metCount <= 4) return { label: t('auth.passwordStrengthMedium', currentLanguage), color: 'text-amber-600' };
+    return { label: t('auth.passwordStrengthStrong', currentLanguage), color: 'text-green-600' };
   };
 
   const passwordStrength = getPasswordStrength();
@@ -54,8 +57,8 @@ function SignUpForm() {
 
     if (formData.password !== formData.confirmPassword) {
       await Swal.fire({
-        title: 'Error',
-        text: 'Passwords do not match',
+        title: t('auth.errorTitle', currentLanguage),
+        text: t('auth.passwordsDoNotMatchError', currentLanguage),
         icon: 'error',
         confirmButtonColor: '#6f4e35',
         background: isDark ? '#1f2937' : '#ffffff',
@@ -66,8 +69,8 @@ function SignUpForm() {
 
     if (!allRequirementsMet) {
       await Swal.fire({
-        title: 'Error',
-        text: 'Please meet all password requirements',
+        title: t('auth.errorTitle', currentLanguage),
+        text: t('auth.meetPasswordRequirements', currentLanguage),
         icon: 'error',
         confirmButtonColor: '#6f4e35',
         background: isDark ? '#1f2937' : '#ffffff',
@@ -88,8 +91,8 @@ function SignUpForm() {
 
     if (result.success) {
       await Swal.fire({
-        title: 'Success!',
-        text: 'Account created successfully. Check your email inbox to verify it before logging in.',
+        title: t('auth.successTitle', currentLanguage),
+        text: t('auth.accountCreatedMessage', currentLanguage),
         icon: 'success',
         confirmButtonColor: '#6f4e35',
         background: isDark ? '#1f2937' : '#ffffff',
@@ -98,7 +101,7 @@ function SignUpForm() {
       navigate('/login');
     } else {
       await Swal.fire({
-        title: 'Error',
+        title: t('auth.errorTitle', currentLanguage),
         text: result.error,
         icon: 'error',
         confirmButtonColor: '#6f4e35',
@@ -116,15 +119,15 @@ function SignUpForm() {
             <UserPlus className="w-6 h-6 text-heritage-800 dark:text-heritage-200" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Sign Up</h1>
-            <p className="text-neutral-600 dark:text-neutral-300">Create your Echoes account</p>
+            <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">{t('auth.signUpTitle', currentLanguage)}</h1>
+            <p className="text-neutral-600 dark:text-neutral-300">{t('auth.signUpSubtitle', currentLanguage)}</p>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">
-              Username
+              {t('auth.username', currentLanguage)}
             </label>
             <input
               type="text"
@@ -133,13 +136,13 @@ function SignUpForm() {
               onChange={handleChange}
               required
               className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
-              placeholder="johndoe"
+              placeholder={t('auth.usernamePlaceholder', currentLanguage)}
             />
           </div>
 
           <div>
             <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">
-              Email
+              {t('auth.email', currentLanguage)}
             </label>
             <input
               type="email"
@@ -148,13 +151,13 @@ function SignUpForm() {
               onChange={handleChange}
               required
               className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
-              placeholder="you@example.com"
+              placeholder={t('auth.emailPlaceholder', currentLanguage)}
             />
           </div>
 
           <div>
             <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">
-              Password
+              {t('auth.password', currentLanguage)}
             </label>
             <div className="relative">
               <input
@@ -166,7 +169,7 @@ function SignUpForm() {
                 onBlur={() => setPasswordFocused(false)}
                 required
                 className="w-full px-4 py-3 pr-12 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
-                placeholder="Create a strong password"
+                placeholder={t('auth.createPassword', currentLanguage)}
               />
               <button
                 type="button"
@@ -203,7 +206,7 @@ function SignUpForm() {
             {/* Password requirements checklist */}
             {(passwordFocused || formData.password) && (
               <div className="mt-3 p-3 bg-neutral-50 dark:bg-neutral-900 rounded-lg border border-neutral-200 dark:border-neutral-700 space-y-2">
-                <p className="text-xs font-semibold text-neutral-700 dark:text-neutral-200 mb-2">Password must contain:</p>
+                <p className="text-xs font-semibold text-neutral-700 dark:text-neutral-200 mb-2">{t('auth.passwordMustContain', currentLanguage)}</p>
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     {passwordRequirements.minLength ? (
@@ -212,7 +215,7 @@ function SignUpForm() {
                       <X className="w-4 h-4 text-neutral-400" />
                     )}
                     <span className={`text-xs ${passwordRequirements.minLength ? 'text-green-600 dark:text-green-400 font-medium' : 'text-neutral-600 dark:text-neutral-400'}`}>
-                      At least 8 characters
+                      {t('auth.atLeast8Characters', currentLanguage)}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -222,7 +225,7 @@ function SignUpForm() {
                       <X className="w-4 h-4 text-neutral-400" />
                     )}
                     <span className={`text-xs ${passwordRequirements.hasUppercase ? 'text-green-600 dark:text-green-400 font-medium' : 'text-neutral-600 dark:text-neutral-400'}`}>
-                      One uppercase letter (A-Z)
+                      {t('auth.oneUppercase', currentLanguage)}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -232,7 +235,7 @@ function SignUpForm() {
                       <X className="w-4 h-4 text-neutral-400" />
                     )}
                     <span className={`text-xs ${passwordRequirements.hasLowercase ? 'text-green-600 dark:text-green-400 font-medium' : 'text-neutral-600 dark:text-neutral-400'}`}>
-                      One lowercase letter (a-z)
+                      {t('auth.oneLowercase', currentLanguage)}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -242,7 +245,7 @@ function SignUpForm() {
                       <X className="w-4 h-4 text-neutral-400" />
                     )}
                     <span className={`text-xs ${passwordRequirements.hasNumber ? 'text-green-600 dark:text-green-400 font-medium' : 'text-neutral-600 dark:text-neutral-400'}`}>
-                      One number (0-9)
+                      {t('auth.oneNumber', currentLanguage)}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -252,7 +255,7 @@ function SignUpForm() {
                       <X className="w-4 h-4 text-neutral-400" />
                     )}
                     <span className={`text-xs ${passwordRequirements.hasSpecial ? 'text-green-600 dark:text-green-400 font-medium' : 'text-neutral-600 dark:text-neutral-400'}`}>
-                      One special character (!@#$%^&*)
+                      {t('auth.oneSpecial', currentLanguage)}
                     </span>
                   </div>
                 </div>
@@ -262,7 +265,7 @@ function SignUpForm() {
 
           <div>
             <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">
-              Confirm Password
+              {t('auth.confirmPassword', currentLanguage)}
             </label>
             <div className="relative">
               <input
@@ -272,7 +275,7 @@ function SignUpForm() {
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-3 pr-12 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
-                placeholder="Confirm your password"
+                placeholder={t('auth.confirmPasswordPlaceholder', currentLanguage)}
               />
               <button
                 type="button"
@@ -290,12 +293,12 @@ function SignUpForm() {
                 {formData.password === formData.confirmPassword ? (
                   <>
                     <Check className="w-4 h-4 text-green-600" />
-                    <span className="text-xs text-green-600 font-medium">Passwords match</span>
+                    <span className="text-xs text-green-600 font-medium">{t('auth.passwordsMatch', currentLanguage)}</span>
                   </>
                 ) : (
                   <>
                     <X className="w-4 h-4 text-red-600" />
-                    <span className="text-xs text-red-600 font-medium">Passwords do not match</span>
+                    <span className="text-xs text-red-600 font-medium">{t('auth.passwordsDoNotMatch', currentLanguage)}</span>
                   </>
                 )}
               </div>
@@ -307,18 +310,18 @@ function SignUpForm() {
             disabled={loading}
             className="w-full bg-heritage-700 hover:bg-heritage-800 text-white px-6 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50"
           >
-            {loading ? 'Creating Account...' : 'Sign Up'}
+            {loading ? t('auth.creatingAccount', currentLanguage) : t('auth.signUp', currentLanguage)}
           </button>
         </form>
 
         <div className="mt-6 text-center">
           <p className="text-sm text-neutral-600 dark:text-neutral-400">
-            Already have an account?{' '}
+            {t('auth.alreadyHaveAccount', currentLanguage)}{' '}
             <button
               onClick={() => navigate('/login')}
               className="text-heritage-700 dark:text-heritage-400 font-semibold hover:text-heritage-800 dark:hover:text-heritage-300"
             >
-              Log In
+              {t('auth.loginLink', currentLanguage)}
             </button>
           </p>
         </div>
