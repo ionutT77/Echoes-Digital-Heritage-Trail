@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { MapContainer as LeafletMap, TileLayer, ZoomControl } from 'react-leaflet';
 import L from 'leaflet';
-import { Navigation, MapPin as MapPinIcon, Map } from 'lucide-react';
+import { Navigation, MapPin as MapPinIcon, Map, MessageCircle } from 'lucide-react';
 import Swal from 'sweetalert2';
 import NodeMarker from './NodeMarker';
 import UserLocation from './UserLocation';
 import CustomPathModal from './CustomPathModal';
+import ChatbotModal from './ChatbotModal';
 import useMapStore from '../../stores/mapStore';
 import useRouting from '../../hooks/useRouting';
 import useGeolocation from '../../hooks/useGeolocation';
@@ -30,6 +31,7 @@ function MapContainer({ mapRef: externalMapRef }) {
   const [isCalculatingRoute, setIsCalculatingRoute] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [isCustomPathModalOpen, setIsCustomPathModalOpen] = useState(false);
+  const [isChatbotOpen, setIsChatbotOpen] = useState(false);
 
   // Expose map ref to parent if provided
   useEffect(() => {
@@ -533,6 +535,14 @@ function MapContainer({ mapRef: externalMapRef }) {
       {userLocation && culturalNodes.length > 0 && (
         <div className="absolute bottom-24 left-4 flex flex-col gap-2 z-[1000]">
           <button
+            onClick={() => setIsChatbotOpen(true)}
+            className="bg-heritage-500 hover:bg-heritage-600 text-white px-4 py-3 rounded-lg shadow-lg transition-colors font-semibold text-sm flex items-center gap-2"
+            aria-label={t('chatbot.buttonText', currentLanguage)}
+          >
+            <MessageCircle className="w-4 h-4" />
+            {t('chatbot.buttonText', currentLanguage)}
+          </button>
+          <button
             onClick={handleMakeCustomPath}
             className="bg-heritage-600 hover:bg-heritage-700 text-white px-4 py-3 rounded-lg shadow-lg transition-colors font-semibold text-sm flex items-center gap-2"
             aria-label={t('customPath.buttonText', currentLanguage)}
@@ -563,6 +573,12 @@ function MapContainer({ mapRef: externalMapRef }) {
         isOpen={isCustomPathModalOpen}
         onClose={handleCloseCustomPathModal}
         onStartRoute={handleStartCustomRoute}
+      />
+
+      {/* Chatbot Modal */}
+      <ChatbotModal
+        isOpen={isChatbotOpen}
+        onClose={() => setIsChatbotOpen(false)}
       />
     </div>
   );
