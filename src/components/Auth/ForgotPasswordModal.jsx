@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import { X, Mail } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { supabase } from '../../lib/supabaseClient';
+import useMapStore from '../../stores/mapStore';
+import { t } from '../../utils/uiTranslations';
 
 function ForgotPasswordModal({ onClose }) {
+  const currentLanguage = useMapStore((state) => state.currentLanguage);
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -21,15 +24,15 @@ function ForgotPasswordModal({ onClose }) {
     if (error) {
       setLoading(false);
       await Swal.fire({
-        title: 'Error',
+        title: t('auth.errorTitle', currentLanguage),
         text: error.message,
         icon: 'error',
         confirmButtonColor: '#6f4e35'
       });
     } else {
       await Swal.fire({
-        title: 'Check Your Email',
-        html: 'If an account exists with this email, you will receive a password reset link.<br><br><strong>Note:</strong> If you don\'t receive an email, please check your spam folder',
+        title: t('auth.checkYourEmailTitle', currentLanguage),
+        html: t('auth.checkYourEmailMessage', currentLanguage),
         icon: 'success',
         confirmButtonColor: '#6f4e35'
       });
@@ -45,7 +48,7 @@ function ForgotPasswordModal({ onClose }) {
             <div className="w-10 h-10 bg-heritage-200 rounded-xl flex items-center justify-center">
               <Mail className="w-5 h-5 text-heritage-800" />
             </div>
-            <h2 className="text-xl font-bold text-neutral-900">Reset Password</h2>
+            <h2 className="text-xl font-bold text-neutral-900">{t('auth.resetPassword', currentLanguage)}</h2>
           </div>
           <button
             onClick={onClose}
@@ -57,13 +60,13 @@ function ForgotPasswordModal({ onClose }) {
         </div>
 
         <p className="text-neutral-600 mb-6">
-          Enter your email address and we'll send you a link to reset your password.
+          {t('auth.resetPasswordDescription', currentLanguage)}
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-semibold text-neutral-900 mb-2">
-              Email Address
+              {t('auth.emailAddress', currentLanguage)}
             </label>
             <input
               type="email"
@@ -71,7 +74,7 @@ function ForgotPasswordModal({ onClose }) {
               onChange={(e) => setEmail(e.target.value)}
               required
               className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
-              placeholder="you@example.com"
+              placeholder={t('auth.emailPlaceholder', currentLanguage)}
             />
           </div>
 
@@ -80,7 +83,7 @@ function ForgotPasswordModal({ onClose }) {
             disabled={loading}
             className="w-full bg-heritage-700 hover:bg-heritage-800 text-white px-6 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50"
           >
-            {loading ? 'Sending...' : 'Send Reset Link'}
+            {loading ? t('auth.sending', currentLanguage) : t('auth.sendResetLink', currentLanguage)}
           </button>
         </form>
       </div>
