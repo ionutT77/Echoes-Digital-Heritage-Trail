@@ -11,6 +11,10 @@ const useMapStore = create((set, get) => ({
   clearRouteFunction: null,
   createRouteFunction: null,
   
+  // Custom path state
+  isCustomPathMode: false,
+  customPathSelectedNodes: new Set(),
+  
   // Translation state
   currentLanguage: 'en',
   translatedNodes: {}, // { nodeId: { language: translatedContent } }
@@ -29,6 +33,22 @@ const useMapStore = create((set, get) => ({
   setMapCenter: (center) => set({ mapCenter: center }),
   setMapZoom: (zoom) => set({ mapZoom: zoom }),
   clearSelectedNode: () => set({ selectedNode: null }),
+  
+  // Custom path methods
+  setIsCustomPathMode: (isActive) => set({ isCustomPathMode: isActive }),
+  toggleCustomPathNode: (nodeId) => set((state) => {
+    const newSelected = new Set(state.customPathSelectedNodes);
+    if (newSelected.has(nodeId)) {
+      newSelected.delete(nodeId);
+    } else {
+      newSelected.add(nodeId);
+    }
+    return { customPathSelectedNodes: newSelected };
+  }),
+  clearCustomPathSelection: () => set({ 
+    customPathSelectedNodes: new Set(),
+    isCustomPathMode: false 
+  }),
   
   // Translation methods
   setCurrentLanguage: (language) => set({ currentLanguage: language }),

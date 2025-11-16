@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { MapContainer as LeafletMap, TileLayer, ZoomControl } from 'react-leaflet';
 import L from 'leaflet';
-import { Navigation, MapPin as MapPinIcon } from 'lucide-react';
+import { Navigation, MapPin as MapPinIcon, Map } from 'lucide-react';
 import Swal from 'sweetalert2';
 import NodeMarker from './NodeMarker';
 import UserLocation from './UserLocation';
+import CustomPathModal from './CustomPathModal';
 import useMapStore from '../../stores/mapStore';
 import useRouting from '../../hooks/useRouting';
 import useGeolocation from '../../hooks/useGeolocation';
@@ -28,6 +29,11 @@ function MapContainer({ mapRef: externalMapRef }) {
   const { createRoute, clearRoute } = useRouting(mapRef, isDark);
   const [isCalculatingRoute, setIsCalculatingRoute] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState([]);
+  const [isCustomPathModalOpen, setIsCustomPathModalOpen] = useState(false);
+  const isCustomPathMode = useMapStore((state) => state.isCustomPathMode);
+  const customPathSelectedNodes = useMapStore((state) => state.customPathSelectedNodes);
+  const setIsCustomPathMode = useMapStore((state) => state.setIsCustomPathMode);
+  const clearCustomPathSelection = useMapStore((state) => state.clearCustomPathSelection);
 
   // Expose map ref to parent if provided
   useEffect(() => {
@@ -416,6 +422,72 @@ function MapContainer({ mapRef: externalMapRef }) {
     }
   };
 
+  const handleMakeCustomPath = () => {
+    if (!userLocation) {
+      Swal.fire({
+        title: 'Location Required',
+        text: 'Please enable location access to create a custom path.',
+        icon: 'warning',
+        confirmButtonColor: '#6f4e35',
+        background: isDark ? '#1f2937' : '#ffffff',
+        color: isDark ? '#f3f4f6' : '#000000'
+      });
+      return;
+    }
+
+    // Open modal for node selection
+    setIsCustomPathMode(true);
+    setIsCustomPathModalOpen(true);
+  };
+
+  const handleStartCustomRoute = async (selectedNodes) => {
+    if (selectedNodes.length === 0) {
+      await Swal.fire({
+        title: 'No Nodes Selected',
+        text: 'Please select at least one node to create a custom path.',
+        icon: 'warning',
+        confirmButtonColor: '#6f4e35',
+        background: isDark ? '#1f2937' : '#ffffff',
+        color: isDark ? '#f3f4f6' : '#000000'
+      });
+      return;
+    }
+
+    setIsCalculatingRoute(true);
+    
+    // Create route with selected nodes (no time limit for custom paths)
+    const routeResult = await createRoute(userLocation, selectedNodes, null, true);
+    
+    setIsCalculatingRoute(false);
+    
+    if (routeResult.success) {
+      console.log('✅ Custom route created successfully');
+      // Clear custom path mode
+      clearCustomPathSelection();
+    } else {
+      console.error('❌ Custom route creation failed');
+      await Swal.fire({
+        title: 'Route Creation Failed',
+        text: 'Failed to create custom route. Please try again.',
+        icon: 'error',
+        confirmButtonColor: '#6f4e35',
+        background: isDark ? '#1f2937' : '#ffffff',
+        color: isDark ? '#f3f4f6' : '#000000'
+      });
+    }
+  };
+
+  const handleCloseCustomPathModal = () => {
+    setIsCustomPathModalOpen(false);
+    // Don't clear selection immediately - let user see their selections
+  };
+
+  const handleClearRoute = () => {
+    clearRoute();
+    // Also exit custom path mode and clear selections
+    clearCustomPathSelection();
+  };
+
   return (
     <div className="relative w-full h-screen">
       <LeafletMap
@@ -469,6 +541,14 @@ function MapContainer({ mapRef: externalMapRef }) {
       {userLocation && culturalNodes.length > 0 && (
         <div className="absolute bottom-24 left-4 flex flex-col gap-2 z-[1000]">
           <button
+            onClick={handleMakeCustomPath}
+            className="bg-heritage-600 hover:bg-heritage-700 text-white px-4 py-3 rounded-lg shadow-lg transition-colors font-semibold text-sm flex items-center gap-2"
+            aria-label="Make a Custom Path"
+          >
+            <Map className="w-4 h-4" />
+            Make a Custom Path
+          </button>
+          <button
             onClick={handleFindPath}
             className="bg-heritage-700 text-white px-4 py-3 rounded-lg shadow-lg hover:bg-heritage-800 transition-colors font-semibold text-sm flex items-center gap-2"
             aria-label={t('map.findMyPath', currentLanguage)}
@@ -477,7 +557,7 @@ function MapContainer({ mapRef: externalMapRef }) {
             {t('map.findMyPath', currentLanguage)}
           </button>
           <button
-            onClick={clearRoute}
+            onClick={handleClearRoute}
             className="bg-white dark:bg-neutral-800 text-heritage-700 dark:text-heritage-300 px-4 py-3 rounded-lg shadow-lg hover:bg-heritage-50 dark:hover:bg-neutral-700 transition-colors font-semibold text-sm border border-heritage-700 dark:border-heritage-400"
             aria-label={t('map.clearRoute', currentLanguage)}
           >
@@ -485,6 +565,13 @@ function MapContainer({ mapRef: externalMapRef }) {
           </button>
         </div>
       )}
+
+      {/* Custom Path Modal */}
+      <CustomPathModal
+        isOpen={isCustomPathModalOpen}
+        onClose={handleCloseCustomPathModal}
+        onStartRoute={handleStartCustomRoute}
+      />
     </div>
   );
 }
