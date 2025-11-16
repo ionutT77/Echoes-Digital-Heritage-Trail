@@ -53,11 +53,13 @@ export async function translateLocationContent(location, targetLanguage) {
     Description: ${location.description}
     Historical Period: ${location.historicalPeriod || location.historical_period || ''}
     Category: ${location.category || ''}
+    Images: ${JSON.stringify(location.images || [])}
     
     Requirements:
     - Preserve the storytelling tone and engagement level
     - Keep proper nouns (place names, people) in original language with translation in parentheses if needed
     - Maintain historical accuracy
+    - For images: preserve the URL exactly as-is, only translate the caption text
     - Return ONLY valid JSON without any markdown formatting or code blocks
     
     Return exactly this JSON structure:
@@ -65,7 +67,8 @@ export async function translateLocationContent(location, targetLanguage) {
       "title": "translated title here",
       "description": "translated description here",
       "historicalPeriod": "translated period here",
-      "category": "translated category here"
+      "category": "translated category here",
+      "images": [{"url": "keep original url unchanged", "caption": "translated caption here"}]
     }
       `;
 

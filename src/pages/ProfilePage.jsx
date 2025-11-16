@@ -9,6 +9,7 @@ import { getUserRank } from '../services/leaderboardService';
 import NodeModal from '../components/Node/NodeModal';
 import AudioPlayer from '../components/Audio/AudioPlayer';
 import { t, translateAllUI } from '../utils/uiTranslations';
+import { translateLocationContent } from '../services/geminiService';
 import Swal from 'sweetalert2';
 
 function ProfilePage() {
@@ -19,6 +20,8 @@ function ProfilePage() {
   const setSelectedNode = useMapStore((state) => state.setSelectedNode);
   const currentLanguage = useMapStore((state) => state.currentLanguage);
   const setCurrentLanguage = useMapStore((state) => state.setCurrentLanguage);
+  const translatedNodes = useMapStore((state) => state.translatedNodes);
+  const setTranslatedNode = useMapStore((state) => state.setTranslatedNode);
   const [activeTab, setActiveTab] = useState('credentials');
   const [loading, setLoading] = useState(false);
   const [translatingUI, setTranslatingUI] = useState(false);
@@ -74,6 +77,33 @@ function ProfilePage() {
     loadNodes();
   }, [user]);
 
+  // Translate discovered nodes when page loads with non-English language
+  useEffect(() => {
+    async function translateDiscoveredNodes() {
+      if (currentLanguage === 'en' || culturalNodes.length === 0 || discoveredNodes.size === 0) {
+        return;
+      }
+
+      const discoveredNodesList = culturalNodes.filter(node => discoveredNodes.has(node.id));
+      
+      for (const node of discoveredNodesList) {
+        // Skip if already translated
+        if (translatedNodes[node.id]?.[currentLanguage]) {
+          continue;
+        }
+        
+        try {
+          const translated = await translateLocationContent(node, currentLanguage);
+          setTranslatedNode(node.id, currentLanguage, translated);
+        } catch (error) {
+          console.error(`Failed to translate node ${node.id}:`, error);
+        }
+      }
+    }
+
+    translateDiscoveredNodes();
+  }, [currentLanguage, culturalNodes, discoveredNodes, translatedNodes, setTranslatedNode]);
+
   // Handle language change with UI translation
   const handleLanguageChange = async (newLanguage) => {
     if (newLanguage === currentLanguage) return;
@@ -81,7 +111,24 @@ function ProfilePage() {
     setTranslatingUI(true);
     try {
       if (newLanguage !== 'en') {
+        // Translate UI
         await translateAllUI(newLanguage);
+        
+        // Translate all discovered nodes
+        const discoveredNodesList = culturalNodes.filter(node => discoveredNodes.has(node.id));
+        for (const node of discoveredNodesList) {
+          // Skip if already translated
+          if (translatedNodes[node.id]?.[newLanguage]) {
+            continue;
+          }
+          
+          try {
+            const translated = await translateLocationContent(node, newLanguage);
+            setTranslatedNode(node.id, newLanguage, translated);
+          } catch (error) {
+            console.error(`Failed to translate node ${node.id}:`, error);
+          }
+        }
       }
       setCurrentLanguage(newLanguage);
     } catch (error) {
@@ -706,42 +753,51 @@ function ProfilePage() {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {discoveredNodesList.map((node) => (
-                      <div
-                        key={node.id}
-                        onClick={() => handleNodeClick(node)}
-                        className="group cursor-pointer bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300"
-                      >
-                        {node.primaryImageUrl && (
-                          <div className="relative h-48 overflow-hidden">
-                            <img
-                              src={node.primaryImageUrl}
-                              alt={node.title}
-                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                            />
-                            <div className="absolute top-3 right-3 bg-amber-500 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
-                              <Trophy className="w-5 h-5" />
-                              {t('profile.discovered', currentLanguage)}
+                    {discoveredNodesList.map((node) => {
+                      // Get translated version of the node if available
+                      const displayNode = currentLanguage === 'en' 
+                        ? node 
+                        : (translatedNodes[node.id]?.[currentLanguage] 
+                          ? { ...node, ...translatedNodes[node.id][currentLanguage] }
+                          : node);
+                      
+                      return (
+                        <div
+                          key={node.id}
+                          onClick={() => handleNodeClick(node)}
+                          className="group cursor-pointer bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300"
+                        >
+                          {displayNode.primaryImageUrl && (
+                            <div className="relative h-48 overflow-hidden">
+                              <img
+                                src={displayNode.primaryImageUrl}
+                                alt={displayNode.title}
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                              />
+                              <div className="absolute top-3 right-3 bg-amber-500 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
+                                <Trophy className="w-5 h-5" />
+                                {t('profile.discovered', currentLanguage)}
+                              </div>
+                            </div>
+                          )}
+                          <div
+                            className="p-4"
+                          >
+                            <h4 className="font-semibold text-neutral-900 dark:text-white mb-2 group-hover:text-heritage-700 dark:group-hover:text-heritage-400 transition-colors">
+                              {displayNode.title}
+                            </h4>
+                            <p className="text-sm text-neutral-600 dark:text-neutral-300 line-clamp-2 mb-3">
+                              {displayNode.description}
+                            </p>
+                            <div className="flex items-center gap-4 text-xs text-neutral-500 dark:text-neutral-400">
+                              <span>{displayNode.category}</span>
+                              <span>•</span>
+                              <span>{displayNode.historicalPeriod}</span>
                             </div>
                           </div>
-                        )}
-                        <div
-                          className="p-4"
-                        >
-                          <h4 className="font-semibold text-neutral-900 dark:text-white mb-2 group-hover:text-heritage-700 dark:group-hover:text-heritage-400 transition-colors">
-                            {node.title}
-                          </h4>
-                          <p className="text-sm text-neutral-600 dark:text-neutral-300 line-clamp-2 mb-3">
-                            {node.description}
-                          </p>
-                          <div className="flex items-center gap-4 text-xs text-neutral-500 dark:text-neutral-400">
-                            <span>{node.category}</span>
-                            <span>•</span>
-                            <span>{node.historicalPeriod}</span>
-                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>

@@ -179,6 +179,7 @@ export const defaultTranslations = {
     useMyLocation: 'Use My Current Location',
     photos: 'Photos',
     photosDescription: 'Upload up to 10 photos of the location (JPG, PNG)',
+    addPhotos: 'Add Photos',
     audioStory: 'Audio Story',
     audioDescription: 'Choose how to provide the audio narration for this location',
     uploadYourAudio: 'Upload Your Audio',
@@ -205,6 +206,18 @@ export const defaultTranslations = {
     cancel: 'Cancel',
     submitting: 'Submitting...',
     submitRequest: 'Submit Request',
+  },
+
+  // Location Request Categories
+  locationCategories: {
+    architecture: 'Architecture',
+    monument: 'Monument',
+    museum: 'Museum',
+    religiousSite: 'Religious Site',
+    historicalBuilding: 'Historical Building',
+    culturalCenter: 'Cultural Center',
+    parkGarden: 'Park & Garden',
+    other: 'Other',
   },
   
   // Home Page
