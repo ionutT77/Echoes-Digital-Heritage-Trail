@@ -135,16 +135,34 @@ User question: ${userMessage}`;
           console.log('Selected nodes:', selectedNodes.length, selectedNodes.map(n => n.title));
 
           if (selectedNodes.length > 0 && userLocation && onCreateRoute) {
-            // Remove the JSON block from the displayed message
-            const cleanText = text.replace(/---ROUTE_DATA---.*?---END_ROUTE_DATA---/s, '').trim();
+            // Remove the JSON block and clean up any remaining artifacts
+            let cleanText = text.replace(/---ROUTE_DATA---.*?---END_ROUTE_DATA---/s, '').trim();
+            
+            // Remove code blocks with json
+            cleanText = cleanText.replace(/```json[\s\S]*?```/gi, '').trim();
+            cleanText = cleanText.replace(/```[\s\S]*?```/g, '').trim();
+            
+            // Remove any JSON objects
+            cleanText = cleanText.replace(/\{[\s\S]*?"locations"[\s\S]*?\}/g, '').trim();
+            cleanText = cleanText.replace(/\{[\s"]*locations[\s"]*:[\s\S]*?\}/g, '').trim();
+            
+            // Remove triple backticks, quotes, and other artifacts
+            cleanText = cleanText.replace(/```/g, '').trim();
+            cleanText = cleanText.replace(/^\s*["'`]+|["'`]+\s*$/g, '').trim();
+            
+            // Remove lines that look like JSON remnants
+            cleanText = cleanText.split('\n')
+              .filter(line => !line.trim().match(/^[`'"{}[\]]+$/) && line.trim() !== 'json')
+              .join('\n')
+              .trim();
             
             // Add assistant response without JSON
             setMessages(prev => [...prev, { role: 'assistant', content: cleanText }]);
             
-            // Close chatbot before showing confirmation dialog
+            // Close chatbot to show the popup clearly
             onClose();
             
-            // Show confirmation dialog with selected locations
+            // Show confirmation dialog with selected locations AND AI response
             const isDarkMode = document.documentElement.classList.contains('dark');
             
             // Translate category names
@@ -209,6 +227,21 @@ User question: ${userMessage}`;
               </div>`
             ).join('');
             
+            // Translate section headers
+            const aiResponseLabel = currentLanguage === 'ro' ? 'Recomandarea Asistentului:' :
+                                   currentLanguage === 'hu' ? 'Asszisztens Ajánlása:' :
+                                   currentLanguage === 'de' ? 'Assistentenempfehlung:' :
+                                   currentLanguage === 'fr' ? 'Recommandation de l\'Assistant:' :
+                                   currentLanguage === 'es' ? 'Recomendación del Asistente:' :
+                                   'Assistant\'s Recommendation:';
+            
+            const suggestedLocationsLabel = currentLanguage === 'ro' ? 'Locații Sugerate:' :
+                                           currentLanguage === 'hu' ? 'Javasolt Helyszínek:' :
+                                           currentLanguage === 'de' ? 'Vorgeschlagene Orte:' :
+                                           currentLanguage === 'fr' ? 'Lieux Suggérés:' :
+                                           currentLanguage === 'es' ? 'Lugares Sugeridos:' :
+                                           'Suggested Locations:';
+            
             setTimeout(async () => {
               const result = await Swal.fire({
                 title: currentLanguage === 'ro' ? 'Confirmare Traseu' :
@@ -218,15 +251,12 @@ User question: ${userMessage}`;
                        currentLanguage === 'es' ? 'Confirmar Ruta' :
                        'Confirm Trip',
                 html: `
-                  <div style="text-align: center; margin-bottom: 16px;">
-                    <p style="margin-bottom: 12px; font-size: 1.1em;">
-                      ${currentLanguage === 'ro' ? `Am găsit ${selectedNodes.length} locații pentru tine:` :
-                        currentLanguage === 'hu' ? `${selectedNodes.length} helyszínt találtam számodra:` :
-                        currentLanguage === 'de' ? `Ich habe ${selectedNodes.length} Orte für Sie gefunden:` :
-                        currentLanguage === 'fr' ? `J'ai trouvé ${selectedNodes.length} lieux pour vous:` :
-                        currentLanguage === 'es' ? `He encontrado ${selectedNodes.length} lugares para ti:` :
-                        `I found ${selectedNodes.length} locations for you:`}
-                    </p>
+                  <div style="text-align: left; margin-bottom: 20px; padding: 12px; background: ${isDarkMode ? '#1f2937' : '#f9fafb'}; border-radius: 8px; border-left: 4px solid #6f4e35;">
+                    <h4 style="margin: 0 0 8px 0; color: #6f4e35; font-size: 0.95em; font-weight: 600;">${aiResponseLabel}</h4>
+                    <p style="margin: 0; font-size: 0.9em; line-height: 1.5; white-space: pre-wrap;">${cleanText}</p>
+                  </div>
+                  <div style="margin-bottom: 16px;">
+                    <h4 style="margin: 0 0 12px 0; font-size: 1em; font-weight: 600; text-align: left;">${suggestedLocationsLabel}</h4>
                   </div>
                   ${locationsList}
                   <p style="margin-top: 16px; font-size: 0.95em;">
