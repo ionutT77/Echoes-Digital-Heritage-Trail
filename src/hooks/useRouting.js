@@ -7,7 +7,6 @@ import { t } from '../utils/uiTranslations';
 function useRouting(mapRef, isDark = false) {
   const routeLayerRef = useRef(null);
   const markersRef = useRef([]);
-  const currentLanguage = useMapStore((state) => state.currentLanguage);
 
   useEffect(() => {
     return () => {
@@ -18,6 +17,8 @@ function useRouting(mapRef, isDark = false) {
   const createRoute = useCallback(async (userLocation, nodes, availableTime = null, skipTimeCheck = false) => {
     // Get the actual map instance from the store if mapRef is not available
     const map = mapRef.current || useMapStore.getState().map;
+    // Get current language at execution time, not mount time
+    const currentLang = useMapStore.getState().currentLanguage;
     if (!map) {
       return { success: false };
     }
@@ -293,18 +294,18 @@ function useRouting(mapRef, isDark = false) {
       const slightlyOver = availableTime && totalTimeMin > availableTime && totalTimeMin <= availableTime + Math.ceil(availableTime * 0.20);
 
       await Swal.fire({
-        title: `🎯 ${t('route.routeCreated', currentLanguage)}`,
+        title: `🎯 ${t('route.routeCreated', currentLang)}`,
         html: `
           <div class="text-left space-y-2">
-            ${slightlyOver ? `<p class="text-orange-600 font-semibold mb-2">⚠️ ${t('route.routeSlightlyOver', currentLanguage)}</p>` : `<p class="text-sm ${isDark ? 'text-green-400' : 'text-green-600'} font-semibold mb-2">✓ ${t('route.routeUses', currentLanguage)} ${useTSP ? t('route.nearestNeighbor', currentLanguage) : t('route.nearestNeighbor', currentLanguage)}</p>`}
-            <p><strong>${t('route.distance', currentLanguage)}:</strong> ${distanceKm} ${t('route.kmWalkingRoute', currentLanguage)}</p>
-            <p><strong>${t('route.walkingTime', currentLanguage)}:</strong> ${walkingTimeMin} ${t('route.minutes', currentLanguage)}</p>
-            <p><strong>${t('route.visitTime', currentLanguage)}:</strong> ${visitTimeMin} ${t('route.minutes', currentLanguage)} (${t('route.minPerLocation', currentLanguage)})</p>
-            <p class="text-lg font-bold ${isDark ? 'text-heritage-400' : 'text-heritage-700'} mt-3">${t('route.totalTime', currentLanguage)}: ${totalTimeMin} ${t('route.minutes', currentLanguage)}</p>
-            ${availableTime ? `<p class="text-sm ${withinBudget ? (isDark ? 'text-green-400' : 'text-green-600') : 'text-orange-600'}">⚠️ ${t('route.slightlyOverApproved', currentLanguage)} ${availableTime} ${t('route.minuteBudget', currentLanguage)}</p>` : ''}
-            <p class="text-sm ${isDark ? 'text-neutral-400' : 'text-neutral-600'} mt-2">${t('route.visiting', currentLanguage)} ${orderedNodes.length} ${orderedNodes.length !== 1 ? t('route.locations', currentLanguage) : t('route.location', currentLanguage)} (${t('route.alwaysClosest', currentLanguage)})</p>
+            ${slightlyOver ? `<p class="text-orange-600 font-semibold mb-2">⚠️ ${t('route.routeSlightlyOver', currentLang)}</p>` : `<p class="text-sm ${isDark ? 'text-green-400' : 'text-green-600'} font-semibold mb-2">✓ ${t('route.routeUses', currentLang)} ${useTSP ? t('route.nearestNeighbor', currentLang) : t('route.nearestNeighbor', currentLang)}</p>`}
+            <p><strong>${t('route.distance', currentLang)}:</strong> ${distanceKm} ${t('route.kmWalkingRoute', currentLang)}</p>
+            <p><strong>${t('route.walkingTime', currentLang)}:</strong> ${walkingTimeMin} ${t('route.minutes', currentLang)}</p>
+            <p><strong>${t('route.visitTime', currentLang)}:</strong> ${visitTimeMin} ${t('route.minutes', currentLang)} (${t('route.minPerLocation', currentLang)})</p>
+            <p class="text-lg font-bold ${isDark ? 'text-heritage-400' : 'text-heritage-700'} mt-3">${t('route.totalTime', currentLang)}: ${totalTimeMin} ${t('route.minutes', currentLang)}</p>
+            ${availableTime ? `<p class="text-sm ${withinBudget ? (isDark ? 'text-green-400' : 'text-green-600') : 'text-orange-600'}">⚠️ ${t('route.slightlyOverApproved', currentLang)} ${availableTime} ${t('route.minuteBudget', currentLang)}</p>` : ''}
+            <p class="text-sm ${isDark ? 'text-neutral-400' : 'text-neutral-600'} mt-2">${t('route.visiting', currentLang)} ${orderedNodes.length} ${orderedNodes.length !== 1 ? t('route.locations', currentLang) : t('route.location', currentLang)} (${t('route.alwaysClosest', currentLang)})</p>
             <div class="mt-3 text-xs ${isDark ? 'text-neutral-400' : 'text-neutral-500'}">
-              <p class="font-semibold mb-1">${t('route.routeOrder', currentLanguage)}:</p>
+              <p class="font-semibold mb-1">${t('route.routeOrder', currentLang)}:</p>
               <ol class="list-decimal pl-5">
                 ${orderedNodes.map(node => `<li>${node.title}</li>`).join('')}
               </ol>
@@ -341,6 +342,9 @@ function useRouting(mapRef, isDark = false) {
     if (!map || !userLocation || !nodes.length) {
       return { success: false };
     }
+
+    // Get current language at execution time
+    const currentLang = useMapStore.getState().currentLanguage;
 
     // Import distance calculation
     const calculateDistance = (lat1, lon1, lat2, lon2) => {
