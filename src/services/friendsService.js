@@ -17,7 +17,7 @@ export async function searchUsers(searchTerm) {
     const usersWithStats = await Promise.all(
       (data || []).map(async (user) => {
         const { count } = await supabase
-          .from('user_nodes')
+          .from('user_discoveries')
           .select('*', { count: 'exact', head: true })
           .eq('user_id', user.id);
         
@@ -222,7 +222,7 @@ export async function getFriendsList() {
     const reverseFriendsWithStats = await Promise.all(
       (reverseFriends || []).map(async (f) => {
         const { count } = await supabase
-          .from('user_nodes')
+          .from('user_discoveries')
           .select('*', { count: 'exact', head: true })
           .eq('user_id', f.user_id);
         
@@ -314,5 +314,33 @@ export async function getFriendsCount() {
   } catch (error) {
     console.error('Error getting friends count:', error);
     return { success: false, error: error.message, count: 0 };
+  }
+}
+
+/**
+ * Get discoveries for a specific friend
+ */
+export async function getFriendDiscoveries(friendId) {
+  try {
+    const { data, error } = await supabase
+      .from('user_discoveries')
+      .select(`
+        id,
+        discovered_at,
+        nodes:node_id (
+          id,
+          title,
+          category
+        )
+      `)
+      .eq('user_id', friendId)
+      .order('discovered_at', { ascending: false });
+
+    if (error) throw error;
+
+    return { success: true, discoveries: data || [] };
+  } catch (error) {
+    console.error('Error fetching friend discoveries:', error);
+    return { success: false, error: error.message, discoveries: [] };
   }
 }

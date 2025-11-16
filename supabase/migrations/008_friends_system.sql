@@ -34,17 +34,17 @@ FROM friendships f
 LEFT JOIN profiles p1 ON f.user_id = p1.id
 LEFT JOIN profiles p2 ON f.friend_id = p2.id;
 
--- Create friends list view (only accepted friendships) with discovery count from user_nodes
+-- Create friends list view (only accepted friendships) with discovery count from user_discoveries
 CREATE OR REPLACE VIEW friends_list AS
 SELECT 
   f.user_id,
   f.friend_id,
   p.username as friend_username,
-  COUNT(DISTINCT un.node_id) as total_discoveries,
+  COUNT(DISTINCT ud.node_id) as total_discoveries,
   f.created_at as friends_since
 FROM friendships f
 JOIN profiles p ON f.friend_id = p.id
-LEFT JOIN user_nodes un ON un.user_id = p.id
+LEFT JOIN user_discoveries ud ON ud.user_id = p.id
 WHERE f.status = 'accepted'
 GROUP BY f.user_id, f.friend_id, p.username, f.created_at;
 

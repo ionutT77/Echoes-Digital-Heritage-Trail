@@ -98,6 +98,9 @@ export const defaultTranslations = {
     errorAcceptingRequest: 'Error accepting request',
     errorRejectingRequest: 'Error rejecting request',
     errorRemovingFriend: 'Error removing friend',
+    noDiscoveriesYet: 'No discoveries yet',
+    discovery: 'discovery',
+    removed: 'Friend Removed',
   },
   
   // Activity Feed
