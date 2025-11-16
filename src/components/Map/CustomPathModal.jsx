@@ -7,21 +7,28 @@ import Swal from 'sweetalert2';
 
 function CustomPathModal({ isOpen, onClose, onStartRoute }) {
   const { isDark } = useTheme();
-  const customPathSelectedNodes = useMapStore((state) => state.customPathSelectedNodes);
-  const toggleCustomPathNode = useMapStore((state) => state.toggleCustomPathNode);
   const culturalNodes = useMapStore((state) => state.culturalNodes);
   const discoveredNodes = useMapStore((state) => state.discoveredNodes);
+  const [selectedNodes, setSelectedNodes] = useState(new Set());
 
   const handleToggleNode = (nodeId) => {
-    toggleCustomPathNode(nodeId);
+    setSelectedNodes(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(nodeId)) {
+        newSet.delete(nodeId);
+      } else {
+        newSet.add(nodeId);
+      }
+      return newSet;
+    });
   };
 
   const isNodeSelected = (nodeId) => {
-    return customPathSelectedNodes.has(nodeId);
+    return selectedNodes.has(nodeId);
   };
 
   const handleCalculateRoute = async () => {
-    if (customPathSelectedNodes.size === 0) {
+    if (selectedNodes.size === 0) {
       await Swal.fire({
         title: 'No Nodes Selected',
         text: 'Please select at least one node to create a custom path.',
@@ -33,17 +40,19 @@ function CustomPathModal({ isOpen, onClose, onStartRoute }) {
       return;
     }
 
-    const selectedNodes = culturalNodes.filter(node => 
-      customPathSelectedNodes.has(node.id)
+    const selectedNodeObjects = culturalNodes.filter(node => 
+      selectedNodes.has(node.id)
     );
 
     // Close modal and start route directly
     onClose();
-    onStartRoute(selectedNodes);
+    onStartRoute(selectedNodeObjects);
+    // Clear selections after route is created
+    setSelectedNodes(new Set());
   };
 
   const handleStartRoute = async () => {
-    if (customPathSelectedNodes.size === 0) {
+    if (selectedNodes.size === 0) {
       await Swal.fire({
         title: 'No Nodes Selected',
         text: 'Please select at least one node to create a custom path.',
@@ -55,15 +64,17 @@ function CustomPathModal({ isOpen, onClose, onStartRoute }) {
       return;
     }
 
-    const selectedNodes = culturalNodes.filter(node => 
-      customPathSelectedNodes.has(node.id)
+    const selectedNodeObjects = culturalNodes.filter(node => 
+      selectedNodes.has(node.id)
     );
 
-    onStartRoute(selectedNodes);
+    onStartRoute(selectedNodeObjects);
     onClose();
+    setSelectedNodes(new Set());
   };
 
   const handleCancel = () => {
+    setSelectedNodes(new Set());
     onClose();
   };
 
@@ -208,15 +219,15 @@ function CustomPathModal({ isOpen, onClose, onStartRoute }) {
             </button>
             <button
               onClick={handleCalculateRoute}
-              disabled={customPathSelectedNodes.size === 0}
+              disabled={selectedNodes.size === 0}
               className={`flex-1 px-4 py-3 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 ${
-                customPathSelectedNodes.size === 0
+                selectedNodes.size === 0
                   ? 'bg-neutral-400 cursor-not-allowed text-neutral-600'
                   : 'bg-heritage-700 hover:bg-heritage-800 text-white'
               }`}
             >
               <Navigation className="w-4 h-4" />
-              Calculate Route ({customPathSelectedNodes.size})
+              Calculate Route ({selectedNodes.size})
             </button>
           </div>
         </motion.div>
