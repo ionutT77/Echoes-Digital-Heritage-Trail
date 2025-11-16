@@ -153,6 +153,15 @@ export const defaultTranslations = {
     enableLocationTitle: 'Location Required',
     enableLocationText: 'Please enable location access to create a custom path.',
   },
+
+  // Chatbot
+  chatbot: {
+    buttonText: 'Assistant',
+    modalTitle: 'Heritage Assistant',
+    welcomeMessage: "Hello! I'm your heritage guide for Timișoara. I can tell you about our {count} cultural locations: {locations}. I can also recommend nearby restaurants, cafes, and give you practical visiting tips. What would you like to know?",
+    inputPlaceholder: 'Ask about places, nearby restaurants, cafes, visiting tips...',
+    errorMessage: 'Sorry, I encountered an error. Please try again.',
+  },
   
   // Categories
   categories: {
