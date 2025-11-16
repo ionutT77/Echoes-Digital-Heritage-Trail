@@ -4,7 +4,7 @@ import Swal from 'sweetalert2';
 import useMapStore from '../stores/mapStore';
 import { t } from '../utils/uiTranslations';
 
-function useRouting(mapRef, isDark = false) {
+function useRouting(mapRef) {
   const routeLayerRef = useRef(null);
   const markersRef = useRef([]);
 
@@ -19,6 +19,8 @@ function useRouting(mapRef, isDark = false) {
     const map = mapRef.current || useMapStore.getState().map;
     // Get current language at execution time, not mount time
     const currentLang = useMapStore.getState().currentLanguage;
+    // Get current dark mode state from DOM
+    const isDarkMode = document.documentElement.classList.contains('dark');
     if (!map) {
       return { success: false };
     }
@@ -36,8 +38,8 @@ function useRouting(mapRef, isDark = false) {
         text: 'Please add your OpenRouteService API key to the .env file as VITE_OPENROUTESERVICE_API_KEY',
         icon: 'error',
         confirmButtonColor: '#6f4e35',
-        background: isDark ? '#1f2937' : '#ffffff',
-        color: isDark ? '#f3f4f6' : '#000000'
+        background: isDarkMode ? '#1f2937' : '#ffffff',
+        color: isDarkMode ? '#f3f4f6' : '#000000'
       });
       return { success: false };
     }
@@ -55,8 +57,8 @@ function useRouting(mapRef, isDark = false) {
         icon: 'info',
         confirmButtonColor: '#6f4e35',
         timer: 3000,
-        background: isDark ? '#1f2937' : '#ffffff',
-        color: isDark ? '#f3f4f6' : '#000000'
+        background: isDarkMode ? '#1f2937' : '#ffffff',
+        color: isDarkMode ? '#f3f4f6' : '#000000'
       });
     }
 
@@ -297,14 +299,14 @@ function useRouting(mapRef, isDark = false) {
         title: `🎯 ${t('route.routeCreated', currentLang)}`,
         html: `
           <div class="text-left space-y-2">
-            ${slightlyOver ? `<p class="text-orange-600 font-semibold mb-2">⚠️ ${t('route.routeSlightlyOver', currentLang)}</p>` : `<p class="text-sm ${isDark ? 'text-green-400' : 'text-green-600'} font-semibold mb-2">✓ ${t('route.routeUses', currentLang)} ${useTSP ? t('route.nearestNeighbor', currentLang) : t('route.nearestNeighbor', currentLang)}</p>`}
+            ${slightlyOver ? `<p class="text-orange-600 font-semibold mb-2">⚠️ ${t('route.routeSlightlyOver', currentLang)}</p>` : `<p class="text-sm ${isDarkMode ? 'text-green-400' : 'text-green-600'} font-semibold mb-2">✓ ${t('route.routeUses', currentLang)} ${useTSP ? t('route.nearestNeighbor', currentLang) : t('route.nearestNeighbor', currentLang)}</p>`}
             <p><strong>${t('route.distance', currentLang)}:</strong> ${distanceKm} ${t('route.kmWalkingRoute', currentLang)}</p>
             <p><strong>${t('route.walkingTime', currentLang)}:</strong> ${walkingTimeMin} ${t('route.minutes', currentLang)}</p>
             <p><strong>${t('route.visitTime', currentLang)}:</strong> ${visitTimeMin} ${t('route.minutes', currentLang)} (${t('route.minPerLocation', currentLang)})</p>
-            <p class="text-lg font-bold ${isDark ? 'text-heritage-400' : 'text-heritage-700'} mt-3">${t('route.totalTime', currentLang)}: ${totalTimeMin} ${t('route.minutes', currentLang)}</p>
-            ${availableTime ? `<p class="text-sm ${withinBudget ? (isDark ? 'text-green-400' : 'text-green-600') : 'text-orange-600'}">⚠️ ${t('route.slightlyOverApproved', currentLang)} ${availableTime} ${t('route.minuteBudget', currentLang)}</p>` : ''}
-            <p class="text-sm ${isDark ? 'text-neutral-400' : 'text-neutral-600'} mt-2">${t('route.visiting', currentLang)} ${orderedNodes.length} ${orderedNodes.length !== 1 ? t('route.locations', currentLang) : t('route.location', currentLang)} (${t('route.alwaysClosest', currentLang)})</p>
-            <div class="mt-3 text-xs ${isDark ? 'text-neutral-400' : 'text-neutral-500'}">
+            <p class="text-lg font-bold ${isDarkMode ? 'text-heritage-400' : 'text-heritage-700'} mt-3">${t('route.totalTime', currentLang)}: ${totalTimeMin} ${t('route.minutes', currentLang)}</p>
+            ${availableTime ? `<p class="text-sm ${withinBudget ? (isDarkMode ? 'text-green-400' : 'text-green-600') : 'text-orange-600'}">⚠️ ${t('route.slightlyOverApproved', currentLang)} ${availableTime} ${t('route.minuteBudget', currentLang)}</p>` : ''}
+            <p class="text-sm ${isDarkMode ? 'text-neutral-400' : 'text-neutral-600'} mt-2">${t('route.visiting', currentLang)} ${orderedNodes.length} ${orderedNodes.length !== 1 ? t('route.locations', currentLang) : t('route.location', currentLang)} (${t('route.alwaysClosest', currentLang)})</p>
+            <div class="mt-3 text-xs ${isDarkMode ? 'text-neutral-400' : 'text-neutral-500'}">
               <p class="font-semibold mb-1">${t('route.routeOrder', currentLang)}:</p>
               <ol class="list-decimal pl-5">
                 ${orderedNodes.map(node => `<li>${node.title}</li>`).join('')}
@@ -315,8 +317,8 @@ function useRouting(mapRef, isDark = false) {
         icon: slightlyOver ? 'warning' : 'success',
         confirmButtonColor: '#6f4e35',
         confirmButtonText: 'OK',
-        background: isDark ? '#1f2937' : '#ffffff',
-        color: isDark ? '#f3f4f6' : '#000000'
+        background: isDarkMode ? '#1f2937' : '#ffffff',
+        color: isDarkMode ? '#f3f4f6' : '#000000'
       });
 
       // Fit map to route bounds
@@ -345,6 +347,8 @@ function useRouting(mapRef, isDark = false) {
 
     // Get current language at execution time
     const currentLang = useMapStore.getState().currentLanguage;
+    // Get current dark mode state from DOM
+    const isDarkMode = document.documentElement.classList.contains('dark');
 
     // Import distance calculation
     const calculateDistance = (lat1, lon1, lat2, lon2) => {
@@ -476,14 +480,14 @@ function useRouting(mapRef, isDark = false) {
             title: '✓ Optimized Route Created!',
             html: `
               <div class="text-left space-y-2">
-                ${slightlyOver ? '<p class="text-orange-600 font-semibold mb-2">⚠️ Route slightly exceeds your time budget but within tolerance</p>' : `<p class="text-sm ${isDark ? 'text-blue-400' : 'text-blue-600'} font-semibold mb-2">Using nearest-neighbor optimization</p>`}
+                ${slightlyOver ? '<p class="text-orange-600 font-semibold mb-2">⚠️ Route slightly exceeds your time budget but within tolerance</p>' : `<p class="text-sm ${isDarkMode ? 'text-blue-400' : 'text-blue-600'} font-semibold mb-2">Using nearest-neighbor optimization</p>`}
                 <p><strong>Distance:</strong> ${distanceKm} km</p>
                 <p><strong>Walking time:</strong> ${walkingTimeMin} min</p>
                 <p><strong>Visit time:</strong> ${visitTimeMin} min</p>
-                <p class="text-lg font-bold ${isDark ? 'text-heritage-400' : 'text-heritage-700'} mt-3">Total: ${totalTimeMin} min</p>
-                ${availableTime ? `<p class="text-sm ${withinBudget ? (isDark ? 'text-green-400' : 'text-green-600') : 'text-orange-600'}">${withinBudget ? '✓ Within' : '⚠️ Slightly over (approved)'} your ${availableTime} minute budget</p>` : ''}
-                <p class="text-sm ${isDark ? 'text-neutral-400' : 'text-neutral-600'} mt-2">${orderedNodes.length} locations</p>
-                <div class="mt-3 text-xs ${isDark ? 'text-neutral-400' : 'text-neutral-500'}">
+                <p class="text-lg font-bold ${isDarkMode ? 'text-heritage-400' : 'text-heritage-700'} mt-3">Total: ${totalTimeMin} min</p>
+                ${availableTime ? `<p class="text-sm ${withinBudget ? (isDarkMode ? 'text-green-400' : 'text-green-600') : 'text-orange-600'}">${withinBudget ? '✓ Within' : '⚠️ Slightly over (approved)'} your ${availableTime} minute budget</p>` : ''}
+                <p class="text-sm ${isDarkMode ? 'text-neutral-400' : 'text-neutral-600'} mt-2">${orderedNodes.length} locations</p>
+                <div class="mt-3 text-xs ${isDarkMode ? 'text-neutral-400' : 'text-neutral-500'}">
                   <p class="font-semibold mb-1">Route order:</p>
                   <ol class="list-decimal pl-5">
                     ${orderedNodes.map(node => `<li>${node.title}</li>`).join('')}
@@ -494,8 +498,8 @@ function useRouting(mapRef, isDark = false) {
             icon: slightlyOver ? 'warning' : 'success',
             confirmButtonColor: '#6f4e35',
             confirmButtonText: 'OK',
-            background: isDark ? '#1f2937' : '#ffffff',
-            color: isDark ? '#f3f4f6' : '#000000'
+            background: isDarkMode ? '#1f2937' : '#ffffff',
+            color: isDarkMode ? '#f3f4f6' : '#000000'
           });
 
           // Fit bounds
@@ -559,6 +563,8 @@ function useRouting(mapRef, isDark = false) {
   // Fallback: Create simple straight-line path
   function createSimplePath(waypoints, orderedNodes = null, availableTime = null, skipTimeCheck = false) {
     const map = mapRef.current || useMapStore.getState().map;
+    // Get current dark mode state from DOM
+    const isDarkMode = document.documentElement.classList.contains('dark');
     if (!map) return { success: false };
     
     const coordinates = waypoints.map(w => [w.lat, w.lng]);
@@ -618,14 +624,14 @@ function useRouting(mapRef, isDark = false) {
       title: 'Simple Route Created',
       html: `
         <div class="text-left space-y-2">
-          ${slightlyOver ? '<p class="text-orange-600 font-semibold mb-2">⚠️ Route slightly exceeds your time budget but within tolerance</p>' : `<p class="text-sm ${isDark ? 'text-neutral-400' : 'text-neutral-600'} mb-2">Using straight-line approximation</p>`}
+          ${slightlyOver ? '<p class="text-orange-600 font-semibold mb-2">⚠️ Route slightly exceeds your time budget but within tolerance</p>' : `<p class="text-sm ${isDarkMode ? 'text-neutral-400' : 'text-neutral-600'} mb-2">Using straight-line approximation</p>`}
           <p><strong>Approx. distance:</strong> ${distanceKm} km</p>
           <p><strong>Est. walking time:</strong> ${walkingTimeMin} min</p>
           <p><strong>Visit time:</strong> ${visitTimeMin} min</p>
-          <p class="text-lg font-bold ${isDark ? 'text-heritage-400' : 'text-heritage-700'} mt-3">Total: ~${totalTimeMin} min</p>
-          ${availableTime ? `<p class="text-sm ${withinBudget ? (isDark ? 'text-green-400' : 'text-green-600') : 'text-orange-600'}">${withinBudget ? '✓ Within' : '⚠️ Slightly over (approved)'} your ${availableTime} minute budget</p>` : ''}
+          <p class="text-lg font-bold ${isDarkMode ? 'text-heritage-400' : 'text-heritage-700'} mt-3">Total: ~${totalTimeMin} min</p>
+          ${availableTime ? `<p class="text-sm ${withinBudget ? (isDarkMode ? 'text-green-400' : 'text-green-600') : 'text-orange-600'}">${withinBudget ? '✓ Within' : '⚠️ Slightly over (approved)'} your ${availableTime} minute budget</p>` : ''}
           ${orderedNodes ? `
-            <div class="mt-3 text-xs ${isDark ? 'text-neutral-400' : 'text-neutral-500'}">
+            <div class="mt-3 text-xs ${isDarkMode ? 'text-neutral-400' : 'text-neutral-500'}">
               <p class="font-semibold mb-1">Route order:</p>
               <ol class="list-decimal pl-5">
                 ${orderedNodes.map(node => `<li>${node.title}</li>`).join('')}
@@ -637,8 +643,8 @@ function useRouting(mapRef, isDark = false) {
       icon: slightlyOver ? 'warning' : 'info',
       confirmButtonColor: '#6f4e35',
       confirmButtonText: 'OK',
-      background: isDark ? '#1f2937' : '#ffffff',
-      color: isDark ? '#f3f4f6' : '#000000'
+      background: isDarkMode ? '#1f2937' : '#ffffff',
+      color: isDarkMode ? '#f3f4f6' : '#000000'
     });
 
     // Fit map to show all waypoints

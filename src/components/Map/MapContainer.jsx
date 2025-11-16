@@ -26,14 +26,10 @@ function MapContainer({ mapRef: externalMapRef }) {
   const setMap = useMapStore((state) => state.setMap);
   const setClearRouteFunction = useMapStore((state) => state.setClearRouteFunction);
   const setCreateRouteFunction = useMapStore((state) => state.setCreateRouteFunction);
-  const { createRoute, clearRoute } = useRouting(mapRef, isDark);
+  const { createRoute, clearRoute } = useRouting(mapRef);
   const [isCalculatingRoute, setIsCalculatingRoute] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [isCustomPathModalOpen, setIsCustomPathModalOpen] = useState(false);
-  const isCustomPathMode = useMapStore((state) => state.isCustomPathMode);
-  const customPathSelectedNodes = useMapStore((state) => state.customPathSelectedNodes);
-  const setIsCustomPathMode = useMapStore((state) => state.setIsCustomPathMode);
-  const clearCustomPathSelection = useMapStore((state) => state.clearCustomPathSelection);
 
   // Expose map ref to parent if provided
   useEffect(() => {
@@ -435,8 +431,6 @@ function MapContainer({ mapRef: externalMapRef }) {
       return;
     }
 
-    // Open modal for node selection
-    setIsCustomPathMode(true);
     setIsCustomPathModalOpen(true);
   };
 
@@ -484,8 +478,6 @@ function MapContainer({ mapRef: externalMapRef }) {
 
   const handleClearRoute = () => {
     clearRoute();
-    // Also exit custom path mode and clear selections
-    clearCustomPathSelection();
   };
 
   return (
