@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Map, Settings, LogOut, User, Trophy, Moon, Sun, Menu, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import useMapStore from '../../stores/mapStore';
@@ -212,16 +213,24 @@ function Header() {
       </div>
 
       {/* Mobile Menu */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden border-t border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800">
-          <nav className="flex flex-col gap-2 px-4 py-4">
-            {/* Language Selector */}
-            <div className={`pb-2 border-b border-neutral-200 dark:border-neutral-700 ${translatingUI ? 'opacity-50 pointer-events-none' : ''}`}>
-              <LanguageSelector
-                currentLanguage={currentLanguage}
-                onLanguageChange={handleLanguageChange}
-              />
-            </div>
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2, ease: 'easeInOut' }}
+            className="md:hidden border-t border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 overflow-hidden"
+          >
+            <nav className="flex flex-col gap-2 px-4 py-4">
+              {/* Language Selector */}
+              <div className={`pb-2 border-b border-neutral-200 dark:border-neutral-700 ${translatingUI ? 'opacity-50 pointer-events-none' : ''}`}>
+                <LanguageSelector
+                  currentLanguage={currentLanguage}
+                  onLanguageChange={handleLanguageChange}
+                  isMobile={true}
+                />
+              </div>
             
             <button
               onClick={() => {
@@ -302,8 +311,9 @@ function Header() {
               </Link>
             )}
           </nav>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }
