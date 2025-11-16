@@ -14,6 +14,8 @@ function CustomPathModal({ isOpen, onClose, onStartRoute }) {
   const currentLanguage = useMapStore((state) => state.currentLanguage);
   const translatedNodes = useMapStore((state) => state.translatedNodes);
   const setTranslatedNode = useMapStore((state) => state.setTranslatedNode);
+  
+  const [selectedNodes, setSelectedNodes] = useState(new Set());
 
   // Translate all nodes when modal opens or language changes
   useEffect(() => {
@@ -263,7 +265,7 @@ function CustomPathModal({ isOpen, onClose, onStartRoute }) {
               }`}
             >
               <Navigation className="w-4 h-4" />
-              {t('customPath.calculateRoute', currentLanguage)} ({customPathSelectedNodes.size})
+              {t('customPath.calculateRoute', currentLanguage)} ({selectedNodes.size})
             </button>
           </div>
         </motion.div>
