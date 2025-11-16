@@ -60,7 +60,7 @@ export const defaultTranslations = {
     tabFriends: 'Friends',
     tabFind: 'Find',
     tabRequests: 'Requests',
-    searchPlaceholder: 'Search by username or email...',
+    searchPlaceholder: 'Search by username',
     noFriends: 'No Friends Yet',
     startConnecting: 'Start connecting with other heritage explorers to see their discoveries!',
     discoveries: 'discoveries',
@@ -98,6 +98,9 @@ export const defaultTranslations = {
     errorAcceptingRequest: 'Error accepting request',
     errorRejectingRequest: 'Error rejecting request',
     errorRemovingFriend: 'Error removing friend',
+    noDiscoveriesYet: 'No discoveries yet',
+    discovery: 'discovery',
+    removed: 'Friend Removed',
   },
   
   // Activity Feed

@@ -227,7 +227,7 @@ function LeaderboardPage() {
                           <div className="w-6 h-6 border-2 border-heritage-700 dark:border-heritage-400 border-t-transparent rounded-full animate-spin"></div>
                         </div>
                       ) : userDiscoveries[entry.id].length === 0 ? (
-                        <p className="text-sm text-neutral-600 dark:text-neutral-300 text-center py-2">No discoveries yet</p>
+                        <p className="text-sm text-neutral-600 dark:text-neutral-300 text-center py-2">{t('profile.noDiscoveriesYet', currentLanguage)}</p>
                       ) : (
                         <div className="space-y-2">
                           {userDiscoveries[entry.id].map((discovery, idx) => (
