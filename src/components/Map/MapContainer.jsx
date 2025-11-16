@@ -425,8 +425,8 @@ function MapContainer({ mapRef: externalMapRef }) {
   const handleMakeCustomPath = () => {
     if (!userLocation) {
       Swal.fire({
-        title: 'Location Required',
-        text: 'Please enable location access to create a custom path.',
+        title: t('customPath.enableLocationTitle', currentLanguage),
+        text: t('customPath.enableLocationText', currentLanguage),
         icon: 'warning',
         confirmButtonColor: '#6f4e35',
         background: isDark ? '#1f2937' : '#ffffff',
@@ -443,8 +443,8 @@ function MapContainer({ mapRef: externalMapRef }) {
   const handleStartCustomRoute = async (selectedNodes) => {
     if (selectedNodes.length === 0) {
       await Swal.fire({
-        title: 'No Nodes Selected',
-        text: 'Please select at least one node to create a custom path.',
+        title: t('customPath.noNodesSelectedTitle', currentLanguage),
+        text: t('customPath.noNodesSelectedText', currentLanguage),
         icon: 'warning',
         confirmButtonColor: '#6f4e35',
         background: isDark ? '#1f2937' : '#ffffff',
@@ -543,10 +543,10 @@ function MapContainer({ mapRef: externalMapRef }) {
           <button
             onClick={handleMakeCustomPath}
             className="bg-heritage-600 hover:bg-heritage-700 text-white px-4 py-3 rounded-lg shadow-lg transition-colors font-semibold text-sm flex items-center gap-2"
-            aria-label="Make a Custom Path"
+            aria-label={t('customPath.buttonText', currentLanguage)}
           >
             <Map className="w-4 h-4" />
-            Make a Custom Path
+            {t('customPath.buttonText', currentLanguage)}
           </button>
           <button
             onClick={handleFindPath}

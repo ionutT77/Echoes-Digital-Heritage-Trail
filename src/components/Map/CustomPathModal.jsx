@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Check, Navigation, MapPin } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import useMapStore from '../../stores/mapStore';
+import { t } from '../../utils/uiTranslations';
+import { translateLocationContent } from '../../services/geminiService';
 import Swal from 'sweetalert2';
 
 function CustomPathModal({ isOpen, onClose, onStartRoute }) {
@@ -11,6 +13,34 @@ function CustomPathModal({ isOpen, onClose, onStartRoute }) {
   const toggleCustomPathNode = useMapStore((state) => state.toggleCustomPathNode);
   const culturalNodes = useMapStore((state) => state.culturalNodes);
   const discoveredNodes = useMapStore((state) => state.discoveredNodes);
+  const currentLanguage = useMapStore((state) => state.currentLanguage);
+  const translatedNodes = useMapStore((state) => state.translatedNodes);
+  const setTranslatedNode = useMapStore((state) => state.setTranslatedNode);
+
+  // Translate all nodes when modal opens or language changes
+  useEffect(() => {
+    async function translateAllNodes() {
+      if (!isOpen || currentLanguage === 'en' || culturalNodes.length === 0) {
+        return;
+      }
+
+      for (const node of culturalNodes) {
+        // Skip if already translated
+        if (translatedNodes[node.id]?.[currentLanguage]) {
+          continue;
+        }
+        
+        try {
+          const translated = await translateLocationContent(node, currentLanguage);
+          setTranslatedNode(node.id, currentLanguage, translated);
+        } catch (error) {
+          console.error(`Failed to translate node ${node.id}:`, error);
+        }
+      }
+    }
+
+    translateAllNodes();
+  }, [isOpen, currentLanguage, culturalNodes, translatedNodes, setTranslatedNode]);
 
   const handleToggleNode = (nodeId) => {
     toggleCustomPathNode(nodeId);
@@ -23,8 +53,8 @@ function CustomPathModal({ isOpen, onClose, onStartRoute }) {
   const handleCalculateRoute = async () => {
     if (customPathSelectedNodes.size === 0) {
       await Swal.fire({
-        title: 'No Nodes Selected',
-        text: 'Please select at least one node to create a custom path.',
+        title: t('customPath.noNodesSelectedTitle', currentLanguage),
+        text: t('customPath.noNodesSelectedText', currentLanguage),
         icon: 'warning',
         confirmButtonColor: '#6f4e35',
         background: isDark ? '#1f2937' : '#ffffff',
@@ -45,8 +75,8 @@ function CustomPathModal({ isOpen, onClose, onStartRoute }) {
   const handleStartRoute = async () => {
     if (customPathSelectedNodes.size === 0) {
       await Swal.fire({
-        title: 'No Nodes Selected',
-        text: 'Please select at least one node to create a custom path.',
+        title: t('customPath.noNodesSelectedTitle', currentLanguage),
+        text: t('customPath.noNodesSelectedText', currentLanguage),
         icon: 'warning',
         confirmButtonColor: '#6f4e35',
         background: isDark ? '#1f2937' : '#ffffff',
@@ -92,7 +122,7 @@ function CustomPathModal({ isOpen, onClose, onStartRoute }) {
           <div className="bg-heritage-700 text-white p-4 flex items-center justify-between flex-shrink-0">
             <h2 className="text-xl font-bold flex items-center gap-2">
               <MapPin className="w-6 h-6" />
-              Select Locations for Your Custom Path
+              {t('customPath.modalTitle', currentLanguage)}
             </h2>
             <button
               onClick={handleCancel}
@@ -113,7 +143,7 @@ function CustomPathModal({ isOpen, onClose, onStartRoute }) {
                 <p className={`text-lg ${
                   isDark ? 'text-neutral-400' : 'text-neutral-600'
                 }`}>
-                  No locations available
+                  {t('customPath.noLocationsAvailable', currentLanguage)}
                 </p>
               </div>
             ) : (
@@ -121,6 +151,13 @@ function CustomPathModal({ isOpen, onClose, onStartRoute }) {
                 {culturalNodes.map((node) => {
                   const isSelected = isNodeSelected(node.id);
                   const isDiscovered = discoveredNodes.has(node.id);
+                  
+                  // Get translated version of the node if available
+                  const displayNode = currentLanguage === 'en' 
+                    ? node 
+                    : (translatedNodes[node.id]?.[currentLanguage] 
+                      ? { ...node, ...translatedNodes[node.id][currentLanguage] }
+                      : node);
                   
                   return (
                     <div
@@ -150,11 +187,11 @@ function CustomPathModal({ isOpen, onClose, onStartRoute }) {
                       </div>
 
                       {/* Image */}
-                      {node.primaryImageUrl && (
+                      {displayNode.primaryImageUrl && (
                         <div className="flex-shrink-0">
                           <img
-                            src={node.primaryImageUrl}
-                            alt={node.title}
+                            src={displayNode.primaryImageUrl}
+                            alt={displayNode.title}
                             className="w-20 h-20 object-cover rounded-lg"
                           />
                         </div>
@@ -166,23 +203,23 @@ function CustomPathModal({ isOpen, onClose, onStartRoute }) {
                           <h3 className={`font-semibold text-base leading-tight ${
                             isDark ? 'text-neutral-100' : 'text-neutral-900'
                           }`}>
-                            {node.title}
+                            {displayNode.title}
                           </h3>
                           {isDiscovered && (
                             <span className="flex-shrink-0 px-2 py-0.5 bg-amber-500 text-white text-xs font-medium rounded">
-                              Visited
+                              {t('customPath.visited', currentLanguage)}
                             </span>
                           )}
                         </div>
                         <p className={`text-xs mb-2 ${
                           isDark ? 'text-neutral-400' : 'text-neutral-600'
                         }`}>
-                          {node.category}
+                          {displayNode.category}
                         </p>
                         <p className={`text-sm line-clamp-2 ${
                           isDark ? 'text-neutral-300' : 'text-neutral-700'
                         }`}>
-                          {node.description}
+                          {displayNode.description}
                         </p>
                       </div>
                     </div>
@@ -204,7 +241,7 @@ function CustomPathModal({ isOpen, onClose, onStartRoute }) {
                   : 'bg-neutral-200 hover:bg-neutral-300 text-neutral-800'
               }`}
             >
-              Cancel
+              {t('customPath.cancel', currentLanguage)}
             </button>
             <button
               onClick={handleCalculateRoute}
@@ -216,7 +253,7 @@ function CustomPathModal({ isOpen, onClose, onStartRoute }) {
               }`}
             >
               <Navigation className="w-4 h-4" />
-              Calculate Route ({customPathSelectedNodes.size})
+              {t('customPath.calculateRoute', currentLanguage)} ({customPathSelectedNodes.size})
             </button>
           </div>
         </motion.div>

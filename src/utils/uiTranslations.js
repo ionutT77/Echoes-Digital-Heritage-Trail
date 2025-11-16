@@ -139,6 +139,20 @@ export const defaultTranslations = {
     unableToCreateRoute: 'Unable to create a route that fits your time budget. Please try with more time or fewer locations.',
     failedToCreateRoute: 'Failed to create route. Please ensure you have location access and try again.',
   },
+
+  // Custom Path
+  customPath: {
+    buttonText: 'Make a Custom Path',
+    modalTitle: 'Select Locations for Your Custom Path',
+    noLocationsAvailable: 'No locations available',
+    visited: 'Visited',
+    cancel: 'Cancel',
+    calculateRoute: 'Calculate Route',
+    noNodesSelectedTitle: 'No Nodes Selected',
+    noNodesSelectedText: 'Please select at least one node to create a custom path.',
+    enableLocationTitle: 'Location Required',
+    enableLocationText: 'Please enable location access to create a custom path.',
+  },
   
   // Categories
   categories: {
