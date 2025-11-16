@@ -533,37 +533,42 @@ function MapContainer({ mapRef: externalMapRef }) {
       )}
 
       {userLocation && culturalNodes.length > 0 && (
-        <div className="absolute bottom-24 left-4 flex flex-col gap-2 z-[1000]">
+        <div className="absolute bottom-20 left-2 md:left-4 flex flex-col gap-1.5 md:gap-2 z-[1000]">
           <button
             onClick={() => setIsChatbotOpen(true)}
-            className="bg-heritage-500 hover:bg-heritage-600 text-white px-4 py-3 rounded-lg shadow-lg transition-colors font-semibold text-sm flex items-center gap-2"
+            className="bg-heritage-500 hover:bg-heritage-600 text-white p-2.5 md:px-4 md:py-3 rounded-lg shadow-lg transition-colors font-semibold text-sm flex items-center justify-center md:justify-start gap-2"
             aria-label={t('chatbot.buttonText', currentLanguage)}
+            title={t('chatbot.buttonText', currentLanguage)}
           >
-            <MessageCircle className="w-4 h-4" />
-            {t('chatbot.buttonText', currentLanguage)}
+            <MessageCircle className="w-5 h-5 md:w-4 md:h-4" />
+            <span className="hidden md:inline">{t('chatbot.buttonText', currentLanguage)}</span>
           </button>
           <button
             onClick={handleMakeCustomPath}
-            className="bg-heritage-600 hover:bg-heritage-700 text-white px-4 py-3 rounded-lg shadow-lg transition-colors font-semibold text-sm flex items-center gap-2"
+            className="bg-heritage-600 hover:bg-heritage-700 text-white p-2.5 md:px-4 md:py-3 rounded-lg shadow-lg transition-colors font-semibold text-sm flex items-center justify-center md:justify-start gap-2"
             aria-label={t('customPath.buttonText', currentLanguage)}
+            title={t('customPath.buttonText', currentLanguage)}
           >
-            <Map className="w-4 h-4" />
-            {t('customPath.buttonText', currentLanguage)}
+            <Map className="w-5 h-5 md:w-4 md:h-4" />
+            <span className="hidden md:inline">{t('customPath.buttonText', currentLanguage)}</span>
           </button>
           <button
             onClick={handleFindPath}
-            className="bg-heritage-700 text-white px-4 py-3 rounded-lg shadow-lg hover:bg-heritage-800 transition-colors font-semibold text-sm flex items-center gap-2"
+            className="bg-heritage-700 text-white p-2.5 md:px-4 md:py-3 rounded-lg shadow-lg hover:bg-heritage-800 transition-colors font-semibold text-sm flex items-center justify-center md:justify-start gap-2"
             aria-label={t('map.findMyPath', currentLanguage)}
+            title={t('map.findMyPath', currentLanguage)}
           >
-            <Navigation className="w-4 h-4" />
-            {t('map.findMyPath', currentLanguage)}
+            <Navigation className="w-5 h-5 md:w-4 md:h-4" />
+            <span className="hidden md:inline">{t('map.findMyPath', currentLanguage)}</span>
           </button>
           <button
             onClick={handleClearRoute}
-            className="bg-white dark:bg-neutral-800 text-heritage-700 dark:text-heritage-300 px-4 py-3 rounded-lg shadow-lg hover:bg-heritage-50 dark:hover:bg-neutral-700 transition-colors font-semibold text-sm border border-heritage-700 dark:border-heritage-400"
+            className="bg-white dark:bg-neutral-800 text-heritage-700 dark:text-heritage-300 p-2.5 md:px-4 md:py-3 rounded-lg shadow-lg hover:bg-heritage-50 dark:hover:bg-neutral-700 transition-colors font-semibold text-sm border border-heritage-700 dark:border-heritage-400"
             aria-label={t('map.clearRoute', currentLanguage)}
+            title={t('map.clearRoute', currentLanguage)}
           >
-            {t('map.clearRoute', currentLanguage)}
+            <span className="hidden md:inline">{t('map.clearRoute', currentLanguage)}</span>
+            <span className="md:hidden text-xs">Clear</span>
           </button>
         </div>
       )}
