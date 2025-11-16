@@ -158,6 +158,68 @@ export const defaultTranslations = {
     reject: 'Reject',
     delete: 'Delete',
   },
+
+  // Auth Pages
+  auth: {
+    // Login
+    loginTitle: 'Log In',
+    loginSubtitle: 'Welcome back to Echoes',
+    emailOrUsername: 'Email or Username',
+    emailOrUsernamePlaceholder: 'username or email',
+    password: 'Password',
+    passwordPlaceholder: '••••••••',
+    loggingIn: 'Logging In...',
+    logIn: 'Log In',
+    forgotPassword: 'Forgot Password?',
+    dontHaveAccount: "Don't have an account?",
+    signUpLink: 'Sign Up',
+    
+    // Sign Up
+    signUpTitle: 'Sign Up',
+    signUpSubtitle: 'Create your Echoes account',
+    username: 'Username',
+    usernamePlaceholder: 'johndoe',
+    email: 'Email',
+    emailPlaceholder: 'you@example.com',
+    createPassword: 'Create a strong password',
+    confirmPassword: 'Confirm Password',
+    confirmPasswordPlaceholder: 'Confirm your password',
+    creatingAccount: 'Creating Account...',
+    signUp: 'Sign Up',
+    alreadyHaveAccount: 'Already have an account?',
+    loginLink: 'Log In',
+    
+    // Password Requirements
+    passwordStrengthWeak: 'Weak',
+    passwordStrengthMedium: 'Medium',
+    passwordStrengthStrong: 'Strong',
+    passwordMustContain: 'Password must contain:',
+    atLeast8Characters: 'At least 8 characters',
+    oneUppercase: 'One uppercase letter (A-Z)',
+    oneLowercase: 'One lowercase letter (a-z)',
+    oneNumber: 'One number (0-9)',
+    oneSpecial: 'One special character (!@#$%^&*)',
+    passwordsMatch: 'Passwords match',
+    passwordsDoNotMatch: 'Passwords do not match',
+    
+    // Forgot Password Modal
+    resetPassword: 'Reset Password',
+    resetPasswordDescription: "Enter your email address and we'll send you a link to reset your password.",
+    emailAddress: 'Email Address',
+    sending: 'Sending...',
+    sendResetLink: 'Send Reset Link',
+    
+    // Alerts
+    welcomeTitle: 'Welcome!',
+    welcomeMessage: 'You have successfully logged in.',
+    errorTitle: 'Error',
+    passwordsDoNotMatchError: 'Passwords do not match',
+    meetPasswordRequirements: 'Please meet all password requirements',
+    successTitle: 'Success!',
+    accountCreatedMessage: 'Account created successfully. Check your email inbox to verify it before logging in.',
+    checkYourEmailTitle: 'Check Your Email',
+    checkYourEmailMessage: "If an account exists with this email, you will receive a password reset link.<br><br><strong>Note:</strong> If you don't receive an email, please check your spam folder",
+  },
   
   // Request Location Page
   requestLocation: {

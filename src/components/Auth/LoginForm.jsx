@@ -5,11 +5,14 @@ import Swal from 'sweetalert2';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import ForgotPasswordModal from './ForgotPasswordModal';
+import useMapStore from '../../stores/mapStore';
+import { t } from '../../utils/uiTranslations';
 
 function LoginForm() {
   const navigate = useNavigate();
   const { signIn } = useAuth();
   const { isDark } = useTheme();
+  const currentLanguage = useMapStore((state) => state.currentLanguage);
   const [formData, setFormData] = useState({
     emailOrUsername: '',
     password: ''
@@ -41,8 +44,8 @@ function LoginForm() {
 
     if (result.success) {
       await Swal.fire({
-        title: 'Welcome!',
-        text: 'You have successfully logged in.',
+        title: t('auth.welcomeTitle', currentLanguage),
+        text: t('auth.welcomeMessage', currentLanguage),
         icon: 'success',
         confirmButtonColor: '#6f4e35',
         timer: 1500,
@@ -52,7 +55,7 @@ function LoginForm() {
       navigate('/map');
     } else {
       await Swal.fire({
-        title: 'Error',
+        title: t('auth.errorTitle', currentLanguage),
         text: result.error,
         icon: 'error',
         confirmButtonColor: '#6f4e35',
@@ -70,15 +73,15 @@ function LoginForm() {
             <LogIn className="w-6 h-6 text-heritage-800 dark:text-heritage-300" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Log In</h1>
-            <p className="text-neutral-600 dark:text-neutral-300">Welcome back to Echoes</p>
+            <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">{t('auth.loginTitle', currentLanguage)}</h1>
+            <p className="text-neutral-600 dark:text-neutral-300">{t('auth.loginSubtitle', currentLanguage)}</p>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">
-              Email or Username
+              {t('auth.emailOrUsername', currentLanguage)}
             </label>
             <input
               type="text"
@@ -87,13 +90,13 @@ function LoginForm() {
               onChange={handleChange}
               required
               className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
-              placeholder="username or email"
+              placeholder={t('auth.emailOrUsernamePlaceholder', currentLanguage)}
             />
           </div>
 
           <div>
             <label className="block text-sm font-semibold text-neutral-900 dark:text-white mb-2">
-              Password
+              {t('auth.password', currentLanguage)}
             </label>
             <input
               type="password"
@@ -102,7 +105,7 @@ function LoginForm() {
               onChange={handleChange}
               required
               className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:ring-2 focus:ring-heritage-500 focus:border-heritage-500 transition-colors"
-              placeholder="••••••••"
+              placeholder={t('auth.passwordPlaceholder', currentLanguage)}
             />
           </div>
 
@@ -111,7 +114,7 @@ function LoginForm() {
             disabled={loading}
             className="w-full bg-heritage-700 dark:bg-heritage-600 hover:bg-heritage-800 dark:hover:bg-heritage-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50"
           >
-            {loading ? 'Logging In...' : 'Log In'}
+            {loading ? t('auth.loggingIn', currentLanguage) : t('auth.logIn', currentLanguage)}
           </button>
         </form>
 
@@ -120,18 +123,18 @@ function LoginForm() {
             onClick={() => setShowForgotPassword(true)}
             className="text-sm text-heritage-700 dark:text-heritage-300 hover:text-heritage-800 dark:hover:text-heritage-100 font-medium transition-colors"
           >
-            Forgot Password?
+            {t('auth.forgotPassword', currentLanguage)}
           </button>
         </div>
 
         <div className="mt-6 text-center">
           <p className="text-sm text-neutral-600 dark:text-neutral-300">
-            Don't have an account?{' '}
+            {t('auth.dontHaveAccount', currentLanguage)}{' '}
             <button
               onClick={() => navigate('/signup')}
               className="text-heritage-700 dark:text-heritage-400 font-semibold hover:text-heritage-800 dark:hover:text-heritage-300"
             >
-              Sign Up
+              {t('auth.signUpLink', currentLanguage)}
             </button>
           </p>
         </div>
