@@ -504,11 +504,11 @@ This project is licensed under the **MIT License** - see the LICENSE file for de
 ## 📞 Contact & Support
 
 - **Developers**:
-  - Cristea Laur-Alexandru [@AlexandruCL]
-  - Toma Ionut-Adrian [@ionuT77] (https://github.com/ionutT77)
-  - Boros Fabian [@Skips26] (https://github.com/Skips26)
-  - Pop Patric [@patric1304] (https://github.com/patric1304)
-- **GitHub**: [@ionutT77](https://github.com/ionutT77)
+  - Cristea Laur-Alexandru [AlexandruCL] (https://github.com/AlexandruCL)
+  - Toma Ionut-Adrian [ionuT77] (https://github.com/ionutT77)
+  - Boros Fabian [Skips26] (https://github.com/Skips26)
+  - Pop Patric [patric1304] (https://github.com/patric1304)
+- **GitHub**: [ionutT77](https://github.com/ionutT77)
 - **Project**: [Echoes Digital Heritage Trail](https://github.com/ionutT77/Echoes-Digital-Heritage-Trail)
 
 ---
