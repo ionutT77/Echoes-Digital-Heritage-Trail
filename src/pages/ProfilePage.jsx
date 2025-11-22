@@ -8,7 +8,6 @@ import { fetchCulturalNodes, fetchUserDiscoveries } from '../services/nodesServi
 import { getUserRank } from '../services/leaderboardService';
 import NodeModal from '../components/Node/NodeModal';
 import AudioPlayer from '../components/Audio/AudioPlayer';
-import ActivityFeed from '../components/Activity/ActivityFeed';
 import { t, translateAllUI } from '../utils/uiTranslations';
 import { translateLocationContent } from '../services/geminiService';
 import Swal from 'sweetalert2';
@@ -460,19 +459,6 @@ function ProfilePage() {
                   <span>{t('profile.yourDiscoveries', currentLanguage)}</span>
                 </div>
               </button>
-              <button
-                onClick={() => setActiveTab('activity')}
-                className={`flex-1 px-6 py-4 font-semibold transition-colors ${
-                  activeTab === 'activity'
-                    ? 'border-b-2 border-heritage-700 dark:border-heritage-400 text-heritage-700 dark:text-heritage-400'
-                    : 'text-neutral-600 dark:text-neutral-400 hover:text-heritage-700 dark:hover:text-heritage-300'
-                }`}
-              >
-                <div className="flex items-center justify-center gap-2">
-                  <Activity className="w-5 h-5" />
-                  <span>{currentLanguage === 'ro' ? 'Activitate' : currentLanguage === 'hu' ? 'Tevékenység' : 'Activity'}</span>
-                </div>
-              </button>
             </div>
           </div>
 
@@ -814,24 +800,6 @@ function ProfilePage() {
                     })}
                   </div>
                 )}
-              </div>
-            )}
-
-            {activeTab === 'activity' && (
-              <div>
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-semibold text-neutral-900 dark:text-white">
-                    {currentLanguage === 'ro' ? 'Feed de activitate' :
-                     currentLanguage === 'hu' ? 'Tevékenységi hírfolyam' :
-                     'Activity Feed'}
-                  </h3>
-                  <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                    {currentLanguage === 'ro' ? 'Vezi ce au descoperit prietenii tăi' :
-                     currentLanguage === 'hu' ? 'Lásd mit fedeztek fel a barátaid' :
-                     'See what your friends have discovered'}
-                  </p>
-                </div>
-                <ActivityFeed limit={50} />
               </div>
             )}
           </div>
